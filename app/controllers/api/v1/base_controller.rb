@@ -1,4 +1,6 @@
 class Api::V1::BaseController < ActionController::API
+  wrap_parameters false
+
   before_action :authenticate!
 
   rescue_from ActiveRecord::RecordNotFound do
@@ -17,7 +19,10 @@ class Api::V1::BaseController < ActionController::API
     @current_session = token.present? ? Session.find_by_token(token) : nil
     return render_error(:unauthorized, "invalid_token", "Invalid or expired token") unless @current_session
 
-    @current_session.touch(:last_used_at)
+    # Throttled: sync polling would otherwise turn every request into a write.
+    if @current_session.last_used_at.nil? || @current_session.last_used_at < 5.minutes.ago
+      @current_session.touch(:last_used_at)
+    end
     @current_account = @current_session.account
   end
 
