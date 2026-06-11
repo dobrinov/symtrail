@@ -44,5 +44,13 @@ class EntryTest < ActiveSupport::TestCase
     other_profile = other.profiles.create!(name: "X", client_updated_at: Time.current)
     e = build(entry_type: "note", note: "hi", profile: other_profile)
     assert_not e.valid?
+
+    other_symptom = other.symptom_types.create!(label: "Theirs", client_updated_at: Time.current)
+    e = build(entry_type: "symptom", symptom_type: other_symptom, severity: "mild")
+    assert_not e.valid?
+
+    other_med = other.medication_types.create!(label: "Theirs", client_updated_at: Time.current)
+    e = build(entry_type: "med", medication_type: other_med)
+    assert_not e.valid?
   end
 end
