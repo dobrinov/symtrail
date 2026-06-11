@@ -1,6 +1,10 @@
 class Account < ApplicationRecord
   has_secure_password validations: false
 
+  generates_token_for :password_reset, expires_in: 30.minutes do
+    password_salt&.last(10)
+  end
+
   # Order is load-bearing: dependent deletes run in declaration order, and
   # entries hold NOT NULL/FK references to profiles and the catalogue types,
   # so entries must be deleted first or destroy! hits FK constraints.
