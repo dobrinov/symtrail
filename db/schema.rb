@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_053141) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_053431) do
   create_table "accounts", force: :cascade do |t|
     t.string "apple_user_id"
     t.datetime "created_at", null: false
@@ -21,6 +21,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_053141) do
     t.datetime "updated_at", null: false
     t.index ["apple_user_id"], name: "index_accounts_on_apple_user_id", unique: true
     t.index ["email"], name: "index_accounts_on_email", unique: true
+  end
+
+  create_table "entries", id: :string, force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.datetime "client_updated_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.string "dose"
+    t.string "entry_type", null: false
+    t.string "medication_type_id"
+    t.text "note"
+    t.string "profile_id", null: false
+    t.datetime "recorded_at", null: false
+    t.datetime "reminder_at"
+    t.bigint "server_version", default: 0, null: false
+    t.string "severity"
+    t.string "symptom_type_id"
+    t.decimal "temp_c", precision: 3, scale: 1
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "server_version"], name: "index_entries_on_account_id_and_server_version"
+    t.index ["account_id"], name: "index_entries_on_account_id"
+    t.index ["medication_type_id"], name: "index_entries_on_medication_type_id"
+    t.index ["profile_id", "recorded_at"], name: "index_entries_on_profile_id_and_recorded_at"
+    t.index ["profile_id"], name: "index_entries_on_profile_id"
+    t.index ["symptom_type_id"], name: "index_entries_on_symptom_type_id"
   end
 
   create_table "medication_types", id: :string, force: :cascade do |t|
@@ -84,6 +109,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_053141) do
     t.index ["account_id"], name: "index_symptom_types_on_account_id"
   end
 
+  add_foreign_key "entries", "accounts"
+  add_foreign_key "entries", "medication_types"
+  add_foreign_key "entries", "profiles"
+  add_foreign_key "entries", "symptom_types"
   add_foreign_key "medication_types", "accounts"
   add_foreign_key "profiles", "accounts"
   add_foreign_key "sessions", "accounts"
