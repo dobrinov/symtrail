@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_051750) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_052440) do
   create_table "accounts", force: :cascade do |t|
     t.string "apple_user_id"
     t.datetime "created_at", null: false
@@ -22,4 +22,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_051750) do
     t.index ["apple_user_id"], name: "index_accounts_on_apple_user_id", unique: true
     t.index ["email"], name: "index_accounts_on_email", unique: true
   end
+
+  create_table "sessions", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.datetime "created_at", null: false
+    t.string "device_name"
+    t.datetime "last_used_at"
+    t.string "token_digest", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_sessions_on_account_id"
+    t.index ["token_digest"], name: "index_sessions_on_token_digest", unique: true
+  end
+
+  add_foreign_key "sessions", "accounts"
 end
