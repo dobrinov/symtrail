@@ -13,6 +13,10 @@ module Sync
     end
 
     def call
+      # Cursor is read BEFORE the table queries: a write landing mid-pull then
+      # has version > cursor and is re-delivered next pull (harmless duplicate
+      # upsert). Reading it after would let that row be skipped forever.
+      cursor = @account.reload.sync_version
       changes = TABLES.transform_values do |klass|
         rows = klass.where(account: @account).changed_since(@since)
         {
@@ -20,7 +24,7 @@ module Sync
           "deleted" => rows.where.not(deleted_at: nil).pluck(:id)
         }
       end
-      { "changes" => changes, "cursor" => @account.reload.sync_version }
+      { "changes" => changes, "cursor" => cursor }
     end
   end
 end
