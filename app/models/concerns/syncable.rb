@@ -16,7 +16,8 @@ module Syncable
     save!(validate: false)
   end
 
+  # JSON-safe (dates/times as ISO 8601 strings) regardless of serializer.
   def sync_json
-    attributes.slice("id", "client_updated_at", *self.class::SYNC_ATTRIBUTES)
+    as_json(only: ["id", "client_updated_at", *self.class::SYNC_ATTRIBUTES])
   end
 end
