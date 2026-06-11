@@ -4,7 +4,11 @@ class Api::V1::SyncController < Api::V1::BaseController
   end
 
   def push
-    changes = params.require(:changes).to_unsafe_h
-    render json: Sync::Push.new(current_account, changes: changes).call
+    changes = params.require(:changes)
+    unless changes.respond_to?(:to_unsafe_h)
+      return render_error :unprocessable_entity, "validation_failed", "changes must be an object"
+    end
+
+    render json: Sync::Push.new(current_account, changes: changes.to_unsafe_h).call
   end
 end

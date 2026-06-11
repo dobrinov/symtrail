@@ -89,4 +89,22 @@ class SyncPushTest < ActionDispatch::IntegrationTest
     push({ "profiles" => { "updated" => [profile_record("client_updated_at" => "not a date")] } })
     assert_equal "invalid", json["rejected"].first["reason"]
   end
+
+  test "malformed payload shapes are rejected without a 500" do
+    push({ "profiles" => { "updated" => [42] } })
+    assert_response :success
+    assert_equal "invalid", json["rejected"].first["reason"]
+
+    push({ "profiles" => { "updated" => { "id" => "x" } } })
+    assert_response :success
+    assert_equal({ "accepted" => [], "rejected" => [] }, json)
+
+    push({ "profiles" => { "deleted" => [{ "x" => 1 }] } })
+    assert_response :success
+    assert_equal "invalid", json["rejected"].first["reason"]
+
+    push("garbage")
+    assert_response :unprocessable_entity
+    assert_equal "validation_failed", json.dig("error", "code")
+  end
 end

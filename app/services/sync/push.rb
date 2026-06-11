@@ -16,9 +16,11 @@ module Sync
       ActiveRecord::Base.transaction do
         APPLY_ORDER.each do |table|
           klass = Pull::TABLES.fetch(table)
-          table_changes = @changes[table] || {}
-          Array(table_changes["updated"]).each { |attrs| apply_update(klass, attrs) }
-          Array(table_changes["deleted"]).each { |id| apply_delete(klass, id) }
+          table_changes = @changes[table]
+          next unless table_changes.is_a?(Hash)
+
+          as_array(table_changes["updated"]).each { |attrs| apply_update(klass, attrs) }
+          as_array(table_changes["deleted"]).each { |id| apply_delete(klass, id) }
         end
       end
       { "accepted" => @accepted, "rejected" => @rejected }
@@ -27,6 +29,8 @@ module Sync
     private
 
     def apply_update(klass, attrs)
+      return reject(nil, "invalid") unless attrs.is_a?(Hash)
+
       id = attrs["id"].to_s
       incoming_at = parse_time(attrs["client_updated_at"])
       return reject(id, "invalid") if id.blank? || incoming_at.nil?
@@ -49,6 +53,8 @@ module Sync
     end
 
     def apply_delete(klass, id)
+      return reject(nil, "invalid") unless id.is_a?(String) && id.present?
+
       record = klass.where(account: @account).find_by(id: id)
       record&.soft_delete!
       @accepted << id # absent record means already gone: idempotent success
@@ -62,6 +68,11 @@ module Sync
       Time.zone.parse(value.to_s)
     rescue ArgumentError
       nil
+    end
+
+    # Array() splats a Hash into [key, value] pairs — treat non-arrays as empty.
+    def as_array(value)
+      value.is_a?(Array) ? value : []
     end
   end
 end
