@@ -1,0 +1,23 @@
+app = "symtrail"
+primary_region = "ams"
+
+[build]
+
+[env]
+  SQLITE_DIR = "/data"
+  SOLID_QUEUE_IN_PUMA = "true"
+  APPLE_BUNDLE_ID = "com.symtrail.app"
+
+[mounts]
+  source = "symtrail_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  min_machines_running = 1
+
+[checks.health]
+  port = 3000
+  type = "http"
+  path = "/up"

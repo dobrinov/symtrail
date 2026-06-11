@@ -56,3 +56,5 @@ end
 gem "bcrypt", "~> 3.1"
 gem "jwt", "~> 3.2"
 gem "rack-attack", "~> 6.8"
+
+gem "litestream", "~> 0.14.0"
