@@ -48,6 +48,30 @@ class PasswordResetTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
+  test "confirm with blank or missing password is rejected, token stays unused" do
+    request_reset("parent@example.com")
+    token = ActionMailer::Base.deliveries.last.body.to_s[/token: (\S+)/, 1]
+
+    post "/api/v1/auth/password_reset/confirm", params: { token: token, password: "" }
+    assert_response :unprocessable_entity
+    post "/api/v1/auth/password_reset/confirm", params: { token: token }
+    assert_response :unprocessable_entity
+    assert @account.reload.password_digest.present?
+
+    # Token must still work after the rejected attempts.
+    post "/api/v1/auth/password_reset/confirm", params: { token: token, password: "newsecret9" }
+    assert_response :ok
+    assert @account.reload.authenticate("newsecret9")
+  end
+
+  test "confirm with too-short password returns 422" do
+    request_reset("parent@example.com")
+    token = ActionMailer::Base.deliveries.last.body.to_s[/token: (\S+)/, 1]
+    post "/api/v1/auth/password_reset/confirm", params: { token: token, password: "short" }
+    assert_response :unprocessable_entity
+    assert_equal "validation_failed", json.dig("error", "code")
+  end
+
   test "confirm revokes existing sessions" do
     _s, old_token = Session.start!(account: @account)
     request_reset("parent@example.com")

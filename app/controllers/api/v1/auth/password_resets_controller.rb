@@ -11,10 +11,13 @@ class Api::V1::Auth::PasswordResetsController < Api::V1::BaseController
   end
 
   def confirm
+    # Blank password would otherwise pass update() — nil wipes the digest
+    # (permanent lockout), "" is a silent no-op that leaves the token live.
+    password = params.require(:password)
     account = Account.find_by_token_for(:password_reset, params[:token].to_s)
-    return render_error(:unauthorized, "invalid_reset_token", "Invalid or expired reset token") unless account
+    return render_error(:unauthorized, "invalid_reset_token", "Invalid or expired reset token") unless account&.password_digest.present?
 
-    if account.update(password: params[:password])
+    if account.update(password: password)
       account.sessions.delete_all
       head :ok
     else
