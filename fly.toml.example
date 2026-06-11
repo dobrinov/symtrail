@@ -1,3 +1,9 @@
+# Secrets are set via `fly secrets set`, never committed:
+#   RAILS_MASTER_KEY
+#   LITESTREAM_REPLICA_BUCKET, LITESTREAM_ACCESS_KEY_ID, LITESTREAM_SECRET_ACCESS_KEY
+#     (verify the S3 credentials before setting these — the litestream puma
+#      plugin shuts the web process down if the replication process dies)
+#   SMTP credentials for the mail provider
 app = "symtrail"
 primary_region = "ams"
 

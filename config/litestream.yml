@@ -9,22 +9,26 @@
 # `replicate` command.
 #
 # For more details, see: https://litestream.io/reference/config/
+#
+# $VAR references are expanded by the litestream binary itself (NOT Ruby ERB —
+# ERB here would be passed through literally and silently match no files).
+# SQLITE_DIR must be set in the environment where litestream runs.
 dbs:
-  - path: <%= ENV.fetch("SQLITE_DIR", "storage") %>/production.sqlite3
+  - path: $SQLITE_DIR/production.sqlite3
     replicas:
       - type: s3
         bucket: $LITESTREAM_REPLICA_BUCKET
         path: production
         access-key-id: $LITESTREAM_ACCESS_KEY_ID
         secret-access-key: $LITESTREAM_SECRET_ACCESS_KEY
-  - path: <%= ENV.fetch("SQLITE_DIR", "storage") %>/production_cache.sqlite3
+  - path: $SQLITE_DIR/production_cache.sqlite3
     replicas:
       - type: s3
         bucket: $LITESTREAM_REPLICA_BUCKET
         path: production_cache
         access-key-id: $LITESTREAM_ACCESS_KEY_ID
         secret-access-key: $LITESTREAM_SECRET_ACCESS_KEY
-  - path: <%= ENV.fetch("SQLITE_DIR", "storage") %>/production_queue.sqlite3
+  - path: $SQLITE_DIR/production_queue.sqlite3
     replicas:
       - type: s3
         bucket: $LITESTREAM_REPLICA_BUCKET
