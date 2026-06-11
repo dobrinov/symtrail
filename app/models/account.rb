@@ -1,6 +1,9 @@
 class Account < ApplicationRecord
   has_secure_password validations: false
 
+  # Order is load-bearing: dependent deletes run in declaration order, and
+  # entries hold NOT NULL/FK references to profiles and the catalogue types,
+  # so entries must be deleted first or destroy! hits FK constraints.
   has_many :sessions, dependent: :delete_all
   has_many :entries, dependent: :delete_all
   has_many :profiles, dependent: :delete_all

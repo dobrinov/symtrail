@@ -17,11 +17,17 @@ class AccountApiTest < ActionDispatch::IntegrationTest
     patch "/api/v1/account", params: { settings: { temp_unit: "kelvin" } },
                              headers: auth_headers(@token)
     assert_response :unprocessable_entity
+    assert_equal "validation_failed", json.dig("error", "code")
   end
 
   test "account deletion removes all data" do
     profile = @account.profiles.create!(name: "Leo", client_updated_at: Time.current)
     @account.entries.create!(profile: profile, entry_type: "note", note: "hi",
+                             recorded_at: Time.current, client_updated_at: Time.current)
+    # Symptom entry pins the association deletion order (entries reference
+    # catalogue types and profiles via FKs).
+    @account.entries.create!(profile: profile, entry_type: "symptom", severity: "mild",
+                             symptom_type: @account.symptom_types.first!,
                              recorded_at: Time.current, client_updated_at: Time.current)
     delete "/api/v1/account", headers: auth_headers(@token)
     assert_response :no_content
