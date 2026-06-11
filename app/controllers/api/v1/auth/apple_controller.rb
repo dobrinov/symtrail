@@ -24,6 +24,9 @@ class Api::V1::Auth::AppleController < Api::V1::BaseController
       existing = Account.find_by(email: claims[:email].downcase)
       if existing
         existing.update!(apple_user_id: claims[:apple_user_id])
+        # Signup doesn't verify email, so this account could have been
+        # pre-registered by someone else: drop any live sessions on link.
+        existing.sessions.delete_all
         return existing
       end
     end

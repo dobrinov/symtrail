@@ -14,7 +14,7 @@ class AppleTokenVerifier
       payload, _header = JWT.decode(
         identity_token.to_s, nil, true,
         algorithms: ["RS256"],
-        jwks: ->(_opts) { JWT::JWK::Set.new(jwks) },
+        jwks: ->(opts) { JWT::JWK::Set.new(jwks(force: opts[:invalidate])) },
         iss: ISSUER, verify_iss: true,
         aud: ENV.fetch("APPLE_BUNDLE_ID"), verify_aud: true
       )
@@ -27,8 +27,10 @@ class AppleTokenVerifier
 
     private
 
-    def jwks
-      @stub_jwks || Rails.cache.fetch("apple_jwks", expires_in: 12.hours) do
+    # force: refetch on unknown kid so Apple key rotation doesn't 401
+    # users until the cache expires.
+    def jwks(force: false)
+      @stub_jwks || Rails.cache.fetch("apple_jwks", expires_in: 12.hours, force: force) do
         JSON.parse(Net::HTTP.get(URI(JWKS_URL)))
       end
     end

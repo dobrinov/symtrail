@@ -43,6 +43,15 @@ class AppleSigninTest < ActionDispatch::IntegrationTest
     assert_equal "apple-user-1", existing.reload.apple_user_id
   end
 
+  test "linking revokes the email account's existing sessions" do
+    existing = Account.create!(email: "parent@example.com", password: "secret123")
+    _s, old_token = Session.start!(account: existing, device_name: "old phone")
+    post "/api/v1/auth/apple", params: { identity_token: apple_token }
+    assert_response :ok
+    get "/api/v1/account", headers: auth_headers(old_token)
+    assert_response :unauthorized
+  end
+
   test "rejects token with wrong audience" do
     post "/api/v1/auth/apple", params: { identity_token: apple_token(aud: "com.evil.app") }
     assert_response :unauthorized
