@@ -24,9 +24,10 @@ class AccountTest < ActiveSupport::TestCase
 
   test "next_sync_version! increments atomically and returns the new value" do
     account = Account.create!(email: "a@example.com", password: "secret123")
-    assert_equal 1, account.next_sync_version!
-    assert_equal 2, account.next_sync_version!
-    assert_equal 2, account.reload.sync_version
+    v1 = account.next_sync_version!
+    v2 = account.next_sync_version!
+    assert_equal v1 + 1, v2
+    assert_equal v2, account.reload.sync_version
   end
 
   test "default settings" do

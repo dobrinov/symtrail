@@ -15,6 +15,8 @@ class Account < ApplicationRecord
   validates :password, presence: true, on: :create, unless: :apple_user_id?
   validates :password, length: { minimum: 8 }, allow_nil: true
 
+  after_create { Catalogue.seed!(self) }
+
   # Atomically allocate the next per-account sync version. SQLite is
   # single-writer, so a SQL-level increment is race-free. Refreshes only
   # sync_version (no full reload), preserving callers' unsaved changes.
