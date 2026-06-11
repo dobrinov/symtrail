@@ -3,6 +3,8 @@ class Account < ApplicationRecord
 
   has_many :sessions, dependent: :delete_all
   has_many :profiles, dependent: :delete_all
+  has_many :symptom_types, dependent: :delete_all
+  has_many :medication_types, dependent: :delete_all
 
   normalizes :email, with: ->(e) { e.strip.downcase }
 

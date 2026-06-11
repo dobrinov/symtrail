@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_052742) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_053141) do
   create_table "accounts", force: :cascade do |t|
     t.string "apple_user_id"
     t.datetime "created_at", null: false
@@ -21,6 +21,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_052742) do
     t.datetime "updated_at", null: false
     t.index ["apple_user_id"], name: "index_accounts_on_apple_user_id", unique: true
     t.index ["email"], name: "index_accounts_on_email", unique: true
+  end
+
+  create_table "medication_types", id: :string, force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.string "brand"
+    t.boolean "builtin", default: false, null: false
+    t.datetime "client_updated_at", null: false
+    t.string "color"
+    t.datetime "created_at", null: false
+    t.string "default_dose"
+    t.datetime "deleted_at"
+    t.string "form"
+    t.string "kind"
+    t.string "label", null: false
+    t.bigint "server_version", default: 0, null: false
+    t.string "strength"
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "server_version"], name: "index_medication_types_on_account_id_and_server_version"
+    t.index ["account_id"], name: "index_medication_types_on_account_id"
   end
 
   create_table "profiles", id: :string, force: :cascade do |t|
@@ -50,6 +69,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_052742) do
     t.index ["token_digest"], name: "index_sessions_on_token_digest", unique: true
   end
 
+  create_table "symptom_types", id: :string, force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.boolean "builtin", default: false, null: false
+    t.datetime "client_updated_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.string "group_name"
+    t.string "icon"
+    t.string "label", null: false
+    t.bigint "server_version", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "server_version"], name: "index_symptom_types_on_account_id_and_server_version"
+    t.index ["account_id"], name: "index_symptom_types_on_account_id"
+  end
+
+  add_foreign_key "medication_types", "accounts"
   add_foreign_key "profiles", "accounts"
   add_foreign_key "sessions", "accounts"
+  add_foreign_key "symptom_types", "accounts"
 end
