@@ -1,6 +1,9 @@
 class Account < ApplicationRecord
   has_secure_password validations: false
 
+  has_many :sessions, dependent: :delete_all
+  has_many :profiles, dependent: :delete_all
+
   normalizes :email, with: ->(e) { e.strip.downcase }
 
   validates :email, presence: true, uniqueness: true,

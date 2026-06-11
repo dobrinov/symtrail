@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_052440) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_052742) do
   create_table "accounts", force: :cascade do |t|
     t.string "apple_user_id"
     t.datetime "created_at", null: false
@@ -21,6 +21,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_052440) do
     t.datetime "updated_at", null: false
     t.index ["apple_user_id"], name: "index_accounts_on_apple_user_id", unique: true
     t.index ["email"], name: "index_accounts_on_email", unique: true
+  end
+
+  create_table "profiles", id: :string, force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.date "birth_date"
+    t.datetime "client_updated_at", null: false
+    t.string "color"
+    t.string "condition"
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.string "name", null: false
+    t.bigint "server_version", default: 0, null: false
+    t.string "sex"
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "server_version"], name: "index_profiles_on_account_id_and_server_version"
+    t.index ["account_id"], name: "index_profiles_on_account_id"
   end
 
   create_table "sessions", force: :cascade do |t|
@@ -34,5 +50,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_052440) do
     t.index ["token_digest"], name: "index_sessions_on_token_digest", unique: true
   end
 
+  add_foreign_key "profiles", "accounts"
   add_foreign_key "sessions", "accounts"
 end
