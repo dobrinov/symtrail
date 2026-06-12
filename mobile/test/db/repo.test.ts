@@ -67,6 +67,15 @@ test("upsertFromServer parses temp_c strings from the server", () => {
   expect(repo.getEntry("e1")?.tempC).toBe(38.5);
 });
 
+test("upsertFromServer ignores columns the local schema doesn't know", () => {
+  const repo = setup();
+  repo.upsertFromServer("profiles", {
+    id: "p1", name: "Leo", client_updated_at: "2026-06-01T00:00:00Z",
+    some_future_field: "from a newer server", // must not error the INSERT
+  });
+  expect(repo.getProfile("p1")?.name).toBe("Leo");
+});
+
 test("sync meta get/set roundtrip", () => {
   const repo = setup();
   expect(repo.getMeta("cursor")).toBeNull();

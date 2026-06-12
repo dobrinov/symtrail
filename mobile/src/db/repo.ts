@@ -199,9 +199,15 @@ export class Repo {
     const existing = this.db.get<{ dirty: number }>(`SELECT dirty FROM ${table} WHERE id = ?`, [record.id]);
     if (existing && existing.dirty === 1) return; // unpushed local edit wins
 
+    // Whitelist against the local schema: a newer server may send columns an
+    // older app doesn't know yet, and an unknown column would error the INSERT
+    // and break sync for everyone on the old version.
+    const known = new Set(
+      this.db.all<{ name: string }>(`PRAGMA table_info(${table})`).map((r) => r.name),
+    );
     const merged: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(record)) {
-      if (v === undefined) continue;
+      if (v === undefined || !known.has(k)) continue;
       merged[k] = fromServerValue(k, v);
     }
     merged.dirty = 0;
