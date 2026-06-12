@@ -107,3 +107,45 @@ test("401 triggers the onUnauthorized callback", async () => {
   await sync.syncNow();
   expect(onUnauthorized).toHaveBeenCalled();
 });
+
+test("pull does not resurrect an unpushed local delete", async () => {
+  const server = new FakeServer();
+  const a = device(server, "a");
+  const b = device(server, "b");
+  const p = a.repo.createProfile({ name: "Leo" });
+  await a.sync.syncNow();
+  await b.sync.syncNow();
+
+  // B deletes locally (offline); A edits and pushes the same profile.
+  b.repo.deleteRecord("profiles", p.id);
+  a.repo.updateProfile(p.id, { name: "Leo A" });
+  await a.sync.syncNow();
+
+  // B pulls without pushing first: the pending delete must survive.
+  await b.sync.pullOnly();
+  expect(b.repo.getProfile(p.id)).toBeNull();
+  const row = b.repo.db.get<{ pending_delete: number }>(
+    "SELECT pending_delete FROM profiles WHERE id = ?", [p.id]);
+  expect(row?.pending_delete).toBe(1);
+});
+
+test("incoming tombstone does not destroy a locally dirty edit", async () => {
+  const server = new FakeServer();
+  const a = device(server, "a");
+  const b = device(server, "b");
+  const p = a.repo.createProfile({ name: "Leo" });
+  await a.sync.syncNow();
+  await b.sync.syncNow();
+
+  // A deletes and pushes; B edits locally and pulls before pushing.
+  a.repo.deleteRecord("profiles", p.id);
+  await a.sync.syncNow();
+  b.repo.updateProfile(p.id, { name: "Leo edited" });
+  await b.sync.pullOnly();
+
+  // B's dirty edit survives the tombstone; its next push resurrects server-side.
+  expect(b.repo.getProfile(p.id)?.name).toBe("Leo edited");
+  await b.sync.syncNow();
+  expect(server.tables.profiles.get(p.id)?.deleted_at).toBeNull();
+  expect(server.tables.profiles.get(p.id)?.name).toBe("Leo edited");
+});

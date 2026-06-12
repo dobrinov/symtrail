@@ -196,8 +196,11 @@ export class Repo {
   }
 
   upsertFromServer(table: SyncTable, record: Record<string, unknown>): void {
-    const existing = this.db.get<{ dirty: number }>(`SELECT dirty FROM ${table} WHERE id = ?`, [record.id]);
-    if (existing && existing.dirty === 1) return; // unpushed local edit wins
+    const existing = this.db.get<{ dirty: number; pending_delete: number }>(
+      `SELECT dirty, pending_delete FROM ${table} WHERE id = ?`, [record.id],
+    );
+    // Unpushed local edit or delete wins until pushed (push resolves via LWW).
+    if (existing && (existing.dirty === 1 || existing.pending_delete === 1)) return;
 
     // Whitelist against the local schema: a newer server may send columns an
     // older app doesn't know yet, and an unknown column would error the INSERT

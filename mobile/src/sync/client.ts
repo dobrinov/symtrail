@@ -101,7 +101,16 @@ export class SyncClient {
       const tc = res.changes[table];
       if (!tc) continue;
       for (const rec of tc.updated) this.repo.upsertFromServer(table, rec);
-      for (const id of tc.deleted) this.repo.hardDelete(table, id);
+      for (const id of tc.deleted) {
+        // A locally dirty row survives an incoming tombstone: the next push
+        // resurrects it server-side (matching the backend's LWW semantics,
+        // where an update clears deleted_at).
+        const local = this.repo.db.get<{ dirty: number }>(
+          `SELECT dirty FROM ${table} WHERE id = ?`, [id],
+        );
+        if (local?.dirty === 1) continue;
+        this.repo.hardDelete(table, id);
+      }
     }
     this.repo.setMeta("cursor", String(res.cursor));
   }
