@@ -259,7 +259,20 @@ export class Repo {
       values.push(toSqlValue(v));
     }
     sets.push("client_updated_at = ?", "dirty = 1");
-    values.push(this.nowIso(), id);
+    values.push(this.nextStamp(table, id), id);
     this.db.run(`UPDATE ${table} SET ${sets.join(", ")} WHERE id = ?`, values);
+  }
+
+  // Hybrid-logical-clock stamp: an edit must outrank the timestamp this device
+  // has already seen on the row, or a device with a lagging wall clock would
+  // have its own newest edit rejected as "stale" by the server's LWW.
+  private nextStamp(table: SyncTable, id: string): string {
+    const now = this.nowIso();
+    const row = this.db.get<{ client_updated_at: string }>(
+      `SELECT client_updated_at FROM ${table} WHERE id = ?`, [id],
+    );
+    const prev = row ? Date.parse(row.client_updated_at) : NaN;
+    if (Number.isNaN(prev) || Date.parse(now) > prev) return now;
+    return new Date(prev + 1).toISOString();
   }
 }
