@@ -2,22 +2,21 @@ import React from "react";
 import { useRouter } from "expo-router";
 import { useServices } from "../../AppServices";
 import { useAuthNavigation } from "../../session/useAuthGate";
-import { SignInScreen } from "../../screens/auth/SignInScreen";
+import { SignUpScreen } from "../../screens/auth/SignUpScreen";
 
-export default function SignInRoute() {
+export default function SignUpRoute() {
   const services = useServices();
   const { onSignedIn } = useAuthNavigation();
   const router = useRouter();
   return (
-    <SignInScreen
+    <SignUpScreen
       api={services.api}
       sessionSignedIn={(token, account) => services.session.signedIn(token, account)}
       onSignedIn={(token) => {
         onSignedIn(token);
         services.sync.syncNow(); // initial since=0 pull seeds catalogues
       }}
-      goToSignUp={() => router.push("/(auth)/sign-up")}
-      goToReset={() => router.push("/(auth)/reset")}
+      goToSignIn={() => router.replace("/(auth)/sign-in")}
     />
   );
 }
