@@ -4,6 +4,7 @@ import React from "react";
 import { Tabs } from "expo-router";
 import type { BottomTabBarProps } from "expo-router/js-tabs";
 import { TabBar } from "../../design/TabBar";
+import { LogSheetHost } from "../../screens/log/LogSheetHost";
 import { LogSheetProvider, useLogSheet } from "../../state/LogSheetContext";
 
 // route name (expo-router) → TabBar key
@@ -47,6 +48,7 @@ export default function TabsLayout(): React.JSX.Element {
         <Tabs.Screen name="meds" />
         <Tabs.Screen name="profile" />
       </Tabs>
+      <LogSheetHost />
     </LogSheetProvider>
   );
 }
