@@ -120,6 +120,16 @@ export class Repo {
     return this.db.all(`SELECT * FROM profiles WHERE ${ALIVE} ORDER BY rowid`).map(mapProfile);
   }
 
+  // Marks the profile AND its entries pending_delete so the next sync push
+  // tombstones both. The backend deletes children-first via association order
+  // and would reject orphaned entries / FK; locally we mark both up front.
+  deleteProfileCascade(profileId: string): void {
+    this.db.run(`UPDATE entries SET pending_delete = 1 WHERE profile_id = ?`, [profileId]);
+    this.db.run(`UPDATE profiles SET pending_delete = 1 WHERE id = ?`, [profileId]);
+    emitTableChange("entries");
+    emitTableChange("profiles");
+  }
+
   // ----- catalogues -----
 
   createSymptomType(p: { label: string; icon?: string | null; groupName?: string | null }): SymptomType {
