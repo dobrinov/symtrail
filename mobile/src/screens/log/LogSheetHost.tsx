@@ -37,6 +37,8 @@ export function LogSheetHost(): React.JSX.Element | null {
   const entry = useQuery(["entries"], () => (entryId ? repo.getEntry(entryId) : null));
   const profile = useQuery(["profiles"], () => (profileId ? repo.getProfile(profileId) : null));
   const isPfapa = profile?.condition === "PFAPA";
+  // Subscribe to sync_meta so a unit change re-renders the open sheet.
+  const tempUnit = useQuery(["sync_meta"], () => session.tempUnit());
 
   const afterSave = () => {
     scheduleSync();
@@ -74,22 +76,22 @@ export function LogSheetHost(): React.JSX.Element | null {
         state.logType === "symptom" ? (
           <LogSymptom repo={repo} profileId={profileId} onSaved={afterSave} initialDate={state.presetDateIso} isPfapa={isPfapa} />
         ) : state.logType === "temp" ? (
-          <LogTemp repo={repo} profileId={profileId} onSaved={afterSave} initialDate={state.presetDateIso} />
+          <LogTemp repo={repo} profileId={profileId} onSaved={afterSave} initialDate={state.presetDateIso} tempUnit={tempUnit} />
         ) : (
           <LogMed repo={repo} profileId={profileId} onSaved={afterSave} initialDate={state.presetDateIso} scheduleReminder={scheduleReminder} cancelReminder={cancelReminder} />
         )
       ) : null}
 
       {state.mode === "detail" && entry ? (
-        <EntryDetail repo={repo} entry={entry} onEdit={() => editEntry(entry.id)} onDelete={onDelete} />
+        <EntryDetail repo={repo} entry={entry} onEdit={() => editEntry(entry.id)} onDelete={onDelete} tempUnit={tempUnit} />
       ) : null}
 
       {state.mode === "edit" && entry ? (
-        <EditEntry repo={repo} entry={entry} onSaved={afterSave} isPfapa={isPfapa} scheduleReminder={scheduleReminder} cancelReminder={cancelReminder} />
+        <EditEntry repo={repo} entry={entry} onSaved={afterSave} tempUnit={tempUnit} isPfapa={isPfapa} scheduleReminder={scheduleReminder} cancelReminder={cancelReminder} />
       ) : null}
 
       {state.mode === "flare" && profileId ? (
-        <FlareDetailScreen repo={repo} profileId={profileId} flare={state.flare} tempUnit={session.tempUnit()} />
+        <FlareDetailScreen repo={repo} profileId={profileId} flare={state.flare} tempUnit={tempUnit} />
       ) : null}
     </Sheet>
   );

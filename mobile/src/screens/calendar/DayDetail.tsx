@@ -31,11 +31,12 @@ export function DayDetail(props: {
   repo: Repo;
   entries: Entry[];
   dayIso: string;
+  tempUnit?: "c" | "f";
   onOpenEntry: (id: string) => void;
   onAddToDay: (dayIso: string) => void;
   onOpenFlare?: () => void;
 }): React.JSX.Element {
-  const { repo, entries, dayIso } = props;
+  const { repo, entries, dayIso, tempUnit = "c" } = props;
 
   const lookups = useQuery(["symptom_types", "medication_types"], () => ({
     symptomTypes: new Map(repo.listSymptomTypes().map((s) => [s.id, s])),
@@ -61,6 +62,7 @@ export function DayDetail(props: {
               entry={e}
               symptomTypes={lookups.symptomTypes}
               medTypes={lookups.medTypes}
+              tempUnit={tempUnit}
               last={i === days.length - 1}
               onPress={() => props.onOpenEntry(e.id)}
             />
@@ -88,12 +90,14 @@ function Row({
   entry,
   symptomTypes,
   medTypes,
+  tempUnit,
   last,
   onPress,
 }: {
   entry: Entry;
   symptomTypes: Map<string, { label: string; icon: string | null }>;
   medTypes: Map<string, { label: string; form: string | null; color: string | null }>;
+  tempUnit: "c" | "f";
   last: boolean;
   onPress: () => void;
 }): React.JSX.Element {
@@ -106,7 +110,7 @@ function Row({
   let glyphColor: string;
   if (entry.entryType === "temp") {
     const sev = SEVERITY[tempToSeverity(entry.tempC)];
-    title = entry.tempC != null ? formatTemp(entry.tempC, "c") : "Temperature";
+    title = entry.tempC != null ? formatTemp(entry.tempC, tempUnit) : "Temperature";
     glyphIcon = "fever";
     glyphBg = sev.key === "none" ? sev.color : sev.color + "33";
     glyphColor = sev.key === "none" ? TOKENS.balance : sev.dot;

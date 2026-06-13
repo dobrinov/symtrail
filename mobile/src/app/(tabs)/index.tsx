@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useServices } from "../../AppServices";
+import { useQuery } from "../../db/useQuery";
 import { Sheet } from "../../design/Sheet";
 import { TOKENS } from "../../design/tokens";
 import { ProfileSwitcher } from "../../screens/today/ProfileSwitcher";
@@ -11,9 +12,11 @@ import { useActiveProfile } from "../../state/activeProfile";
 import { useLogSheet } from "../../state/LogSheetContext";
 
 export default function Today(): React.JSX.Element {
-  const { repo, sync } = useServices();
+  const { repo, sync, session } = useServices();
   const router = useRouter();
   const { openLog, openEntry, openFlare } = useLogSheet();
+  // Subscribe to sync_meta so a unit change re-renders this route.
+  const tempUnit = useQuery(["sync_meta"], () => session.tempUnit());
   const [profileId, setActiveProfile] = useActiveProfile(repo);
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -37,6 +40,7 @@ export default function Today(): React.JSX.Element {
           onLog={() => openLog()}
           onOpenEntry={(id) => openEntry(id)}
           onOpenFlare={(flare) => openFlare(flare)}
+          tempUnit={tempUnit}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}
         />
       ) : (

@@ -1,4 +1,5 @@
 import { Repo } from "../db/repo";
+import { emitTableChange } from "../db/events";
 import { AccountJson } from "../api/types";
 
 export interface SecureKV {
@@ -30,7 +31,11 @@ export class SessionStore {
   }
 
   tempUnit(): "c" | "f" { return (this.repo.getMeta("temp_unit") as "c" | "f") ?? "c"; }
-  setTempUnit(u: "c" | "f"): void { this.repo.setMeta("temp_unit", u); }
+  setTempUnit(u: "c" | "f"): void {
+    this.repo.setMeta("temp_unit", u);
+    // setMeta doesn't emit, so notify subscribers to re-render temp surfaces.
+    emitTableChange("sync_meta");
+  }
   accountEmail(): string | null { return this.repo.getMeta("account_email"); }
 }
 

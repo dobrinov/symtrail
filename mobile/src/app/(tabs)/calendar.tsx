@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useServices } from "../../AppServices";
+import { useQuery } from "../../db/useQuery";
 import { TOKENS } from "../../design/tokens";
 import { CalendarScreen } from "../../screens/calendar/CalendarScreen";
 import { useActiveProfile } from "../../state/activeProfile";
@@ -26,10 +27,12 @@ function dayIsoAtNow(dayIso: string): string {
 }
 
 export default function Calendar(): React.JSX.Element {
-  const { repo, sync } = useServices();
+  const { repo, sync, session } = useServices();
   const { openLog, openEntry, openFlare } = useLogSheet();
   const [profileId] = useActiveProfile(repo);
   const [refreshing, setRefreshing] = useState(false);
+  // Subscribe to sync_meta so a unit change re-renders this route.
+  const tempUnit = useQuery(["sync_meta"], () => session.tempUnit());
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -49,6 +52,7 @@ export default function Calendar(): React.JSX.Element {
           onAddToDay={(dayIso) => openLog(dayIsoAtNow(dayIso))}
           onOpenEntry={(id) => openEntry(id)}
           onOpenFlare={(flare) => openFlare(flare)}
+          tempUnit={tempUnit}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}
         />
       ) : (

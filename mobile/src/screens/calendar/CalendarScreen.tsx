@@ -74,9 +74,10 @@ export function CalendarScreen(props: {
   onAddToDay: (dayIso: string) => void;
   onOpenEntry: (entryId: string) => void;
   onOpenFlare?: (flare: Flare) => void;
+  tempUnit?: "c" | "f";
   refreshControl?: React.ReactElement<RefreshControlProps>;
 }): React.JSX.Element {
-  const { repo, profileId } = props;
+  const { repo, profileId, tempUnit = "c" } = props;
   const insets = useSafeAreaInsets();
   const now = new Date();
   const todayIso = todayKeyUtc(now);
@@ -84,7 +85,7 @@ export function CalendarScreen(props: {
   const [view, setView] = useState(() => ({ year: now.getUTCFullYear(), month: now.getUTCMonth() }));
   const [selectedDay, setSelectedDay] = useState<string | null>(todayIso);
 
-  const data = useQuery(["entries", "profiles", "symptom_types"], () => {
+  const data = useQuery(["entries", "profiles", "symptom_types", "sync_meta"], () => {
     const profile = repo.getProfile(profileId);
     const entries = profile ? repo.listEntries(profile.id) : [];
     return { profile, entries, symptomTypes: new Map(repo.listSymptomTypes().map((s) => [s.id, s])) };
@@ -150,6 +151,7 @@ export function CalendarScreen(props: {
             repo={repo}
             entries={entries}
             dayIso={selectedDay}
+            tempUnit={tempUnit}
             onOpenEntry={props.onOpenEntry}
             onAddToDay={props.onAddToDay}
             onOpenFlare={selectedFlare && props.onOpenFlare ? () => props.onOpenFlare!(selectedFlare) : undefined}

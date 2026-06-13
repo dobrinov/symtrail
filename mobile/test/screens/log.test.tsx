@@ -46,6 +46,23 @@ test("LogTemp saves a temp entry and shows the live severity", async () => {
   expect(entries[0].tempC).toBeLessThanOrEqual(42);
 });
 
+test("LogTemp in °F mode displays °F but stores canonical Celsius", async () => {
+  const { repo, profile } = seed();
+  await render(<LogTemp repo={repo} profileId={profile.id} onSaved={() => {}} tempUnit="f" />);
+  // Default 37.0°C must render as 98.6°F (display unit), not 37.0.
+  expect(screen.getByText("98.6°F")).toBeTruthy();
+  // Move the slider in °F; the value must be converted back to °C on save.
+  await fireEvent(screen.getByTestId("temp-slider"), "valueChange", 100.4);
+  expect(screen.getByText("100.4°F")).toBeTruthy();
+  await fireEvent.press(screen.getByText("Save"));
+  const entries = repo.listEntries(profile.id);
+  expect(entries).toHaveLength(1);
+  expect(entries[0].entryType).toBe("temp");
+  // 100.4°F → 38.0°C is what gets stored (NOT the °F number).
+  expect(entries[0].tempC).toBe(38.0);
+  expect(entries[0].tempC).toBeLessThanOrEqual(42);
+});
+
 test("LogMed saves a med entry with the default dose and optional reminder", async () => {
   const { repo, profile, ibu } = seed();
   const scheduleReminder = jest.fn();

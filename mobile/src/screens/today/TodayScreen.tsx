@@ -19,10 +19,8 @@ import { PredictionCard } from "./PredictionCard";
 
 const DAY_MS = 86400000;
 
-function dKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
+// Day bucketing is UTC across the app (flares, calendar, meds, DayDetail all
+// key on the UTC date prefix of the ISO string), so "today" matches them.
 function fmtTime(iso: string): string {
   const d = new Date(iso);
   let h = d.getHours();
@@ -53,7 +51,7 @@ export function TodayScreen(props: {
   const insets = useSafeAreaInsets();
   const today = new Date();
 
-  const data = useQuery(["entries", "profiles", "symptom_types", "medication_types"], () => {
+  const data = useQuery(["entries", "profiles", "symptom_types", "medication_types", "sync_meta"], () => {
     const profile = repo.getProfile(profileId);
     const entries = profile ? repo.listEntries(profile.id) : [];
     return {
@@ -66,8 +64,8 @@ export function TodayScreen(props: {
   const { profile, entries, symptomTypes, medTypes } = data;
   if (!profile) return <View style={styles.screen} />;
 
-  const todayKey = dKey(today);
-  const todays = entries.filter((e) => dKey(new Date(e.recordedAt)) === todayKey);
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const todays = entries.filter((e) => e.recordedAt.slice(0, 10) === todayKey);
   const recent = entries.filter((e) => today.getTime() - new Date(e.recordedAt).getTime() <= 7 * DAY_MS);
 
   // PFAPA flare prediction + most-recent derived flare (tap target).

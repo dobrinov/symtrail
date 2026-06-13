@@ -10,14 +10,16 @@ import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { SeverityChip } from "../../design/SeverityChip";
 import { TOKENS } from "../../design/tokens";
-import { SEVERITY, formatTemp, tempToSeverity } from "../../domain/severity";
+import { SEVERITY, cToF, fToC, formatTemp, tempToSeverity } from "../../domain/severity";
 import { DateTimeField } from "./DateTimeField";
 
-const MIN = 35;
-const MAX = 42;
+// Canonical Celsius bounds; the entry always stores °C.
+const MIN_C = 35;
+const MAX_C = 42;
 
-function clamp(v: number): number {
-  return Math.round(Math.max(MIN, Math.min(MAX, v)) * 10) / 10;
+// Round a Celsius value to the stored 0.1° precision, clamped to the °C range.
+function clampC(c: number): number {
+  return Math.round(Math.max(MIN_C, Math.min(MAX_C, c)) * 10) / 10;
 }
 
 export function LogTemp({
@@ -36,12 +38,27 @@ export function LogTemp({
   editEntryId?: string;
 }): React.JSX.Element {
   const existing = useMemo(() => (editEntryId ? repo.getEntry(editEntryId) : null), [editEntryId, repo]);
+  // State is ALWAYS canonical °C; the slider/stepper convert to/from the
+  // display unit so the user sees and adjusts °F when that's their preference.
   const [tempC, setTempC] = useState<number>(existing?.tempC ?? 37.0);
   const [at, setAt] = useState<string>(existing?.recordedAt ?? initialDate ?? new Date().toISOString());
 
   const sevKey = tempToSeverity(tempC);
   const sev = SEVERITY[sevKey];
   const trackColor = sevKey === "none" ? TOKENS.balance : sev.dot;
+
+  // Display-unit slider config (°F mode converts the °C bounds/value/step;
+  // °C mode passes through). onValueChange always maps back to canonical °C.
+  const isF = tempUnit === "f";
+  const sliderMin = isF ? cToF(MIN_C) : MIN_C;
+  const sliderMax = isF ? cToF(MAX_C) : MAX_C;
+  const sliderStep = isF ? 0.2 : 0.1; // 0.1°C ≈ 0.18°F → 0.2°F display step
+  const sliderValue = isF ? cToF(tempC) : tempC;
+  const fromDisplay = (v: number): number => clampC(isF ? fToC(v) : v);
+  // Step in the DISPLAY unit, then map back to °C so the on-screen number
+  // moves by a clean increment (0.1°C / 0.2°F).
+  const stepUp = () => setTempC(fromDisplay(sliderValue + sliderStep));
+  const stepDown = () => setTempC(fromDisplay(sliderValue - sliderStep));
 
   const save = () => {
     if (existing) repo.updateEntry(existing.id, { tempC, recordedAt: at });
@@ -53,7 +70,7 @@ export function LogTemp({
     <View>
       <Card pad={22} style={styles.card}>
         <View style={styles.stepperRow}>
-          <PressableScale onPress={() => setTempC(clamp(tempC - 0.1))} style={styles.stepBtn}>
+          <PressableScale onPress={stepDown} style={styles.stepBtn}>
             <View style={styles.minus} />
           </PressableScale>
           <View style={styles.readout}>
@@ -64,23 +81,24 @@ export function LogTemp({
               <SeverityChip level={sevKey} />
             </View>
           </View>
-          <PressableScale onPress={() => setTempC(clamp(tempC + 0.1))} style={styles.stepBtn}>
+          <PressableScale onPress={stepUp} style={styles.stepBtn}>
             <Icon name="plus" size={22} color={TOKENS.balance} sw={2.4} />
           </PressableScale>
         </View>
         <Slider
+          testID="temp-slider"
           style={styles.slider}
-          minimumValue={MIN}
-          maximumValue={MAX}
-          step={0.1}
-          value={tempC}
-          onValueChange={(v) => setTempC(clamp(v))}
+          minimumValue={sliderMin}
+          maximumValue={sliderMax}
+          step={sliderStep}
+          value={sliderValue}
+          onValueChange={(v) => setTempC(fromDisplay(v))}
           minimumTrackTintColor={trackColor}
           maximumTrackTintColor={TOKENS.lavender}
         />
         <View style={styles.scale}>
-          <Text style={styles.scaleText}>{formatTemp(MIN, tempUnit)}</Text>
-          <Text style={styles.scaleText}>{formatTemp(MAX, tempUnit)}</Text>
+          <Text style={styles.scaleText}>{formatTemp(MIN_C, tempUnit)}</Text>
+          <Text style={styles.scaleText}>{formatTemp(MAX_C, tempUnit)}</Text>
         </View>
       </Card>
 
