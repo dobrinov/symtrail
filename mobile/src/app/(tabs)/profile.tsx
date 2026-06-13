@@ -12,6 +12,9 @@ import { TOKENS } from "../../design/tokens";
 import { AddPersonForm } from "../../screens/profile/AddPersonForm";
 import { ProfileScreen } from "../../screens/profile/ProfileScreen";
 import { SettingsSheet } from "../../screens/profile/SettingsSheet";
+import { cycleStats, deriveFlares } from "../../domain/flares";
+import { buildReportHtml } from "../../report/html";
+import { shareReportPdf } from "../../report/share";
 import { useAuthNavigation } from "../../session/useAuthGate";
 import { useActiveProfile } from "../../state/activeProfile";
 
@@ -69,6 +72,38 @@ export default function Profile(): React.JSX.Element {
     onSignedOut();
   };
 
+  // Builds the doctor PDF entirely from local data and opens the share sheet.
+  // No-op when there is no active profile; sharing can be cancelled (caught).
+  const openReport = async () => {
+    if (!activeId) return;
+    const profile = repo.getProfile(activeId);
+    if (!profile) return;
+    const entries = repo.listEntries(activeId);
+    const symptomTypes = repo.listSymptomTypes();
+    const medTypes = repo.listMedicationTypes();
+    const labels: Record<string, string> = {};
+    for (const s of symptomTypes) labels[s.id] = s.label;
+    for (const m of medTypes) labels[m.id] = m.label;
+
+    const symptomIsFever = new Map(symptomTypes.map((s) => [s.id, s.icon === "fever"]));
+    const flares = deriveFlares(
+      entries.map((e) => ({
+        entryType: e.entryType,
+        recordedAt: e.recordedAt,
+        tempC: e.tempC,
+        symptomKeyIsFever: e.symptomTypeId != null && (symptomIsFever.get(e.symptomTypeId) ?? false),
+      })),
+    );
+    const stats = cycleStats(flares, new Date());
+
+    try {
+      const html = buildReportHtml({ profile, tempUnit: session.tempUnit(), flares, stats, entries, labels });
+      await shareReportPdf(html);
+    } catch {
+      // Sharing can be cancelled or fail; nothing to do.
+    }
+  };
+
   const target = deletePersonId ? repo.getProfile(deletePersonId) : null;
 
   return (
@@ -81,9 +116,7 @@ export default function Profile(): React.JSX.Element {
         onAddPerson={() => setPersonSheet({ mode: "add" })}
         onDeleteProfile={(id) => setDeletePersonId(id)}
         onOpenSettings={() => setSettingsOpen(true)}
-        onOpenReport={() => {
-          // Task 21 wires the real PDF export.
-        }}
+        onOpenReport={() => void openReport()}
         onSignOut={() => void signOut()}
         onDeleteAccount={() => setDeleteAccountOpen(true)}
         lastSyncedAt={sync.lastSyncedAt}

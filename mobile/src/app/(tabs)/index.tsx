@@ -1,6 +1,6 @@
 // Today route — hosts TodayScreen plus the profile-switcher sheet.
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useServices } from "../../AppServices";
 import { Sheet } from "../../design/Sheet";
@@ -11,11 +11,21 @@ import { useActiveProfile } from "../../state/activeProfile";
 import { useLogSheet } from "../../state/LogSheetContext";
 
 export default function Today(): React.JSX.Element {
-  const { repo } = useServices();
+  const { repo, sync } = useServices();
   const router = useRouter();
   const { openLog, openEntry, openFlare } = useLogSheet();
   const [profileId, setActiveProfile] = useActiveProfile(repo);
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await sync.syncNow();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   return (
     <View style={styles.root}>
@@ -27,6 +37,7 @@ export default function Today(): React.JSX.Element {
           onLog={() => openLog()}
           onOpenEntry={(id) => openEntry(id)}
           onOpenFlare={(flare) => openFlare(flare)}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}
         />
       ) : (
         <View style={styles.empty}>

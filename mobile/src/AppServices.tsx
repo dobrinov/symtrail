@@ -13,6 +13,8 @@ export interface Services {
   sync: SyncClient;
   session: SessionStore;
   reminders: ReminderScheduler;
+  // Debounced after-write sync: coalesces a burst of edits into one push.
+  scheduleSync: () => void;
 }
 
 const Ctx = createContext<Services | null>(null);
@@ -34,7 +36,19 @@ export function AppServicesProvider({ children }: { children: React.ReactNode })
       session.signedOut();
     });
     const reminders = new ReminderScheduler(repo, expoNotifPort());
-    return { repo, api, sync, session, reminders };
+
+    // Debounce: reset a single timer on each call, firing one sync ~3s after
+    // the last write so a burst of edits coalesces into a single push.
+    let syncTimer: ReturnType<typeof setTimeout> | null = null;
+    const scheduleSync = () => {
+      if (syncTimer) clearTimeout(syncTimer);
+      syncTimer = setTimeout(() => {
+        syncTimer = null;
+        void sync.syncNow();
+      }, 3000);
+    };
+
+    return { repo, api, sync, session, reminders, scheduleSync };
   }, []);
   return <Ctx.Provider value={services}>{children}</Ctx.Provider>;
 }

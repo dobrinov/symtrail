@@ -24,7 +24,7 @@ const TITLES: Record<string, string> = {
 };
 
 export function LogSheetHost(): React.JSX.Element | null {
-  const { repo, sync, reminders, session } = useServices();
+  const { repo, reminders, session, scheduleSync } = useServices();
   const { state, openLog, pick, editEntry, close } = useLogSheet();
   const [profileId] = useActiveProfile(repo);
 
@@ -39,8 +39,7 @@ export function LogSheetHost(): React.JSX.Element | null {
   const isPfapa = profile?.condition === "PFAPA";
 
   const afterSave = () => {
-    // Real debounce lands in Task 21; a microtask defer is enough here.
-    setTimeout(() => void sync.syncNow(), 0);
+    scheduleSync();
     close();
   };
 
@@ -50,7 +49,7 @@ export function LogSheetHost(): React.JSX.Element | null {
       if (entry?.entryType === "med") void reminders.cancelFor(entryId);
       repo.deleteRecord("entries", entryId);
     }
-    setTimeout(() => void sync.syncNow(), 0);
+    scheduleSync();
     close();
   };
 

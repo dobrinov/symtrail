@@ -1,7 +1,7 @@
 // Calendar route — hosts CalendarScreen, wired to the active profile and the
 // log sheet (add-to-day → openLog with a preset date, tap entry → openEntry).
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
+import { RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useServices } from "../../AppServices";
 import { TOKENS } from "../../design/tokens";
 import { CalendarScreen } from "../../screens/calendar/CalendarScreen";
@@ -26,9 +26,19 @@ function dayIsoAtNow(dayIso: string): string {
 }
 
 export default function Calendar(): React.JSX.Element {
-  const { repo } = useServices();
+  const { repo, sync } = useServices();
   const { openLog, openEntry, openFlare } = useLogSheet();
   const [profileId] = useActiveProfile(repo);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await sync.syncNow();
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   return (
     <View style={styles.root}>
@@ -39,6 +49,7 @@ export default function Calendar(): React.JSX.Element {
           onAddToDay={(dayIso) => openLog(dayIsoAtNow(dayIso))}
           onOpenEntry={(id) => openEntry(id)}
           onOpenFlare={(flare) => openFlare(flare)}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}
         />
       ) : (
         <View style={styles.empty}>

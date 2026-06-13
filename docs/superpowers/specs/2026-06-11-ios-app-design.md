@@ -1,7 +1,7 @@
 # Symtrail — iOS App (React Native / Expo) Design
 
 **Date:** 2026-06-11
-**Status:** Approved for planning
+**Status:** Implemented
 **Sub-project:** B of 4 (A: backend ✅ implemented, B: iOS app, C: landing page, D: Android app)
 
 ## Context

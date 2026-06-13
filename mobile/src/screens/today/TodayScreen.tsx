@@ -2,7 +2,7 @@
 // header w/ profile chip, status card, prediction card (PFAPA), quick-log
 // row, recent entries list.
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { RefreshControlProps, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Repo, Entry, MedicationType, SymptomType } from "../../db/repo";
 import { useQuery } from "../../db/useQuery";
@@ -47,6 +47,7 @@ export function TodayScreen(props: {
   onOpenEntry: (entryId: string) => void;
   onOpenFlare?: (flare: Flare) => void;
   tempUnit?: "c" | "f";
+  refreshControl?: React.ReactElement<RefreshControlProps>;
 }): React.JSX.Element {
   const { repo, profileId, tempUnit = "c" } = props;
   const insets = useSafeAreaInsets();
@@ -92,6 +93,7 @@ export function TodayScreen(props: {
     <ScrollView
       style={styles.screen}
       contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 130 }}
+      refreshControl={props.refreshControl}
     >
       {/* header */}
       <View style={styles.header}>

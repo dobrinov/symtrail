@@ -1,7 +1,7 @@
 // CalendarScreen — month grid with a severity heat-map, day-detail list,
 // add-to-day logging, month paging, and PFAPA flare-window dotting.
 import React, { useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { RefreshControlProps, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Entry, Repo } from "../../db/repo";
 import { useQuery } from "../../db/useQuery";
@@ -74,6 +74,7 @@ export function CalendarScreen(props: {
   onAddToDay: (dayIso: string) => void;
   onOpenEntry: (entryId: string) => void;
   onOpenFlare?: (flare: Flare) => void;
+  refreshControl?: React.ReactElement<RefreshControlProps>;
 }): React.JSX.Element {
   const { repo, profileId } = props;
   const insets = useSafeAreaInsets();
@@ -119,6 +120,7 @@ export function CalendarScreen(props: {
     <ScrollView
       style={styles.screen}
       contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 130 }}
+      refreshControl={props.refreshControl}
     >
       <View style={styles.header}>
         <PressableScale onPress={goPrev} style={styles.chev}>
