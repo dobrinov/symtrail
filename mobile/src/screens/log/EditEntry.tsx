@@ -15,18 +15,20 @@ export function EditEntry({
   onSaved,
   tempUnit = "c",
   isPfapa = false,
+  scheduleReminder,
 }: {
   repo: Repo;
   entry: Entry;
   onSaved: () => void;
   tempUnit?: "c" | "f";
   isPfapa?: boolean;
+  scheduleReminder?: (entry: Entry, medLabel: string) => void;
 }): React.JSX.Element {
   if (entry.entryType === "temp") {
     return <LogTemp repo={repo} profileId={entry.profileId} onSaved={onSaved} tempUnit={tempUnit} editEntryId={entry.id} />;
   }
   if (entry.entryType === "med") {
-    return <LogMed repo={repo} profileId={entry.profileId} onSaved={onSaved} editEntryId={entry.id} />;
+    return <LogMed repo={repo} profileId={entry.profileId} onSaved={onSaved} editEntryId={entry.id} scheduleReminder={scheduleReminder} />;
   }
   if (entry.entryType === "symptom") {
     return <LogSymptom repo={repo} profileId={entry.profileId} onSaved={onSaved} isPfapa={isPfapa} editEntryId={entry.id} />;

@@ -5,12 +5,14 @@ import { Repo } from "./db/repo";
 import { ApiClient } from "./api/client";
 import { SyncClient } from "./sync/client";
 import { SessionStore, expoSecureKV } from "./session/store";
+import { ReminderScheduler, expoNotifPort } from "./notifications/reminders";
 
 export interface Services {
   repo: Repo;
   api: ApiClient;
   sync: SyncClient;
   session: SessionStore;
+  reminders: ReminderScheduler;
 }
 
 const Ctx = createContext<Services | null>(null);
@@ -31,7 +33,8 @@ export function AppServicesProvider({ children }: { children: React.ReactNode })
       cachedToken = null;
       session.signedOut();
     });
-    return { repo, api, sync, session };
+    const reminders = new ReminderScheduler(repo, expoNotifPort());
+    return { repo, api, sync, session, reminders };
   }, []);
   return <Ctx.Provider value={services}>{children}</Ctx.Provider>;
 }

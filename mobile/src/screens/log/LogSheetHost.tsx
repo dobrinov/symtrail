@@ -3,6 +3,7 @@
 // matching Sheet: chooser → Log{Symptom,Temp,Med}, or EntryDetail → EditEntry.
 // On any successful save it kicks a debounced sync and closes.
 import React from "react";
+import { Entry } from "../../db/repo";
 import { Sheet } from "../../design/Sheet";
 import { useServices } from "../../AppServices";
 import { useQuery } from "../../db/useQuery";
@@ -22,9 +23,11 @@ const TITLES: Record<string, string> = {
 };
 
 export function LogSheetHost(): React.JSX.Element | null {
-  const { repo, sync } = useServices();
+  const { repo, sync, reminders } = useServices();
   const { state, openLog, pick, editEntry, close } = useLogSheet();
   const [profileId] = useActiveProfile(repo);
+
+  const scheduleReminder = (e: Entry, label: string) => void reminders.scheduleFor(e, label);
 
   // The detail/edit views resolve their entry reactively so deletes/edits
   // elsewhere don't leave a stale sheet.
@@ -40,7 +43,11 @@ export function LogSheetHost(): React.JSX.Element | null {
   };
 
   const onDelete = () => {
-    if (entryId) repo.deleteRecord("entries", entryId);
+    if (entryId) {
+      // Cancel any device-local reminder before the entry goes away.
+      if (entry?.entryType === "med") void reminders.cancelFor(entryId);
+      repo.deleteRecord("entries", entryId);
+    }
     setTimeout(() => void sync.syncNow(), 0);
     close();
   };
@@ -67,7 +74,7 @@ export function LogSheetHost(): React.JSX.Element | null {
         ) : state.logType === "temp" ? (
           <LogTemp repo={repo} profileId={profileId} onSaved={afterSave} initialDate={state.presetDateIso} />
         ) : (
-          <LogMed repo={repo} profileId={profileId} onSaved={afterSave} initialDate={state.presetDateIso} />
+          <LogMed repo={repo} profileId={profileId} onSaved={afterSave} initialDate={state.presetDateIso} scheduleReminder={scheduleReminder} />
         )
       ) : null}
 
@@ -76,7 +83,7 @@ export function LogSheetHost(): React.JSX.Element | null {
       ) : null}
 
       {state.mode === "edit" && entry ? (
-        <EditEntry repo={repo} entry={entry} onSaved={afterSave} isPfapa={isPfapa} />
+        <EditEntry repo={repo} entry={entry} onSaved={afterSave} isPfapa={isPfapa} scheduleReminder={scheduleReminder} />
       ) : null}
     </Sheet>
   );

@@ -14,6 +14,8 @@ export interface Entry {
   reminderAt: string | null; note: string | null;
 }
 
+export interface MedEntryRow { entry: Entry; label: string; color: string | null; strength: string | null; }
+
 const ALIVE = "pending_delete = 0 AND deleted_at IS NULL";
 
 function camelToSnake(key: string): string {
@@ -186,6 +188,25 @@ export class Repo {
     return this.db
       .all(`SELECT * FROM entries WHERE profile_id = ? AND ${ALIVE} ORDER BY recorded_at DESC`, [profileId])
       .map(mapEntry);
+  }
+
+  // Med entries for the profile joined to medication_types for label/colour/
+  // strength (newest first). LEFT JOIN so an entry whose type was deleted still
+  // shows with a "Medication" fallback.
+  listMedEntries(profileId: string): MedEntryRow[] {
+    const rows = this.db.all<Row>(
+      `SELECT e.*, m.label AS m_label, m.color AS m_color, m.strength AS m_strength
+       FROM entries e LEFT JOIN medication_types m ON m.id = e.medication_type_id
+       WHERE e.profile_id = ? AND e.entry_type = 'med' AND e.pending_delete = 0 AND e.deleted_at IS NULL
+       ORDER BY e.recorded_at DESC`,
+      [profileId],
+    );
+    return rows.map((r) => ({
+      entry: mapEntry(r),
+      label: (r.m_label as string | null) ?? "Medication",
+      color: (r.m_color as string | null) ?? null,
+      strength: (r.m_strength as string | null) ?? null,
+    }));
   }
 
   // ----- sync plumbing -----
