@@ -21,11 +21,12 @@ test("flareChartSeries returns sorted temp points within the flare range", () =>
     tempEntry("2026-05-12T19:00:00Z", 39.5),
     tempEntry("2026-05-11T08:00:00Z", 38.5),
     tempEntry("2026-05-13T08:00:00Z", 38.0),
+    tempEntry("2026-05-13T23:00:00Z", 37.6), // last hour of the end day → included
     tempEntry("2026-05-20T08:00:00Z", 39.0), // outside the flare → excluded
     tempEntry("2026-05-10T08:00:00Z", 38.2), // before onset → excluded
   ];
   const series = flareChartSeries(entries, flare);
-  expect(series.map((p) => p.temp)).toEqual([38.5, 39.5, 38.0]); // sorted ascending by time
+  expect(series.map((p) => p.temp)).toEqual([38.5, 39.5, 38.0, 37.6]); // sorted ascending by time
   expect(series.every((p) => typeof p.t === "number")).toBe(true);
 });
 

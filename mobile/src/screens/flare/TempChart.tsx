@@ -36,10 +36,13 @@ export function TempChart({
   series: ChartPoint[];
   unit: "c" | "f";
 }): React.JSX.Element {
-  if (series.length === 0) {
+  // A single point can't convey a trend (matches the prototype's chart guard).
+  if (series.length < 2) {
     return (
       <View style={styles.empty}>
-        <Text style={styles.emptyText}>No temperature readings</Text>
+        <Text style={styles.emptyText}>
+          {series.length === 0 ? "No temperature readings" : "Not enough readings to chart"}
+        </Text>
       </View>
     );
   }
