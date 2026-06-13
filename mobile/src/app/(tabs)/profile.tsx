@@ -18,7 +18,7 @@ import { useActiveProfile } from "../../state/activeProfile";
 type PersonSheet = { mode: "add" } | { mode: "edit"; id: string } | null;
 
 export default function Profile(): React.JSX.Element {
-  const { repo, api, sync, session } = useServices();
+  const { repo, api, sync, session, reminders } = useServices();
   const { onSignedOut } = useAuthNavigation();
   const [activeId, setActive] = useActiveProfile(repo);
 
@@ -37,6 +37,11 @@ export default function Profile(): React.JSX.Element {
   };
 
   const deletePerson = (id: string) => {
+    // Cancel any local med reminders for this person before their entries are
+    // tombstoned — the cascade alone leaves orphaned scheduled notifications.
+    for (const row of repo.listMedEntries(id)) {
+      if (row.entry.reminderAt) void reminders.cancelFor(row.entry.id);
+    }
     repo.deleteProfileCascade(id);
     setDeletePersonId(null);
     afterMutation();
