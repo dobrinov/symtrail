@@ -1,17 +1,55 @@
-// Placeholder — replaced by the full Calendar screen in Task 17.
+// Calendar route — hosts CalendarScreen, wired to the active profile and the
+// log sheet (add-to-day → openLog with a preset date, tap entry → openEntry).
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { useServices } from "../../AppServices";
 import { TOKENS } from "../../design/tokens";
+import { CalendarScreen } from "../../screens/calendar/CalendarScreen";
+import { useActiveProfile } from "../../state/activeProfile";
+import { useLogSheet } from "../../state/LogSheetContext";
+
+// dayIso is a UTC "YYYY-MM-DD". Combine it with the current wall-clock
+// time-of-day (in UTC, to match the app's UTC day bucketing) so the new entry's
+// recordedAt prefix is exactly dayIso — landing it on the tapped calendar day.
+function dayIsoAtNow(dayIso: string): string {
+  const now = new Date();
+  const ts = Date.UTC(
+    Number(dayIso.slice(0, 4)),
+    Number(dayIso.slice(5, 7)) - 1,
+    Number(dayIso.slice(8, 10)),
+    now.getUTCHours(),
+    now.getUTCMinutes(),
+    now.getUTCSeconds(),
+    now.getUTCMilliseconds(),
+  );
+  return new Date(ts).toISOString();
+}
 
 export default function Calendar(): React.JSX.Element {
+  const { repo } = useServices();
+  const { openLog, openEntry } = useLogSheet();
+  const [profileId] = useActiveProfile(repo);
+
   return (
-    <View style={styles.screen}>
-      <Text style={styles.text}>Calendar</Text>
+    <View style={styles.root}>
+      {profileId ? (
+        <CalendarScreen
+          repo={repo}
+          profileId={profileId}
+          onAddToDay={(dayIso) => openLog(dayIsoAtNow(dayIso))}
+          onOpenEntry={(id) => openEntry(id)}
+        />
+      ) : (
+        <View style={styles.empty}>
+          <Text style={styles.emptyText}>Add a person to get started</Text>
+        </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: TOKENS.canvas },
-  text: { fontSize: 18, fontFamily: "Sora_700Bold", color: TOKENS.anchor },
+  root: { flex: 1, backgroundColor: TOKENS.canvas },
+  empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  emptyText: { fontSize: 16, fontFamily: "Sora_600SemiBold", color: TOKENS.grey },
 });
