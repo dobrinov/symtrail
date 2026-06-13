@@ -13,7 +13,7 @@ import { useLogSheet } from "../../state/LogSheetContext";
 export default function Today(): React.JSX.Element {
   const { repo } = useServices();
   const router = useRouter();
-  const { openLog, openEntry } = useLogSheet();
+  const { openLog, openEntry, openFlare } = useLogSheet();
   const [profileId, setActiveProfile] = useActiveProfile(repo);
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
@@ -26,6 +26,7 @@ export default function Today(): React.JSX.Element {
           onSwitchProfile={() => setSwitcherOpen(true)}
           onLog={() => openLog()}
           onOpenEntry={(id) => openEntry(id)}
+          onOpenFlare={(flare) => openFlare(flare)}
         />
       ) : (
         <View style={styles.empty}>

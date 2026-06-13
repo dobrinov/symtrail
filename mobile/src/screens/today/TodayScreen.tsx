@@ -13,7 +13,7 @@ import { PressableScale } from "../../design/PressableScale";
 import { SeverityChip } from "../../design/SeverityChip";
 import { TOKENS } from "../../design/tokens";
 import { ageLabel } from "../../domain/age";
-import { cycleStats, deriveFlares } from "../../domain/flares";
+import { cycleStats, deriveFlares, Flare } from "../../domain/flares";
 import { formatTemp, SEVERITY, SEVERITY_ORDER, SeverityKey, tempToSeverity } from "../../domain/severity";
 import { PredictionCard } from "./PredictionCard";
 
@@ -45,6 +45,7 @@ export function TodayScreen(props: {
   onSwitchProfile: () => void;
   onLog: (mode: "choose" | "symptom" | "temp" | "med") => void;
   onOpenEntry: (entryId: string) => void;
+  onOpenFlare?: (flare: Flare) => void;
   tempUnit?: "c" | "f";
 }): React.JSX.Element {
   const { repo, profileId, tempUnit = "c" } = props;
@@ -68,8 +69,9 @@ export function TodayScreen(props: {
   const todays = entries.filter((e) => dKey(new Date(e.recordedAt)) === todayKey);
   const recent = entries.filter((e) => today.getTime() - new Date(e.recordedAt).getTime() <= 7 * DAY_MS);
 
-  // PFAPA flare prediction
+  // PFAPA flare prediction + most-recent derived flare (tap target).
   let cycle = null;
+  let recentFlare: Flare | null = null;
   if (profile.condition === "PFAPA") {
     const flareEntries = entries.map((e) => ({
       entryType: e.entryType,
@@ -77,7 +79,11 @@ export function TodayScreen(props: {
       tempC: e.tempC,
       symptomKeyIsFever: e.symptomTypeId != null && symptomTypes.get(e.symptomTypeId)?.icon === "fever",
     }));
-    cycle = cycleStats(deriveFlares(flareEntries), today);
+    const flares = deriveFlares(flareEntries);
+    cycle = cycleStats(flares, today);
+    if (flares.length) {
+      recentFlare = [...flares].sort((a, b) => b.onset.getTime() - a.onset.getTime())[0];
+    }
   }
 
   const subtitle = today.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
@@ -111,7 +117,13 @@ export function TodayScreen(props: {
       <View style={styles.body}>
         <StatusCard todays={todays} entries={entries} symptomTypes={symptomTypes} tempUnit={tempUnit} />
 
-        {cycle ? <PredictionCard cycle={cycle} today={today} /> : null}
+        {cycle ? (
+          <PredictionCard
+            cycle={cycle}
+            today={today}
+            onPress={recentFlare && props.onOpenFlare ? () => props.onOpenFlare!(recentFlare!) : undefined}
+          />
+        ) : null}
 
         {/* quick log */}
         <View style={styles.quickRow}>

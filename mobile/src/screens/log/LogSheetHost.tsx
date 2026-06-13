@@ -9,6 +9,7 @@ import { useServices } from "../../AppServices";
 import { useQuery } from "../../db/useQuery";
 import { useActiveProfile } from "../../state/activeProfile";
 import { useLogSheet } from "../../state/LogSheetContext";
+import { FlareDetailScreen, flareTitle } from "../flare/FlareDetailScreen";
 import { EditEntry } from "./EditEntry";
 import { EntryDetail } from "./EntryDetail";
 import { LogChooser } from "./LogChooser";
@@ -23,7 +24,7 @@ const TITLES: Record<string, string> = {
 };
 
 export function LogSheetHost(): React.JSX.Element | null {
-  const { repo, sync, reminders } = useServices();
+  const { repo, sync, reminders, session } = useServices();
   const { state, openLog, pick, editEntry, close } = useLogSheet();
   const [profileId] = useActiveProfile(repo);
 
@@ -60,8 +61,9 @@ export function LogSheetHost(): React.JSX.Element | null {
   else if (state.mode === "log") title = TITLES[state.logType];
   else if (state.mode === "detail") title = "Entry";
   else if (state.mode === "edit") title = "Edit entry";
+  else if (state.mode === "flare") title = flareTitle(state.flare);
 
-  const full = state.mode === "log" || state.mode === "edit";
+  const full = state.mode === "log" || state.mode === "edit" || state.mode === "flare";
 
   return (
     <Sheet open={open} onClose={close} title={title} full={full}>
@@ -85,6 +87,10 @@ export function LogSheetHost(): React.JSX.Element | null {
 
       {state.mode === "edit" && entry ? (
         <EditEntry repo={repo} entry={entry} onSaved={afterSave} isPfapa={isPfapa} scheduleReminder={scheduleReminder} cancelReminder={cancelReminder} />
+      ) : null}
+
+      {state.mode === "flare" && profileId ? (
+        <FlareDetailScreen repo={repo} profileId={profileId} flare={state.flare} tempUnit={session.tempUnit()} />
       ) : null}
     </Sheet>
   );

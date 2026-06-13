@@ -27,7 +27,7 @@ function dayIsoAtNow(dayIso: string): string {
 
 export default function Calendar(): React.JSX.Element {
   const { repo } = useServices();
-  const { openLog, openEntry } = useLogSheet();
+  const { openLog, openEntry, openFlare } = useLogSheet();
   const [profileId] = useActiveProfile(repo);
 
   return (
@@ -38,6 +38,7 @@ export default function Calendar(): React.JSX.Element {
           profileId={profileId}
           onAddToDay={(dayIso) => openLog(dayIsoAtNow(dayIso))}
           onOpenEntry={(id) => openEntry(id)}
+          onOpenFlare={(flare) => openFlare(flare)}
         />
       ) : (
         <View style={styles.empty}>

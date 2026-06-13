@@ -2,6 +2,7 @@
 // LogSheetHost (Task 16) reads `state` and renders the matching sheet.
 // openLog / openEntry / close keep stable names (Task 15 callers depend on them).
 import React, { createContext, useContext, useState } from "react";
+import { Flare } from "../domain/flares";
 
 export type LogType = "symptom" | "temp" | "med";
 
@@ -10,7 +11,8 @@ export type LogSheetState =
   | { mode: "choose"; presetDateIso?: string }
   | { mode: "log"; logType: LogType; presetDateIso?: string }
   | { mode: "detail"; entryId: string }
-  | { mode: "edit"; entryId: string };
+  | { mode: "edit"; entryId: string }
+  | { mode: "flare"; flare: Flare };
 
 export interface LogSheetApi {
   state: LogSheetState;
@@ -22,6 +24,8 @@ export interface LogSheetApi {
   openEntry: (entryId: string) => void;
   /** Switch the current entry into edit mode. */
   editEntry: (entryId: string) => void;
+  /** Open a derived flare's detail view. */
+  openFlare: (flare: Flare) => void;
   close: () => void;
 }
 
@@ -40,6 +44,7 @@ export function LogSheetProvider({ children }: { children: React.ReactNode }) {
       })),
     openEntry: (entryId) => setState({ mode: "detail", entryId }),
     editEntry: (entryId) => setState({ mode: "edit", entryId }),
+    openFlare: (flare) => setState({ mode: "flare", flare }),
     close: () => setState({ mode: "closed" }),
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

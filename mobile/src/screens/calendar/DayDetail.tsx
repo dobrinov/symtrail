@@ -33,6 +33,7 @@ export function DayDetail(props: {
   dayIso: string;
   onOpenEntry: (id: string) => void;
   onAddToDay: (dayIso: string) => void;
+  onOpenFlare?: () => void;
 }): React.JSX.Element {
   const { repo, entries, dayIso } = props;
 
@@ -66,6 +67,14 @@ export function DayDetail(props: {
           ))}
         </Card>
       )}
+
+      {props.onOpenFlare ? (
+        <PressableScale onPress={props.onOpenFlare} style={styles.flareBtn}>
+          <Icon name="trend" size={18} color={TOKENS.balance} sw={2.2} />
+          <Text style={styles.flareLabel}>View this flare</Text>
+          <Icon name="chevR" size={18} color={TOKENS.grey} sw={2.2} />
+        </PressableScale>
+      ) : null}
 
       <PressableScale onPress={() => props.onAddToDay(dayIso)} style={styles.addBtn}>
         <Icon name="plus" size={18} color={TOKENS.white} sw={2.4} />
@@ -172,6 +181,23 @@ const styles = StyleSheet.create({
     color: TOKENS.grey,
     fontVariant: ["tabular-nums"],
     flexShrink: 0,
+  },
+  flareBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 14,
+    paddingVertical: 13,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    backgroundColor: TOKENS.white,
+  },
+  flareLabel: {
+    flex: 1,
+    fontSize: 15,
+    fontFamily: "Sora_600SemiBold",
+    color: TOKENS.anchor,
+    letterSpacing: -0.1,
   },
   addBtn: {
     flexDirection: "row",

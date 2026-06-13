@@ -4,6 +4,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
+import { PressableScale } from "../../design/PressableScale";
 import { TOKENS } from "../../design/tokens";
 import { CycleStats } from "../../domain/flares";
 
@@ -16,9 +17,11 @@ function fmtDate(d: Date): string {
 export function PredictionCard({
   cycle,
   today = new Date(),
+  onPress,
 }: {
   cycle: CycleStats;
   today?: Date;
+  onPress?: () => void;
 }): React.JSX.Element {
   const maxDay = cycle.max + 5;
   const pct = (n: number) => Math.min(100, (n / maxDay) * 100);
@@ -34,11 +37,18 @@ export function PredictionCard({
         ? `Next window likely in about ${toWindow} day${toWindow === 1 ? "" : "s"}`
         : `Next window in roughly ${toWindow} days`;
 
-  return (
-    <Card pad={20} style={styles.card}>
+  const body = (
+    <>
       <View style={styles.headRow}>
         <Text style={styles.headLabel}>Flare cycle</Text>
-        <Text style={styles.headAvg}>avg every {cycle.avg} days</Text>
+        {onPress ? (
+          <View style={styles.headLink}>
+            <Text style={styles.headAvg}>avg every {cycle.avg} days</Text>
+            <Icon name="chevR" size={16} color={TOKENS.grey} sw={2.2} />
+          </View>
+        ) : (
+          <Text style={styles.headAvg}>avg every {cycle.avg} days</Text>
+        )}
       </View>
       <View style={styles.dayRow}>
         <Text style={styles.dayBig}>Day {cycle.sinceLast}</Text>
@@ -70,6 +80,19 @@ export function PredictionCard({
           </Text>
         </View>
       </View>
+    </>
+  );
+
+  if (onPress) {
+    return (
+      <PressableScale onPress={onPress}>
+        <Card pad={20} style={styles.card}>{body}</Card>
+      </PressableScale>
+    );
+  }
+  return (
+    <Card pad={20} style={styles.card}>
+      {body}
     </Card>
   );
 }
@@ -90,6 +113,11 @@ const styles = StyleSheet.create({
     color: TOKENS.grey,
     textTransform: "uppercase",
     letterSpacing: 0.6,
+  },
+  headLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
   },
   headAvg: {
     fontSize: 13,

@@ -8,7 +8,7 @@ import { useQuery } from "../../db/useQuery";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { TOKENS } from "../../design/tokens";
-import { cycleStats, deriveFlares } from "../../domain/flares";
+import { cycleStats, deriveFlares, Flare } from "../../domain/flares";
 import { SEVERITY_ORDER, SeverityKey, tempToSeverity } from "../../domain/severity";
 import { DayDetail } from "./DayDetail";
 import { MonthGrid } from "./MonthGrid";
@@ -60,11 +60,20 @@ const MONTH_LABELS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
+// True if the UTC day "YYYY-MM-DD" falls within the flare's [onset, end] range.
+function dayInFlare(dayIso: string, flare: Flare): boolean {
+  const dayMs = Date.parse(`${dayIso}T00:00:00.000Z`);
+  const startMs = Date.UTC(flare.onset.getUTCFullYear(), flare.onset.getUTCMonth(), flare.onset.getUTCDate());
+  const endMs = Date.UTC(flare.end.getUTCFullYear(), flare.end.getUTCMonth(), flare.end.getUTCDate());
+  return dayMs >= startMs && dayMs <= endMs;
+}
+
 export function CalendarScreen(props: {
   repo: Repo;
   profileId: string;
   onAddToDay: (dayIso: string) => void;
   onOpenEntry: (entryId: string) => void;
+  onOpenFlare?: (flare: Flare) => void;
 }): React.JSX.Element {
   const { repo, profileId } = props;
   const insets = useSafeAreaInsets();
@@ -82,18 +91,24 @@ export function CalendarScreen(props: {
   const { profile, entries, symptomTypes } = data;
   if (!profile) return <View style={styles.screen} />;
 
+  // Derived flares power both the PFAPA window dots and the "open this flare"
+  // affordance when a selected day lands inside a past flare.
+  const flareEntries = entries.map((e) => ({
+    entryType: e.entryType,
+    recordedAt: e.recordedAt,
+    tempC: e.tempC,
+    symptomKeyIsFever: e.symptomTypeId != null && symptomTypes.get(e.symptomTypeId)?.icon === "fever",
+  }));
+  const flares = deriveFlares(flareEntries);
+
   // PFAPA predicted flare window → dotted days.
   let windowDays: Set<string> | undefined;
   if (profile.condition === "PFAPA") {
-    const flareEntries = entries.map((e) => ({
-      entryType: e.entryType,
-      recordedAt: e.recordedAt,
-      tempC: e.tempC,
-      symptomKeyIsFever: e.symptomTypeId != null && symptomTypes.get(e.symptomTypeId)?.icon === "fever",
-    }));
-    const cycle = cycleStats(deriveFlares(flareEntries), now);
+    const cycle = cycleStats(flares, now);
     if (cycle) windowDays = windowDayKeys(cycle.windowStart, cycle.windowEnd);
   }
+
+  const selectedFlare = selectedDay ? flares.find((f) => dayInFlare(selectedDay, f)) ?? null : null;
 
   const goPrev = () =>
     setView((v) => (v.month === 0 ? { year: v.year - 1, month: 11 } : { year: v.year, month: v.month - 1 }));
@@ -135,6 +150,7 @@ export function CalendarScreen(props: {
             dayIso={selectedDay}
             onOpenEntry={props.onOpenEntry}
             onAddToDay={props.onAddToDay}
+            onOpenFlare={selectedFlare && props.onOpenFlare ? () => props.onOpenFlare!(selectedFlare) : undefined}
           />
         ) : null}
       </View>
