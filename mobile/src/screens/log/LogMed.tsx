@@ -26,6 +26,7 @@ export function LogMed({
   onSaved,
   initialDate,
   scheduleReminder,
+  cancelReminder,
   editEntryId,
 }: {
   repo: Repo;
@@ -33,6 +34,7 @@ export function LogMed({
   onSaved: () => void;
   initialDate?: string;
   scheduleReminder?: (entry: Entry, medLabel: string) => void;
+  cancelReminder?: (entryId: string) => void;
   editEntryId?: string;
 }): React.JSX.Element {
   const existing = useMemo(() => (editEntryId ? repo.getEntry(editEntryId) : null), [editEntryId, repo]);
@@ -99,6 +101,9 @@ export function LogMed({
     if (reminderAt && scheduleReminder) {
       const label = meds.find((m) => m.id === selected)?.label ?? "Medication";
       scheduleReminder(entry, label);
+    } else if (!reminderAt) {
+      // Editing a med to turn its reminder off must cancel the stale one.
+      cancelReminder?.(entry.id);
     }
     onSaved();
   };

@@ -58,3 +58,21 @@ test("LogMed saves a med entry with the default dose and optional reminder", asy
   expect(entries[0].medicationTypeId).toBe(ibu.id);
   expect(entries[0].dose).toBe("5 ml"); // prefilled from default_dose
 });
+
+test("editing a med to turn its reminder off cancels the stale notification", async () => {
+  const { repo, profile, ibu } = seed();
+  const entry = repo.createEntry({
+    profileId: profile.id, entryType: "med", medicationTypeId: ibu.id, dose: "5 ml",
+    recordedAt: "2026-06-12T08:00:00.000Z", reminderAt: "2026-06-12T12:00:00.000Z",
+  });
+  const cancelReminder = jest.fn();
+  await render(
+    <LogMed repo={repo} profileId={profile.id} onSaved={() => {}} editEntryId={entry.id}
+      scheduleReminder={jest.fn()} cancelReminder={cancelReminder} />
+  );
+  // Toggle the reminder switch off, then save.
+  await fireEvent(screen.getByRole("switch"), "valueChange", false);
+  await fireEvent.press(screen.getByText("Save"));
+  expect(cancelReminder).toHaveBeenCalledWith(entry.id);
+  expect(repo.getEntry(entry.id)?.reminderAt).toBeNull();
+});

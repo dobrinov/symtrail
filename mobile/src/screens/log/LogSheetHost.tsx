@@ -28,6 +28,7 @@ export function LogSheetHost(): React.JSX.Element | null {
   const [profileId] = useActiveProfile(repo);
 
   const scheduleReminder = (e: Entry, label: string) => void reminders.scheduleFor(e, label);
+  const cancelReminder = (entryId: string) => void reminders.cancelFor(entryId);
 
   // The detail/edit views resolve their entry reactively so deletes/edits
   // elsewhere don't leave a stale sheet.
@@ -74,7 +75,7 @@ export function LogSheetHost(): React.JSX.Element | null {
         ) : state.logType === "temp" ? (
           <LogTemp repo={repo} profileId={profileId} onSaved={afterSave} initialDate={state.presetDateIso} />
         ) : (
-          <LogMed repo={repo} profileId={profileId} onSaved={afterSave} initialDate={state.presetDateIso} scheduleReminder={scheduleReminder} />
+          <LogMed repo={repo} profileId={profileId} onSaved={afterSave} initialDate={state.presetDateIso} scheduleReminder={scheduleReminder} cancelReminder={cancelReminder} />
         )
       ) : null}
 
@@ -83,7 +84,7 @@ export function LogSheetHost(): React.JSX.Element | null {
       ) : null}
 
       {state.mode === "edit" && entry ? (
-        <EditEntry repo={repo} entry={entry} onSaved={afterSave} isPfapa={isPfapa} scheduleReminder={scheduleReminder} />
+        <EditEntry repo={repo} entry={entry} onSaved={afterSave} isPfapa={isPfapa} scheduleReminder={scheduleReminder} cancelReminder={cancelReminder} />
       ) : null}
     </Sheet>
   );
