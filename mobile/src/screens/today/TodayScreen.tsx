@@ -124,7 +124,7 @@ export function TodayScreen(props: {
         <Text style={styles.sectionTitle}>Recent</Text>
         {recent.length === 0 ? (
           <Card pad={22} style={{ alignItems: "center" }}>
-            <Text style={styles.emptyText}>Nothing logged yet today.</Text>
+            <Text style={styles.emptyText}>Nothing logged this week.</Text>
             <Text style={styles.emptyHint}>Tap + to add a symptom or medication.</Text>
           </Card>
         ) : (
