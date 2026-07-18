@@ -10,11 +10,13 @@ export function PressableScale({
   disabled = false,
   style,
   children,
+  testID,
 }: {
   onPress?: () => void;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   children: React.ReactNode;
+  testID?: string;
 }): React.JSX.Element {
   const down = useRef(new Animated.Value(0)).current;
   const animate = (toValue: number) =>
@@ -23,6 +25,7 @@ export function PressableScale({
     <AnimatedPressable
       onPress={onPress}
       disabled={disabled}
+      testID={testID}
       onPressIn={() => animate(1)}
       onPressOut={() => animate(0)}
       style={[

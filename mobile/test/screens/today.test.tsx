@@ -34,20 +34,20 @@ test("shows status from today's max severity and lists recent entries", async ()
   const st = repo.createSymptomType({ label: "Sore throat", icon: "throat" });
   repo.createEntry({ profileId: profile.id, entryType: "symptom", symptomTypeId: st.id, severity: "mild", recordedAt: todayIso });
   await renderWithSafeArea(
-    <TodayScreen repo={repo} profileId={profile.id} onSwitchProfile={() => {}} onLog={() => {}} onOpenEntry={() => {}} />
+    <TodayScreen repo={repo} profileId={profile.id} onSwitchProfile={() => {}} onOpenSearch={() => {}} onOpenEntry={() => {}} />
   );
   expect(screen.getByText(/Moderate/)).toBeTruthy(); // 38.5 → moderate beats mild
   expect(screen.getByText("Sore throat")).toBeTruthy();
 });
 
-test("quick-log buttons call onLog", async () => {
+test("header search button calls onOpenSearch", async () => {
   const { repo, profile } = seed();
-  const onLog = jest.fn();
+  const onOpenSearch = jest.fn();
   await renderWithSafeArea(
-    <TodayScreen repo={repo} profileId={profile.id} onSwitchProfile={() => {}} onLog={onLog} onOpenEntry={() => {}} />
+    <TodayScreen repo={repo} profileId={profile.id} onSwitchProfile={() => {}} onOpenSearch={onOpenSearch} onOpenEntry={() => {}} />
   );
-  await fireEvent.press(screen.getByText("Temperature"));
-  expect(onLog).toHaveBeenCalled();
+  await fireEvent.press(screen.getByTestId("open-search"));
+  expect(onOpenSearch).toHaveBeenCalled();
 });
 
 test("prediction card renders for a PFAPA profile with >= 2 flares", async () => {
@@ -60,7 +60,7 @@ test("prediction card renders for a PFAPA profile with >= 2 flares", async () =>
     }
   }
   await renderWithSafeArea(
-    <TodayScreen repo={repo} profileId={profile.id} onSwitchProfile={() => {}} onLog={() => {}} onOpenEntry={() => {}} />
+    <TodayScreen repo={repo} profileId={profile.id} onSwitchProfile={() => {}} onOpenSearch={() => {}} onOpenEntry={() => {}} />
   );
   expect(screen.getByText(/flare/i)).toBeTruthy(); // prediction card copy mentions the flare window
 });

@@ -1,10 +1,10 @@
 // TodayScreen — home screen, port of docs/prototype/screens-home.jsx:
-// header w/ profile chip, status card, prediction card (PFAPA), quick-log
-// row, recent entries list.
+// header w/ profile chip + search, status card, prediction card (PFAPA),
+// recent entries list. Logging happens via the tab bar's "+" button.
 import React from "react";
 import { RefreshControlProps, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Repo, Entry, MedicationType, SymptomType } from "../../db/repo";
+import { Repo, Entry, SymptomType } from "../../db/repo";
 import { useQuery } from "../../db/useQuery";
 import { Avatar } from "../../design/Avatar";
 import { Card } from "../../design/Card";
@@ -15,21 +15,13 @@ import { themedStyles, useTokens } from "../../design/theme";
 import { ageLabel } from "../../domain/age";
 import { cycleStats, deriveFlares, Flare } from "../../domain/flares";
 import { formatTemp, SEVERITY, SEVERITY_ORDER, SeverityKey, tempToSeverity } from "../../domain/severity";
+import { EntryRow } from "../log/EntryRow";
 import { PredictionCard } from "./PredictionCard";
 
 const DAY_MS = 86400000;
 
 // Day bucketing is UTC across the app (flares, calendar, meds, DayDetail all
 // key on the UTC date prefix of the ISO string), so "today" matches them.
-function fmtTime(iso: string): string {
-  const d = new Date(iso);
-  let h = d.getHours();
-  const m = d.getMinutes();
-  const am = h < 12 ? "am" : "pm";
-  h = h % 12;
-  if (h === 0) h = 12;
-  return `${h}:${String(m).padStart(2, "0")} ${am}`;
-}
 
 function entrySeverity(e: Entry): SeverityKey {
   if (e.entryType === "temp") return tempToSeverity(e.tempC);
@@ -41,7 +33,7 @@ export function TodayScreen(props: {
   repo: Repo;
   profileId: string;
   onSwitchProfile: () => void;
-  onLog: (mode: "choose" | "symptom" | "temp" | "med") => void;
+  onOpenSearch: () => void;
   onOpenEntry: (entryId: string) => void;
   onOpenFlare?: (flare: Flare) => void;
   tempUnit?: "c" | "f";
@@ -109,11 +101,16 @@ export function TodayScreen(props: {
             </Text>
           </View>
         </PressableScale>
-        {profile.condition ? (
-          <View style={styles.conditionPill}>
-            <Text style={styles.conditionText}>{profile.condition}</Text>
-          </View>
-        ) : null}
+        <View style={styles.headerRight}>
+          {profile.condition ? (
+            <View style={styles.conditionPill}>
+              <Text style={styles.conditionText}>{profile.condition}</Text>
+            </View>
+          ) : null}
+          <PressableScale onPress={props.onOpenSearch} style={styles.searchBtn} testID="open-search">
+            <Icon name="search" size={19} color={t.balance} sw={2} />
+          </PressableScale>
+        </View>
       </View>
 
       <View style={styles.body}>
@@ -126,13 +123,6 @@ export function TodayScreen(props: {
             onPress={recentFlare && props.onOpenFlare ? () => props.onOpenFlare!(recentFlare!) : undefined}
           />
         ) : null}
-
-        {/* quick log */}
-        <View style={styles.quickRow}>
-          <QuickLogItem label="Symptom" icon="rash" color={t.approach} onPress={() => props.onLog("symptom")} />
-          <QuickLogItem label="Temperature" icon="fever" color="#F2802E" onPress={() => props.onLog("temp")} />
-          <QuickLogItem label="Medication" icon="syrup" color={t.yellow} onPress={() => props.onLog("med")} />
-        </View>
 
         {/* recent entries */}
         <Text style={styles.sectionTitle}>Recent</Text>
@@ -241,95 +231,6 @@ function StatusCard({
   );
 }
 
-// ── Quick log ───────────────────────────────────────────────
-function QuickLogItem({
-  label,
-  icon,
-  color,
-  onPress,
-}: {
-  label: string;
-  icon: string;
-  color: string;
-  onPress: () => void;
-}): React.JSX.Element {
-  const styles = useStyles();
-  const t = useTokens();
-  return (
-    <PressableScale onPress={onPress} style={{ flex: 1 }}>
-      <Card pad={14} style={styles.quickCard}>
-        <View style={[styles.quickGlyph, { backgroundColor: color + "22" }]}>
-          <Icon name={icon} size={23} color={color === t.yellow ? "#C7841A" : color} sw={1.9} />
-        </View>
-        <Text style={styles.quickLabel}>{label}</Text>
-      </Card>
-    </PressableScale>
-  );
-}
-
-// ── Entry row ───────────────────────────────────────────────
-function EntryRow({
-  entry,
-  symptomTypes,
-  medTypes,
-  tempUnit,
-  last,
-  onPress,
-}: {
-  entry: Entry;
-  symptomTypes: Map<string, SymptomType>;
-  medTypes: Map<string, MedicationType>;
-  tempUnit: "c" | "f";
-  last: boolean;
-  onPress: () => void;
-}): React.JSX.Element {
-  const styles = useStyles();
-  const t = useTokens();
-  const st = entry.symptomTypeId ? symptomTypes.get(entry.symptomTypeId) : undefined;
-  const mt = entry.medicationTypeId ? medTypes.get(entry.medicationTypeId) : undefined;
-
-  let title: string;
-  let glyphIcon: string;
-  let glyphBg: string;
-  let glyphColor: string;
-  if (entry.entryType === "temp") {
-    const sev = SEVERITY[tempToSeverity(entry.tempC)];
-    title = entry.tempC != null ? formatTemp(entry.tempC, tempUnit) : "Temperature";
-    glyphIcon = "fever";
-    glyphBg = sev.key === "none" ? sev.color : sev.color + "33";
-    glyphColor = sev.key === "none" ? t.balance : sev.dot;
-  } else if (entry.entryType === "med") {
-    const name = mt?.label ?? "Medication";
-    title = entry.dose ? `${name} · ${entry.dose}` : name;
-    glyphIcon = mt?.form === "tablet" ? "tablet" : mt?.form === "drops" ? "drops" : "syrup";
-    glyphBg = (mt?.color ?? t.balance) + "22";
-    glyphColor = mt?.color ?? t.balance;
-  } else if (entry.entryType === "note") {
-    title = entry.note ?? "Note";
-    glyphIcon = "note";
-    glyphBg = t.calm;
-    glyphColor = t.grey;
-  } else {
-    const sev = SEVERITY[(entry.severity ?? "mild") as SeverityKey];
-    title = st?.label ?? "Symptom";
-    glyphIcon = st?.icon ?? "note";
-    glyphBg = sev.key === "none" ? sev.color : sev.color + "33";
-    glyphColor = sev.dot;
-  }
-
-  return (
-    <PressableScale onPress={onPress} style={[styles.entryRow, !last && styles.entryRowBorder]}>
-      <View style={[styles.entryGlyph, { backgroundColor: glyphBg }]}>
-        <Icon name={glyphIcon} size={21} color={glyphColor} sw={1.9} />
-      </View>
-      <Text style={styles.entryTitle} numberOfLines={1}>
-        {title}
-      </Text>
-      <Text style={styles.entryTime}>{fmtTime(entry.recordedAt)}</Text>
-    </PressableScale>
-  );
-}
-
 const useStyles = themedStyles((t) => StyleSheet.create({
   screen: {
     flex: 1,
@@ -362,6 +263,21 @@ const useStyles = themedStyles((t) => StyleSheet.create({
   subtitle: {
     fontSize: 13,
     color: t.grey,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  searchBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: t.white,
+    borderWidth: 1,
+    borderColor: t.lavender,
   },
   conditionPill: {
     backgroundColor: t.lavender,
@@ -409,27 +325,6 @@ const useStyles = themedStyles((t) => StyleSheet.create({
     fontSize: 13,
     color: t.grey,
   },
-  quickRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 22,
-  },
-  quickCard: {
-    alignItems: "center",
-    gap: 8,
-  },
-  quickGlyph: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  quickLabel: {
-    fontSize: 12.5,
-    fontFamily: "Sora_600SemiBold",
-    color: t.anchor,
-  },
   sectionTitle: {
     fontSize: 15,
     fontFamily: "Sora_700Bold",
@@ -446,38 +341,5 @@ const useStyles = themedStyles((t) => StyleSheet.create({
     color: t.approach,
     marginTop: 4,
     fontFamily: "Sora_600SemiBold",
-  },
-  entryRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 4,
-  },
-  entryRowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: t.calm,
-  },
-  entryGlyph: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  entryTitle: {
-    flex: 1,
-    minWidth: 0,
-    fontSize: 15.5,
-    fontFamily: "Sora_600SemiBold",
-    color: t.anchor,
-    letterSpacing: -0.2,
-  },
-  entryTime: {
-    fontSize: 12.5,
-    color: t.grey,
-    fontVariant: ["tabular-nums"],
-    flexShrink: 0,
   },
 }));

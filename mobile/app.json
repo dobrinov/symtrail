@@ -10,7 +10,7 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.symtrail.app",
-      "buildNumber": "5",
+      "buildNumber": "6",
       "supportsTablet": false,
       "config": {
         "usesNonExemptEncryption": false

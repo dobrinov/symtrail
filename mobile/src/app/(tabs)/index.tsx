@@ -15,7 +15,7 @@ export default function Today(): React.JSX.Element {
   const styles = useStyles();
   const { repo, sync, session } = useServices();
   const router = useRouter();
-  const { openLog, openEntry, openFlare } = useLogSheet();
+  const { openEntry, openFlare } = useLogSheet();
   // Subscribe to sync_meta so a unit change re-renders this route.
   const tempUnit = useQuery(["sync_meta"], () => session.tempUnit());
   const [profileId, setActiveProfile] = useActiveProfile(repo);
@@ -38,7 +38,7 @@ export default function Today(): React.JSX.Element {
           repo={repo}
           profileId={profileId}
           onSwitchProfile={() => setSwitcherOpen(true)}
-          onLog={() => openLog()}
+          onOpenSearch={() => router.push("/search")}
           onOpenEntry={(id) => openEntry(id)}
           onOpenFlare={(flare) => openFlare(flare)}
           tempUnit={tempUnit}
