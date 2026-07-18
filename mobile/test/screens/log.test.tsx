@@ -6,6 +6,7 @@ import { Repo } from "../../src/db/repo";
 import { LogSymptom } from "../../src/screens/log/LogSymptom";
 import { LogTemp } from "../../src/screens/log/LogTemp";
 import { LogMed } from "../../src/screens/log/LogMed";
+import { EntryDetail } from "../../src/screens/log/EntryDetail";
 
 function seed() {
   const db = makeTestDb();
@@ -92,4 +93,42 @@ test("editing a med to turn its reminder off cancels the stale notification", as
   await fireEvent.press(screen.getByText("Save"));
   expect(cancelReminder).toHaveBeenCalledWith(entry.id);
   expect(repo.getEntry(entry.id)?.reminderAt).toBeNull();
+});
+
+test("LogMed saves an optional note with the entry", async () => {
+  const { repo, profile } = seed();
+  await render(<LogMed repo={repo} profileId={profile.id} onSaved={() => {}} />);
+  await fireEvent.press(screen.getByText("Ibuprofen"));
+  await fireEvent.changeText(screen.getByPlaceholderText("Optional note (e.g. taken with food)"), "Taken with food");
+  await fireEvent.press(screen.getByText("Save"));
+  const entries = repo.listEntries(profile.id);
+  expect(entries).toHaveLength(1);
+  expect(entries[0].note).toBe("Taken with food");
+});
+
+test("editing a med entry pre-fills and updates its note", async () => {
+  const { repo, profile, ibu } = seed();
+  const entry = repo.createEntry({
+    profileId: profile.id, entryType: "med", medicationTypeId: ibu.id, dose: "5 ml",
+    note: "Before bed", recordedAt: "2026-06-12T08:00:00.000Z",
+  });
+  await render(<LogMed repo={repo} profileId={profile.id} onSaved={() => {}} editEntryId={entry.id} />);
+  const input = screen.getByPlaceholderText("Optional note (e.g. taken with food)");
+  expect(input.props.value).toBe("Before bed");
+  await fireEvent.changeText(input, "");
+  await fireEvent.press(screen.getByText("Save"));
+  expect(repo.getEntry(entry.id)?.note).toBeNull(); // cleared note is stored as null
+});
+
+test("EntryDetail's delete button fires onDelete", async () => {
+  const { repo, profile, ibu } = seed();
+  const entry = repo.createEntry({
+    profileId: profile.id, entryType: "med", medicationTypeId: ibu.id, dose: "5 ml",
+    note: "Taken with food", recordedAt: "2026-06-12T08:00:00.000Z",
+  });
+  const onDelete = jest.fn();
+  await render(<EntryDetail repo={repo} entry={entry} onEdit={() => {}} onDelete={onDelete} />);
+  expect(screen.getByText("Taken with food")).toBeTruthy(); // med note shown in detail
+  await fireEvent.press(screen.getByText("Delete entry"));
+  expect(onDelete).toHaveBeenCalled();
 });

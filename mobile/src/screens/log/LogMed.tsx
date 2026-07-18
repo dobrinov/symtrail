@@ -45,6 +45,7 @@ export function LogMed({
 
   const [selected, setSelected] = useState<string | null>(existing?.medicationTypeId ?? null);
   const [dose, setDose] = useState<string>(existing?.dose ?? "");
+  const [note, setNote] = useState<string>(existing?.note ?? "");
   const [at, setAt] = useState<string>(existing?.recordedAt ?? initialDate ?? new Date().toISOString());
   const [remind, setRemind] = useState<boolean>(!!existing?.reminderAt);
   const [remindAt, setRemindAt] = useState<string | null>(existing?.reminderAt ?? null);
@@ -89,7 +90,7 @@ export function LogMed({
     const reminderAt = remind ? remindAt : null;
     let entry: Entry;
     if (existing) {
-      repo.updateEntry(existing.id, { medicationTypeId: selected, dose: dose.trim() || null, reminderAt, recordedAt: at });
+      repo.updateEntry(existing.id, { medicationTypeId: selected, dose: dose.trim() || null, note: note.trim() || null, reminderAt, recordedAt: at });
       entry = repo.getEntry(existing.id)!;
     } else {
       entry = repo.createEntry({
@@ -97,6 +98,7 @@ export function LogMed({
         entryType: "med",
         medicationTypeId: selected,
         dose: dose.trim() || null,
+        note: note.trim() || null,
         reminderAt,
         recordedAt: at,
       });
@@ -169,6 +171,18 @@ export function LogMed({
         placeholder="e.g. 5 ml"
         placeholderTextColor={t.approach}
         style={styles.input}
+      />
+
+      {/* note */}
+      <Text style={[styles.sectionLabel, { marginTop: 18 }]}>Notes</Text>
+      <TextInput
+        keyboardAppearance={scheme}
+        value={note}
+        onChangeText={setNote}
+        placeholder="Optional note (e.g. taken with food)"
+        placeholderTextColor={t.approach}
+        style={[styles.input, styles.noteInput]}
+        multiline
       />
 
       {/* reminder */}
@@ -250,6 +264,13 @@ const useStyles = themedStyles((t) => StyleSheet.create({
     fontSize: 16.5,
     fontFamily: "Sora_600SemiBold",
     color: t.anchor,
+  },
+  noteInput: {
+    height: 84,
+    paddingTop: 14,
+    paddingBottom: 14,
+    fontSize: 15,
+    textAlignVertical: "top",
   },
   formRow: { flexDirection: "row", gap: 8, marginTop: 8 },
   formChip: { flex: 1, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
