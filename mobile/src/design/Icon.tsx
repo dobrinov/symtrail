@@ -237,6 +237,12 @@ const GLYPHS: Record<string, (c: Ctx) => React.JSX.Element> = {
       <Path d="M3.5 9.5h17M8 3v4M16 3v4" />
     </G>
   ),
+  list: ({ p }) => (
+    <G {...p}>
+      <Path d="M8.5 6h12M8.5 12h12M8.5 18h12" />
+      <Path d="M4 6h.01M4 12h.01M4 18h.01" />
+    </G>
+  ),
   pillTab: ({ p }) => (
     <G {...p}>
       <Rect x="3" y="9" width="13" height="6" rx="3" transform="rotate(-40 9.5 12)" />

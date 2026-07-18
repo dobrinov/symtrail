@@ -38,7 +38,6 @@ export default function Today(): React.JSX.Element {
           repo={repo}
           profileId={profileId}
           onSwitchProfile={() => setSwitcherOpen(true)}
-          onOpenSearch={() => router.push("/search")}
           onOpenEntry={(id) => openEntry(id)}
           onOpenFlare={(flare) => openFlare(flare)}
           tempUnit={tempUnit}

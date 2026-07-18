@@ -33,7 +33,6 @@ export function TodayScreen(props: {
   repo: Repo;
   profileId: string;
   onSwitchProfile: () => void;
-  onOpenSearch: () => void;
   onOpenEntry: (entryId: string) => void;
   onOpenFlare?: (flare: Flare) => void;
   tempUnit?: "c" | "f";
@@ -101,16 +100,11 @@ export function TodayScreen(props: {
             </Text>
           </View>
         </PressableScale>
-        <View style={styles.headerRight}>
-          {profile.condition ? (
-            <View style={styles.conditionPill}>
-              <Text style={styles.conditionText}>{profile.condition}</Text>
-            </View>
-          ) : null}
-          <PressableScale onPress={props.onOpenSearch} style={styles.searchBtn} testID="open-search">
-            <Icon name="search" size={19} color={t.balance} sw={2} />
-          </PressableScale>
-        </View>
+        {profile.condition ? (
+          <View style={styles.conditionPill}>
+            <Text style={styles.conditionText}>{profile.condition}</Text>
+          </View>
+        ) : null}
       </View>
 
       <View style={styles.body}>
@@ -263,21 +257,6 @@ const useStyles = themedStyles((t) => StyleSheet.create({
   subtitle: {
     fontSize: 13,
     color: t.grey,
-  },
-  headerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  searchBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: t.white,
-    borderWidth: 1,
-    borderColor: t.lavender,
   },
   conditionPill: {
     backgroundColor: t.lavender,
