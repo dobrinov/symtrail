@@ -10,7 +10,11 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.symtrail.app",
-      "supportsTablet": false
+      "buildNumber": "4",
+      "supportsTablet": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -48,7 +52,11 @@
       "reactCompiler": true
     },
     "extra": {
-      "apiUrl": "http://localhost:3000"
+      "apiUrl": "http://localhost:3000",
+      "router": {},
+      "eas": {
+        "projectId": "f4b8919c-0f1c-4d2e-b0b0-3a2b67feb1f7"
+      }
     }
   }
 }

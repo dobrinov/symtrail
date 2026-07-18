@@ -18,6 +18,9 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
+# App Store / signing credentials (private keys + IDs)
+/credentials/
+
 # Metro
 .metro-health-check*
 
