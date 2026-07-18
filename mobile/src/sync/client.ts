@@ -1,5 +1,6 @@
 import { Repo, SYNC_TABLES, SyncTable } from "../db/repo";
 import { PushChanges, PullResponse, PushResponse } from "../api/types";
+import { LOCAL_ONLY } from "../config";
 
 interface SyncApi {
   syncPush(changes: PushChanges): Promise<PushResponse>;
@@ -27,6 +28,7 @@ export class SyncClient {
 
   /** Push dirty + deletes, then pull. Returns true on success, false on any failure (silent). */
   async syncNow(): Promise<boolean> {
+    if (LOCAL_ONLY) return false; // backend disabled: nothing to push/pull
     if (this.running) return false;
     this.running = true;
     try {

@@ -82,3 +82,26 @@ test("sync meta get/set roundtrip", () => {
   repo.setMeta("cursor", "42");
   expect(repo.getMeta("cursor")).toBe("42");
 });
+
+test("seedBuiltins inserts builtin, non-dirty catalogues and is idempotent", () => {
+  const db = makeTestDb();
+  migrate(db);
+  let n = 0;
+  const repo = new Repo(db, () => "2026-06-11T10:00:00.000Z", () => `uuid-${++n}`);
+  const symptoms = [{ icon: "fever", label: "Fever", groupName: "PFAPA" }];
+  const meds = [{ label: "Ibuprofen", brand: "Nurofen", form: "syrup", defaultDose: "5 ml", strength: "100mg/5ml", color: "#F2802E", kind: "Pain / fever" }];
+
+  repo.seedBuiltins(symptoms, meds);
+  const s = repo.listSymptomTypes();
+  const m = repo.listMedicationTypes();
+  expect(s).toHaveLength(1);
+  expect(s[0]).toMatchObject({ label: "Fever", icon: "fever", groupName: "PFAPA", builtin: true });
+  expect(m[0]).toMatchObject({ label: "Ibuprofen", defaultDose: "5 ml", builtin: true });
+  const row = repo.db.get<{ dirty: number }>("SELECT dirty FROM symptom_types WHERE id = ?", [s[0].id]);
+  expect(row?.dirty).toBe(0);
+
+  // Re-seeding is a no-op once a catalogue already has rows.
+  repo.seedBuiltins(symptoms, meds);
+  expect(repo.listSymptomTypes()).toHaveLength(1);
+  expect(repo.listMedicationTypes()).toHaveLength(1);
+});

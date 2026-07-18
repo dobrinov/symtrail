@@ -3,14 +3,29 @@ import { AppState } from "react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useFonts, Sora_400Regular, Sora_600SemiBold, Sora_700Bold, Sora_800ExtraBold } from "@expo-google-fonts/sora";
 import { AppServicesProvider, useServices, setCachedToken, getCachedToken } from "../AppServices";
+import { useQuery } from "../db/useQuery";
+import { resolveRoute } from "../session/routing";
+import { LOCAL_ONLY } from "../config";
+import { seedBuiltinCatalogues } from "../db/builtinCatalogue";
 
 function AuthGateAndSync({ children }: { children: React.ReactNode }) {
-  const { session, sync } = useServices();
+  const { session, sync, repo } = useServices();
   const [ready, setReady] = useState(false);
   const segments = useSegments();
   const router = useRouter();
 
+  // Reactive: re-runs when profiles change (e.g. the first one is added during
+  // onboarding, or the last one is deleted), so the gate re-evaluates.
+  const profileCount = useQuery(["profiles"], () => repo.listProfiles().length);
+
   useEffect(() => {
+    // LOCAL_ONLY: no backend — seed the built-in catalogues locally (the server
+    // normally supplies them on first sync) and skip the token/sync handshake.
+    if (LOCAL_ONLY) {
+      seedBuiltinCatalogues(repo);
+      setReady(true);
+      return;
+    }
     session.getToken().then((token) => {
       setCachedToken(token);
       setReady(true);
@@ -26,14 +41,13 @@ function AuthGateAndSync({ children }: { children: React.ReactNode }) {
     return () => sub.remove();
   }, []);
 
-  // route guard — re-evaluated on every navigation (segments change)
+  // route guard — re-evaluated on navigation and whenever the profile count
+  // changes. Zero-profile authed users are forced into onboarding.
   useEffect(() => {
     if (!ready) return;
-    const authed = !!getCachedToken();
-    const inAuth = segments[0] === "(auth)";
-    if (!authed && !inAuth) router.replace("/(auth)/sign-in");
-    if (authed && inAuth) router.replace("/(tabs)");
-  }, [ready, segments]);
+    const target = resolveRoute(LOCAL_ONLY || !!getCachedToken(), profileCount, segments[0]);
+    if (target) router.replace(target as Parameters<typeof router.replace>[0]);
+  }, [ready, segments, profileCount]);
 
   if (!ready) return null;
   return <>{children}</>;

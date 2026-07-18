@@ -154,6 +154,32 @@ export class Repo {
     return mapMedicationType(r!);
   }
 
+  // Local-only seeding of the built-in catalogues (LOCAL_ONLY mode), inserting
+  // them as builtin + non-dirty rows — the server normally supplies these via
+  // the initial sync pull. Idempotent: a no-op once either catalogue has rows.
+  seedBuiltins(
+    symptoms: { icon: string; label: string; groupName: string }[],
+    medications: { label: string; brand: string | null; form: string; defaultDose: string; strength: string; color: string; kind: string }[],
+  ): void {
+    const seeded = this.db.get("SELECT 1 FROM symptom_types LIMIT 1") || this.db.get("SELECT 1 FROM medication_types LIMIT 1");
+    if (seeded) return;
+    const now = this.nowIso();
+    for (const s of symptoms) {
+      this.db.run(
+        "INSERT INTO symptom_types (id, label, icon, group_name, builtin, client_updated_at, dirty) VALUES (?, ?, ?, ?, 1, ?, 0)",
+        [this.newId(), s.label, s.icon, s.groupName, now],
+      );
+    }
+    for (const m of medications) {
+      this.db.run(
+        "INSERT INTO medication_types (id, label, brand, form, strength, default_dose, color, kind, builtin, client_updated_at, dirty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, 0)",
+        [this.newId(), m.label, m.brand, m.form, m.strength, m.defaultDose, m.color, m.kind, now],
+      );
+    }
+    emitTableChange("symptom_types");
+    emitTableChange("medication_types");
+  }
+
   listSymptomTypes(): SymptomType[] {
     return this.db.all(`SELECT * FROM symptom_types WHERE ${ALIVE} ORDER BY rowid`).map(mapSymptomType);
   }

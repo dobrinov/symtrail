@@ -1,3 +1,7 @@
+// These tests exercise real push/pull mechanics, which only run with a backend,
+// so the temporary LOCAL_ONLY no-op short-circuit is disabled here.
+jest.mock("../../src/config", () => ({ LOCAL_ONLY: false }));
+
 import { makeTestDb } from "../helpers/testDb";
 import { migrate } from "../../src/db/schema";
 import { Repo } from "../../src/db/repo";
