@@ -2,17 +2,21 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { PressableScale } from "./PressableScale";
-import { TOKENS } from "./tokens";
+import { themedStyles, useTokens } from "./theme";
+import { Tokens } from "./tokens";
 
 type Variant = "primary" | "dark" | "secondary" | "danger" | "ghost";
 
-const VARIANTS: Record<Variant, { bg: string; fg: string }> = {
-  primary: { bg: TOKENS.yellow, fg: TOKENS.anchor },
-  dark: { bg: TOKENS.anchor, fg: TOKENS.white },
-  secondary: { bg: TOKENS.calm, fg: TOKENS.anchor },
-  danger: { bg: "#E1542E", fg: TOKENS.white },
-  ghost: { bg: "transparent", fg: TOKENS.approach },
-};
+// "dark" deliberately swaps anchor/white so it inverts with the theme
+// (light theme: dark button, dark theme: light button). Fixed backgrounds
+// (yellow, danger red) take theme-independent ink via onYellow/onAccent.
+const variants = (t: Tokens): Record<Variant, { bg: string; fg: string }> => ({
+  primary: { bg: t.yellow, fg: t.onYellow },
+  dark: { bg: t.anchor, fg: t.white },
+  secondary: { bg: t.calm, fg: t.anchor },
+  danger: { bg: "#E1542E", fg: t.onAccent },
+  ghost: { bg: "transparent", fg: t.approach },
+});
 
 export function Button({
   onPress,
@@ -29,9 +33,12 @@ export function Button({
   full?: boolean;
   children: React.ReactNode;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
+  const VARIANTS = variants(t);
   // prototype: disabled primary swaps to lavender bg + white text, plus 0.6 opacity
-  const bg = disabled && variant === "primary" ? TOKENS.lavender : VARIANTS[variant].bg;
-  const fg = disabled && variant === "primary" ? TOKENS.white : VARIANTS[variant].fg;
+  const bg = disabled && variant === "primary" ? t.lavender : VARIANTS[variant].bg;
+  const fg = disabled && variant === "primary" ? t.onAccent : VARIANTS[variant].fg;
   return (
     <PressableScale
       onPress={disabled ? undefined : onPress}
@@ -53,7 +60,7 @@ export function Button({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   base: {
     height: 54,
     borderRadius: 16,
@@ -74,4 +81,4 @@ const styles = StyleSheet.create({
     fontFamily: "Sora_700Bold",
     letterSpacing: -0.2,
   },
-});
+}));

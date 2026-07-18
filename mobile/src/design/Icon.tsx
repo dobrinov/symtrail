@@ -2,7 +2,7 @@
 // All glyphs share a 24×24 viewBox, round caps/joins.
 import React from "react";
 import Svg, { Circle, G, Path, Rect } from "react-native-svg";
-import { TOKENS } from "./tokens";
+import { useTokens } from "./theme";
 
 type StrokeProps = {
   fill: "none";
@@ -285,6 +285,23 @@ const GLYPHS: Record<string, (c: Ctx) => React.JSX.Element> = {
       <Path d="M12 7v5l3.5 2" />
     </G>
   ),
+  sun: ({ p }) => (
+    <G {...p}>
+      <Circle cx="12" cy="12" r="4" />
+      <Path d="M12 2.5V5M12 19v2.5M2.5 12H5M19 12h2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8" />
+    </G>
+  ),
+  moon: ({ p }) => (
+    <G {...p}>
+      <Path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" />
+    </G>
+  ),
+  phone: ({ p }) => (
+    <G {...p}>
+      <Rect x="7" y="3" width="10" height="18" rx="2.5" />
+      <Path d="M10.5 17.5h3" />
+    </G>
+  ),
   edit: ({ p }) => (
     <G {...p}>
       <Path d="M4 20h4l10-10-4-4L4 16z" />
@@ -389,7 +406,7 @@ const GLYPHS: Record<string, (c: Ctx) => React.JSX.Element> = {
 export function Icon({
   name,
   size = 24,
-  color = TOKENS.anchor,
+  color,
   sw = 1.8,
 }: {
   name: string;
@@ -397,6 +414,8 @@ export function Icon({
   color?: string;
   sw?: number;
 }): React.JSX.Element | null {
+  const tokens = useTokens();
+  color = color ?? tokens.anchor;
   const glyph = GLYPHS[name];
   if (!glyph) return null;
   const p: StrokeProps = {

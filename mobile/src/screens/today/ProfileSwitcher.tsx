@@ -7,7 +7,7 @@ import { useQuery } from "../../db/useQuery";
 import { Avatar } from "../../design/Avatar";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { ageLabel } from "../../domain/age";
 
 export function ProfileSwitcher({
@@ -21,6 +21,8 @@ export function ProfileSwitcher({
   onPick: (id: string) => void;
   onAddPerson: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const profiles = useQuery(["profiles"], () => repo.listProfiles());
   return (
     <View style={styles.list}>
@@ -30,12 +32,12 @@ export function ProfileSwitcher({
         return (
           <PressableScale key={p.id} onPress={() => onPick(p.id)}>
             <View style={[styles.row, active ? styles.rowActive : styles.rowIdle]}>
-              <Avatar name={p.name} color={p.color ?? TOKENS.approach} size={44} />
+              <Avatar name={p.name} color={p.color ?? t.approach} size={44} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.rowName}>{p.name}</Text>
                 {sub ? <Text style={styles.rowSub}>{sub}</Text> : null}
               </View>
-              {active ? <Icon name="check" size={22} color={TOKENS.yellow} sw={2.6} /> : null}
+              {active ? <Icon name="check" size={22} color={t.yellow} sw={2.6} /> : null}
             </View>
           </PressableScale>
         );
@@ -43,7 +45,7 @@ export function ProfileSwitcher({
       <PressableScale onPress={onAddPerson}>
         <View style={[styles.row, styles.rowIdle]}>
           <View style={styles.addGlyph}>
-            <Icon name="plus" size={22} color={TOKENS.balance} sw={2} />
+            <Icon name="plus" size={22} color={t.balance} sw={2} />
           </View>
           <Text style={styles.addLabel}>Add a person</Text>
         </View>
@@ -52,7 +54,7 @@ export function ProfileSwitcher({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   list: {
     gap: 10,
     paddingBottom: 8,
@@ -66,35 +68,35 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   rowActive: {
-    backgroundColor: TOKENS.white,
+    backgroundColor: t.white,
     borderWidth: 2,
-    borderColor: TOKENS.yellow,
+    borderColor: t.yellow,
   },
   rowIdle: {
     backgroundColor: "transparent",
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
+    borderColor: t.lavender,
   },
   rowName: {
     fontSize: 16.5,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.anchor,
+    color: t.anchor,
   },
   rowSub: {
     fontSize: 13,
-    color: TOKENS.grey,
+    color: t.grey,
   },
   addGlyph: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: TOKENS.calm,
+    backgroundColor: t.calm,
     alignItems: "center",
     justifyContent: "center",
   },
   addLabel: {
     fontSize: 16,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.balance,
+    color: t.balance,
   },
-});
+}));

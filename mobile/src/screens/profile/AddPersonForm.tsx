@@ -14,7 +14,8 @@ import { Avatar } from "../../design/Avatar";
 import { Button } from "../../design/Button";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
-import { AVATAR_COLORS, TOKENS } from "../../design/tokens";
+import { AVATAR_COLORS } from "../../design/tokens";
+import { themedStyles, useTheme, useTokens } from "../../design/theme";
 import { ageLabel } from "../../domain/age";
 
 function fmtDate(iso: string | null): string {
@@ -31,6 +32,9 @@ export function AddPersonForm({
   editProfileId?: string;
   onSaved: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
+  const { scheme } = useTheme();
   const existing = useMemo(
     () => (editProfileId ? repo.getProfile(editProfileId) : null),
     [editProfileId, repo],
@@ -91,10 +95,11 @@ export function AddPersonForm({
       <View style={styles.field}>
         <Text style={styles.fieldLabel}>Name</Text>
         <TextInput
+          keyboardAppearance={scheme}
           value={name}
           onChangeText={setName}
           placeholder="Name"
-          placeholderTextColor={TOKENS.grey}
+          placeholderTextColor={t.grey}
           style={styles.input}
         />
       </View>
@@ -105,9 +110,9 @@ export function AddPersonForm({
           {age ? <Text style={styles.ageHint}>{age} old</Text> : null}
         </View>
         <PressableScale onPress={openDate} style={styles.dateChip}>
-          <Icon name="calendar" size={18} color={TOKENS.balance} sw={1.9} />
+          <Icon name="calendar" size={18} color={t.balance} sw={1.9} />
           <Text style={styles.dateText}>{fmtDate(birthDate)}</Text>
-          <Icon name="chevR" size={16} color={TOKENS.grey} sw={2} />
+          <Icon name="chevR" size={16} color={t.grey} sw={2} />
         </PressableScale>
         {iosPicker ? (
           <View style={styles.pickerRow}>
@@ -115,8 +120,8 @@ export function AddPersonForm({
               value={birthDate ? new Date(birthDate) : new Date()}
               mode="date"
               display="inline"
-              themeVariant="light"
-              accentColor={TOKENS.anchor}
+              themeVariant={scheme}
+              accentColor={t.anchor}
               maximumDate={new Date()}
               onChange={onPickDate}
             />
@@ -139,7 +144,7 @@ export function AddPersonForm({
                 style={styles.sexWrap}
               >
                 <View style={[styles.sexCell, on ? styles.sexOn : styles.sexOff]}>
-                  <Text style={[styles.sexText, { color: on ? TOKENS.white : TOKENS.balance }]}>
+                  <Text style={[styles.sexText, { color: on ? t.white : t.balance }]}>
                     {o.l}
                   </Text>
                 </View>
@@ -160,10 +165,10 @@ export function AddPersonForm({
                   style={[
                     styles.swatch,
                     { backgroundColor: c },
-                    on ? { borderWidth: 3, borderColor: TOKENS.white } : null,
+                    on ? { borderWidth: 3, borderColor: t.white } : null,
                   ]}
                 >
-                  {on ? <Icon name="check" size={18} color={TOKENS.white} sw={3} /> : null}
+                  {on ? <Icon name="check" size={18} color={t.onAccent} sw={3} /> : null}
                 </View>
               </PressableScale>
             );
@@ -175,14 +180,14 @@ export function AddPersonForm({
         <Text style={styles.fieldLabel}>Condition</Text>
         <PressableScale onPress={() => setPfapa((v) => !v)}>
           <View style={[styles.condRow, pfapa ? styles.condOn : styles.condOff]}>
-            <View style={[styles.condGlyph, { backgroundColor: pfapa ? TOKENS.yellow : TOKENS.calm }]}>
-              <Icon name="fever" size={22} color={pfapa ? TOKENS.anchor : TOKENS.balance} sw={1.9} />
+            <View style={[styles.condGlyph, { backgroundColor: pfapa ? t.yellow : t.calm }]}>
+              <Icon name="fever" size={22} color={pfapa ? t.anchor : t.balance} sw={1.9} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.condTitle}>PFAPA patient</Text>
               <Text style={styles.condSub}>Tracks the flare cycle & predicts the next window</Text>
             </View>
-            <View style={[styles.switch, { backgroundColor: pfapa ? "#1F8A5B" : TOKENS.lavender }]}>
+            <View style={[styles.switch, { backgroundColor: pfapa ? "#1F8A5B" : t.lavender }]}>
               <View style={[styles.knob, { left: pfapa ? 21 : 3 }]} />
             </View>
           </View>
@@ -198,13 +203,13 @@ export function AddPersonForm({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   avatarRow: { alignItems: "center", marginBottom: 18 },
   field: { marginBottom: 16 },
   fieldLabel: {
     fontSize: 13,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.grey,
+    color: t.grey,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 8,
@@ -214,17 +219,17 @@ const styles = StyleSheet.create({
     alignItems: "baseline",
     justifyContent: "space-between",
   },
-  ageHint: { fontSize: 13, fontFamily: "Sora_700Bold", color: TOKENS.approach },
+  ageHint: { fontSize: 13, fontFamily: "Sora_700Bold", color: t.approach },
   input: {
     height: 52,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
-    backgroundColor: TOKENS.white,
+    borderColor: t.lavender,
+    backgroundColor: t.white,
     paddingHorizontal: 16,
     fontSize: 16.5,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
   },
   dateChip: {
     flexDirection: "row",
@@ -233,17 +238,17 @@ const styles = StyleSheet.create({
     height: 52,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
-    backgroundColor: TOKENS.white,
+    borderColor: t.lavender,
+    backgroundColor: t.white,
     paddingHorizontal: 16,
   },
-  dateText: { flex: 1, fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: TOKENS.anchor },
+  dateText: { flex: 1, fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: t.anchor },
   pickerRow: { marginTop: 10 },
   sexRow: { flexDirection: "row", gap: 8 },
   sexWrap: { flex: 1 },
   sexCell: { height: 52, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  sexOn: { backgroundColor: TOKENS.anchor },
-  sexOff: { backgroundColor: TOKENS.white, borderWidth: 1.5, borderColor: TOKENS.lavender },
+  sexOn: { backgroundColor: t.anchor },
+  sexOff: { backgroundColor: t.white, borderWidth: 1.5, borderColor: t.lavender },
   sexText: { fontSize: 14.5, fontFamily: "Sora_700Bold" },
   colorRow: { flexDirection: "row", gap: 12 },
   swatch: {
@@ -260,10 +265,10 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     paddingHorizontal: 15,
     borderRadius: 16,
-    backgroundColor: TOKENS.white,
+    backgroundColor: t.white,
   },
-  condOn: { borderWidth: 2, borderColor: TOKENS.yellow },
-  condOff: { borderWidth: 1.5, borderColor: TOKENS.lavender },
+  condOn: { borderWidth: 2, borderColor: t.yellow },
+  condOff: { borderWidth: 1.5, borderColor: t.lavender },
   condGlyph: {
     width: 40,
     height: 40,
@@ -271,8 +276,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  condTitle: { fontSize: 15.5, fontFamily: "Sora_700Bold", color: TOKENS.anchor },
-  condSub: { fontSize: 12.5, color: TOKENS.grey, lineHeight: 17 },
+  condTitle: { fontSize: 15.5, fontFamily: "Sora_700Bold", color: t.anchor },
+  condSub: { fontSize: 12.5, color: t.grey, lineHeight: 17 },
   switch: { width: 46, height: 28, borderRadius: 999 },
   knob: {
     position: "absolute",
@@ -280,7 +285,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: TOKENS.white,
+    backgroundColor: t.white,
   },
   saveWrap: { marginTop: 8 },
-});
+}));

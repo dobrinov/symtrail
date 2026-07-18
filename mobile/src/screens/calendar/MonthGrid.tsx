@@ -5,7 +5,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Entry } from "../../db/repo";
 import { PressableScale } from "../../design/PressableScale";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { daySeverity, SEVERITY, SeverityKey } from "../../domain/severity";
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -35,6 +35,8 @@ export function MonthGrid(props: {
   windowDays?: Set<string>;
   todayIso: string;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const { year, month, entries, selectedDay, onSelectDay, windowDays, todayIso } = props;
   const blanks = leadingBlanks(year, month);
   const total = daysInMonth(year, month);
@@ -46,8 +48,10 @@ export function MonthGrid(props: {
   for (let day = 1; day <= total; day++) {
     const key = dayKey(year, month, day);
     const sev: SeverityKey = daySeverity(entries, key);
-    const tint = sev === "none" ? TOKENS.calm : SEVERITY[sev].color;
-    const labelColor = sev === "none" || sev === "mild" ? TOKENS.anchor : SEVERITY[sev].text;
+    const tint = sev === "none" ? t.calm : SEVERITY[sev].color;
+    // "none" sits on a themed tint (anchor adapts); "mild" sits on the fixed
+    // pale-yellow severity colour, which needs dark ink in both themes.
+    const labelColor = sev === "none" ? t.anchor : sev === "mild" ? t.onYellow : SEVERITY[sev].text;
     const isToday = key === todayIso;
     const isSelected = key === selectedDay;
     const dotted = windowDays?.has(key);
@@ -85,7 +89,7 @@ export function MonthGrid(props: {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   wrap: { marginBottom: 18 },
   weekRow: { flexDirection: "row", marginBottom: 8 },
   weekday: {
@@ -93,7 +97,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 11.5,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.grey,
+    color: t.grey,
     letterSpacing: 0.2,
   },
   grid: { flexDirection: "row", flexWrap: "wrap" },
@@ -107,11 +111,11 @@ const styles = StyleSheet.create({
   },
   dayToday: {
     borderWidth: 2,
-    borderColor: TOKENS.anchor,
+    borderColor: t.anchor,
   },
   daySelected: {
     borderWidth: 2,
-    borderColor: TOKENS.approach,
+    borderColor: t.approach,
   },
   dayNum: {
     fontSize: 14,
@@ -124,6 +128,6 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: TOKENS.approach,
+    backgroundColor: t.approach,
   },
-});
+}));

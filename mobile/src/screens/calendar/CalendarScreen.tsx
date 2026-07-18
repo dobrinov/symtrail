@@ -7,7 +7,7 @@ import { Repo } from "../../db/repo";
 import { useQuery } from "../../db/useQuery";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { cycleStats, deriveFlares, Flare } from "../../domain/flares";
 import { DayDetail } from "./DayDetail";
 import { MonthGrid } from "./MonthGrid";
@@ -60,6 +60,8 @@ export function CalendarScreen(props: {
   tempUnit?: "c" | "f";
   refreshControl?: React.ReactElement<RefreshControlProps>;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const { repo, profileId, tempUnit = "c" } = props;
   const insets = useSafeAreaInsets();
   const now = new Date();
@@ -108,13 +110,13 @@ export function CalendarScreen(props: {
     >
       <View style={styles.header}>
         <PressableScale onPress={goPrev} style={styles.chev}>
-          <Icon name="chevL" size={22} color={TOKENS.balance} sw={2.4} />
+          <Icon name="chevL" size={22} color={t.balance} sw={2.4} />
         </PressableScale>
         <Text style={styles.monthLabel}>
           {MONTH_LABELS[view.month]} {view.year}
         </Text>
         <PressableScale onPress={goNext} style={styles.chev}>
-          <Icon name="chevR" size={22} color={TOKENS.balance} sw={2.4} />
+          <Icon name="chevR" size={22} color={t.balance} sw={2.4} />
         </PressableScale>
       </View>
 
@@ -145,8 +147,8 @@ export function CalendarScreen(props: {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: TOKENS.canvas },
+const useStyles = themedStyles((t) => StyleSheet.create({
+  screen: { flex: 1, backgroundColor: t.canvas },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -161,13 +163,13 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: TOKENS.white,
+    backgroundColor: t.white,
   },
   monthLabel: {
     fontSize: 19,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.3,
   },
   body: { paddingHorizontal: 20 },
-});
+}));

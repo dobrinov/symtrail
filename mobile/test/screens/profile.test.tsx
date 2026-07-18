@@ -47,8 +47,26 @@ test("deleteProfileCascade marks profile and its entries pending_delete", () => 
 test("SettingsSheet change calls both session.setTempUnit and api.updateSettings", async () => {
   const setTempUnit = jest.fn();
   const updateSettings = jest.fn(async () => ({ account: { id: 1, email: "a@b.com", settings: { temp_unit: "f" as const } } }));
-  await render(<SettingsSheet unit="c" setTempUnit={setTempUnit} updateSettings={updateSettings} />);
+  const setTheme = jest.fn();
+  await render(
+    <SettingsSheet unit="c" setTempUnit={setTempUnit} updateSettings={updateSettings} theme="system" setTheme={setTheme} />,
+  );
   await fireEvent.press(screen.getByText("Fahrenheit"));
   expect(setTempUnit).toHaveBeenCalledWith("f");
   expect(updateSettings).toHaveBeenCalledWith({ temp_unit: "f" });
+});
+
+test("SettingsSheet appearance pick calls setTheme", async () => {
+  const setTheme = jest.fn();
+  await render(
+    <SettingsSheet
+      unit="c"
+      setTempUnit={jest.fn()}
+      updateSettings={jest.fn(async () => ({}))}
+      theme="system"
+      setTheme={setTheme}
+    />,
+  );
+  await fireEvent.press(screen.getByText("Dark"));
+  expect(setTheme).toHaveBeenCalledWith("dark");
 });

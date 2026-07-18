@@ -5,7 +5,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { ApiClient } from "../../api/client";
 import { Button } from "../../design/Button";
 import { Icon } from "../../design/Icon";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { AuthField, ErrorText, LinkText } from "./shared";
 
 type Stage = "request" | "confirm" | "done";
@@ -14,6 +14,8 @@ export function ResetScreen(props: {
   api: Pick<ApiClient, "requestPasswordReset" | "confirmPasswordReset">;
   goToSignIn: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const [stage, setStage] = useState<Stage>("request");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -55,7 +57,7 @@ export function ResetScreen(props: {
         <>
           <View style={styles.header}>
             <View style={styles.iconBadge}>
-              <Icon name="lock" size={26} color={TOKENS.balance} sw={1.9} />
+              <Icon name="lock" size={26} color={t.balance} sw={1.9} />
             </View>
             <Text style={styles.title}>Reset password</Text>
             <Text style={styles.caption}>Enter the email for your account and we’ll send a reset code.</Text>
@@ -72,7 +74,7 @@ export function ResetScreen(props: {
         <>
           <View style={styles.header}>
             <View style={styles.iconBadge}>
-              <Icon name="mail" size={26} color={TOKENS.balance} sw={1.9} />
+              <Icon name="mail" size={26} color={t.balance} sw={1.9} />
             </View>
             <Text style={styles.title}>Check your email</Text>
             <Text style={styles.caption}>Enter the code we sent you and choose a new password.</Text>
@@ -103,10 +105,10 @@ export function ResetScreen(props: {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: TOKENS.canvas,
+    backgroundColor: t.canvas,
     paddingHorizontal: 24,
   },
   spacer: {
@@ -137,14 +139,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 27,
     fontFamily: "Sora_800ExtraBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.6,
     marginTop: 8,
   },
   caption: {
     fontSize: 14.5,
     fontFamily: "Sora_400Regular",
-    color: TOKENS.grey,
+    color: t.grey,
     textAlign: "center",
     lineHeight: 21,
     maxWidth: 300,
@@ -158,4 +160,4 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 22,
   },
-});
+}));

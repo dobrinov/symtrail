@@ -6,7 +6,7 @@ import { ApiClient } from "../../api/client";
 import { AccountJson } from "../../api/types";
 import { Button } from "../../design/Button";
 import { Icon } from "../../design/Icon";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { AuthField, ErrorText, LinkText, LogoBlock, deviceNameOrDefault } from "./shared";
 
 export function SignInScreen(props: {
@@ -16,6 +16,8 @@ export function SignInScreen(props: {
   goToSignUp: () => void;
   goToReset: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -69,7 +71,7 @@ export function SignInScreen(props: {
         <AuthField icon="mail" placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
         <AuthField icon="lock" placeholder="Password" value={password} onChangeText={setPassword} secure />
         <View style={styles.forgotRow}>
-          <LinkText onPress={props.goToReset} color={TOKENS.balance}>
+          <LinkText onPress={props.goToReset} color={t.balance}>
             Forgot password?
           </LinkText>
         </View>
@@ -82,7 +84,7 @@ export function SignInScreen(props: {
             variant="dark"
             onPress={submitApple}
             disabled={submitting}
-            icon={<Icon name="apple" size={19} color={TOKENS.white} />}
+            icon={<Icon name="apple" size={19} color={t.white} />}
           >
             Continue with Apple
           </Button>
@@ -97,10 +99,10 @@ export function SignInScreen(props: {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: TOKENS.canvas,
+    backgroundColor: t.canvas,
     paddingHorizontal: 24,
   },
   spacer: {
@@ -123,6 +125,6 @@ const styles = StyleSheet.create({
   bottomText: {
     fontSize: 14.5,
     fontFamily: "Sora_400Regular",
-    color: TOKENS.grey,
+    color: t.grey,
   },
-});
+}));

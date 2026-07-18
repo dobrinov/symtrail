@@ -4,7 +4,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, Line, Path, Text as SvgText } from "react-native-svg";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { SEVERITY } from "../../domain/severity";
 import { cToF } from "../../domain/severity";
 
@@ -40,6 +40,8 @@ export function TempChart({
   series: ChartPoint[];
   unit: "c" | "f";
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   // A single point can't convey a trend (matches the prototype's chart guard).
   if (series.length < 2) {
     return (
@@ -93,13 +95,13 @@ export function TempChart({
       {/* grid lines + axis labels */}
       {gridC.map((g) => (
         <React.Fragment key={g}>
-          <Line x1={PAD_L} y1={y(g)} x2={W - PAD_R} y2={y(g)} stroke={TOKENS.calm} strokeWidth={1} />
+          <Line x1={PAD_L} y1={y(g)} x2={W - PAD_R} y2={y(g)} stroke={t.calm} strokeWidth={1} />
           <SvgText
             x={PAD_L - 7}
             y={y(g) + 3.5}
             textAnchor="end"
             fontSize={9}
-            fill={TOKENS.grey}
+            fill={t.grey}
             fontWeight="600"
           >
             {`${Math.round(display(g, unit))}°`}
@@ -112,7 +114,7 @@ export function TempChart({
         y1={y(38)}
         x2={W - PAD_R}
         y2={y(38)}
-        stroke={TOKENS.approach}
+        stroke={t.approach}
         strokeWidth={1}
         strokeDasharray="3 3"
       />
@@ -120,13 +122,13 @@ export function TempChart({
       <Path d={line} fill="none" stroke="#F2802E" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" />
       {/* reading dots */}
       {pts.map((p, i) => (
-        <Circle key={i} cx={p[0]} cy={p[1]} r={3} fill={TOKENS.white} stroke="#F2802E" strokeWidth={2} />
+        <Circle key={i} cx={p[0]} cy={p[1]} r={3} fill={t.white} stroke="#F2802E" strokeWidth={2} />
       ))}
     </Svg>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   empty: {
     height: 80,
     alignItems: "center",
@@ -134,7 +136,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: TOKENS.grey,
+    color: t.grey,
     fontFamily: "Sora_600SemiBold",
   },
-});
+}));

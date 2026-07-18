@@ -36,6 +36,16 @@ export class SessionStore {
     // setMeta doesn't emit, so notify subscribers to re-render temp surfaces.
     emitTableChange("sync_meta");
   }
+  // Appearance preference is device-local (not part of account settings).
+  themePreference(): "light" | "dark" | "system" {
+    const v = this.repo.getMeta("theme_pref");
+    return v === "light" || v === "dark" ? v : "system";
+  }
+  setThemePreference(p: "light" | "dark" | "system"): void {
+    this.repo.setMeta("theme_pref", p);
+    emitTableChange("sync_meta");
+  }
+
   accountEmail(): string | null { return this.repo.getMeta("account_email"); }
 }
 

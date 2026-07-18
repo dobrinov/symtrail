@@ -11,7 +11,7 @@ import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { SeverityChip } from "../../design/SeverityChip";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { ageLabel } from "../../domain/age";
 import { cycleStats, deriveFlares, Flare } from "../../domain/flares";
 import { formatTemp, SEVERITY, SEVERITY_ORDER, SeverityKey, tempToSeverity } from "../../domain/severity";
@@ -47,6 +47,8 @@ export function TodayScreen(props: {
   tempUnit?: "c" | "f";
   refreshControl?: React.ReactElement<RefreshControlProps>;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const { repo, profileId, tempUnit = "c" } = props;
   const insets = useSafeAreaInsets();
   const today = new Date();
@@ -96,11 +98,11 @@ export function TodayScreen(props: {
       {/* header */}
       <View style={styles.header}>
         <PressableScale onPress={props.onSwitchProfile} style={styles.profileChip}>
-          <Avatar name={profile.name} color={profile.color ?? TOKENS.approach} size={46} />
+          <Avatar name={profile.name} color={profile.color ?? t.approach} size={46} />
           <View>
             <View style={styles.nameRow}>
               <Text style={styles.name}>{profile.name}</Text>
-              <Icon name="chevD" size={18} color={TOKENS.grey} sw={2.2} />
+              <Icon name="chevD" size={18} color={t.grey} sw={2.2} />
             </View>
             <Text style={styles.subtitle}>
               {[subtitle, ageLabel(profile.birthDate, today)].filter(Boolean).join(" · ")}
@@ -127,9 +129,9 @@ export function TodayScreen(props: {
 
         {/* quick log */}
         <View style={styles.quickRow}>
-          <QuickLogItem label="Symptom" icon="rash" color={TOKENS.approach} onPress={() => props.onLog("symptom")} />
+          <QuickLogItem label="Symptom" icon="rash" color={t.approach} onPress={() => props.onLog("symptom")} />
           <QuickLogItem label="Temperature" icon="fever" color="#F2802E" onPress={() => props.onLog("temp")} />
-          <QuickLogItem label="Medication" icon="syrup" color={TOKENS.yellow} onPress={() => props.onLog("med")} />
+          <QuickLogItem label="Medication" icon="syrup" color={t.yellow} onPress={() => props.onLog("med")} />
         </View>
 
         {/* recent entries */}
@@ -171,6 +173,7 @@ function StatusCard({
   symptomTypes: Map<string, SymptomType>;
   tempUnit: "c" | "f";
 }): React.JSX.Element {
+  const styles = useStyles();
   let max: SeverityKey = "none";
   for (const e of todays) {
     const s = entrySeverity(e);
@@ -250,11 +253,13 @@ function QuickLogItem({
   color: string;
   onPress: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   return (
     <PressableScale onPress={onPress} style={{ flex: 1 }}>
       <Card pad={14} style={styles.quickCard}>
         <View style={[styles.quickGlyph, { backgroundColor: color + "22" }]}>
-          <Icon name={icon} size={23} color={color === TOKENS.yellow ? "#C7841A" : color} sw={1.9} />
+          <Icon name={icon} size={23} color={color === t.yellow ? "#C7841A" : color} sw={1.9} />
         </View>
         <Text style={styles.quickLabel}>{label}</Text>
       </Card>
@@ -278,6 +283,8 @@ function EntryRow({
   last: boolean;
   onPress: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const st = entry.symptomTypeId ? symptomTypes.get(entry.symptomTypeId) : undefined;
   const mt = entry.medicationTypeId ? medTypes.get(entry.medicationTypeId) : undefined;
 
@@ -290,18 +297,18 @@ function EntryRow({
     title = entry.tempC != null ? formatTemp(entry.tempC, tempUnit) : "Temperature";
     glyphIcon = "fever";
     glyphBg = sev.key === "none" ? sev.color : sev.color + "33";
-    glyphColor = sev.key === "none" ? TOKENS.balance : sev.dot;
+    glyphColor = sev.key === "none" ? t.balance : sev.dot;
   } else if (entry.entryType === "med") {
     const name = mt?.label ?? "Medication";
     title = entry.dose ? `${name} · ${entry.dose}` : name;
     glyphIcon = mt?.form === "tablet" ? "tablet" : mt?.form === "drops" ? "drops" : "syrup";
-    glyphBg = (mt?.color ?? TOKENS.balance) + "22";
-    glyphColor = mt?.color ?? TOKENS.balance;
+    glyphBg = (mt?.color ?? t.balance) + "22";
+    glyphColor = mt?.color ?? t.balance;
   } else if (entry.entryType === "note") {
     title = entry.note ?? "Note";
     glyphIcon = "note";
-    glyphBg = TOKENS.calm;
-    glyphColor = TOKENS.grey;
+    glyphBg = t.calm;
+    glyphColor = t.grey;
   } else {
     const sev = SEVERITY[(entry.severity ?? "mild") as SeverityKey];
     title = st?.label ?? "Symptom";
@@ -323,10 +330,10 @@ function EntryRow({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: TOKENS.canvas,
+    backgroundColor: t.canvas,
   },
   header: {
     flexDirection: "row",
@@ -349,15 +356,15 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 22,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.4,
   },
   subtitle: {
     fontSize: 13,
-    color: TOKENS.grey,
+    color: t.grey,
   },
   conditionPill: {
-    backgroundColor: TOKENS.lavender,
+    backgroundColor: t.lavender,
     paddingVertical: 5,
     paddingHorizontal: 11,
     borderRadius: 999,
@@ -365,7 +372,7 @@ const styles = StyleSheet.create({
   conditionText: {
     fontSize: 12,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.balance,
+    color: t.balance,
     letterSpacing: 0.2,
   },
   body: {
@@ -374,7 +381,7 @@ const styles = StyleSheet.create({
   statusLabel: {
     fontSize: 13,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.grey,
+    color: t.grey,
     textTransform: "uppercase",
     letterSpacing: 0.6,
   },
@@ -395,12 +402,12 @@ const styles = StyleSheet.create({
   statusTitle: {
     fontSize: 19,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.3,
   },
   statusSub: {
     fontSize: 13,
-    color: TOKENS.grey,
+    color: t.grey,
   },
   quickRow: {
     flexDirection: "row",
@@ -421,22 +428,22 @@ const styles = StyleSheet.create({
   quickLabel: {
     fontSize: 12.5,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
   },
   sectionTitle: {
     fontSize: 15,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.2,
     marginBottom: 10,
   },
   emptyText: {
     fontSize: 15,
-    color: TOKENS.grey,
+    color: t.grey,
   },
   emptyHint: {
     fontSize: 13.5,
-    color: TOKENS.approach,
+    color: t.approach,
     marginTop: 4,
     fontFamily: "Sora_600SemiBold",
   },
@@ -449,7 +456,7 @@ const styles = StyleSheet.create({
   },
   entryRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: TOKENS.calm,
+    borderBottomColor: t.calm,
   },
   entryGlyph: {
     width: 38,
@@ -464,13 +471,13 @@ const styles = StyleSheet.create({
     minWidth: 0,
     fontSize: 15.5,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.2,
   },
   entryTime: {
     fontSize: 12.5,
-    color: TOKENS.grey,
+    color: t.grey,
     fontVariant: ["tabular-nums"],
     flexShrink: 0,
   },
-});
+}));

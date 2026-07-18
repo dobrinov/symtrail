@@ -10,7 +10,7 @@ import { useQuery } from "../../db/useQuery";
 import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { SeverityChip } from "../../design/SeverityChip";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { Flare } from "../../domain/flares";
 import { formatTemp, SeverityKey, tempToSeverity } from "../../domain/severity";
 import { ChartPoint, TempChart } from "./TempChart";
@@ -85,6 +85,7 @@ export function FlareDetailScreen(props: {
   flare: Flare;
   tempUnit?: "c" | "f";
 }): React.JSX.Element {
+  const styles = useStyles();
   const { repo, profileId, flare, tempUnit = "c" } = props;
 
   const data = useQuery(["entries", "symptom_types", "medication_types"], () => ({
@@ -148,6 +149,7 @@ export function FlareDetailScreen(props: {
 }
 
 function Stat({ value, label }: { value: string; label: string }): React.JSX.Element {
+  const styles = useStyles();
   return (
     <View style={styles.stat}>
       <Text style={styles.statValue} numberOfLines={1}>
@@ -159,6 +161,7 @@ function Stat({ value, label }: { value: string; label: string }): React.JSX.Ele
 }
 
 function Divider(): React.JSX.Element {
+  const styles = useStyles();
   return <View style={styles.divider} />;
 }
 
@@ -175,6 +178,8 @@ function TimelineRow({
   tempUnit: "c" | "f";
   last: boolean;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const st = entry.symptomTypeId ? symptomTypes.get(entry.symptomTypeId) : undefined;
   const mt = entry.medicationTypeId ? medTypes.get(entry.medicationTypeId) : undefined;
 
@@ -194,18 +199,18 @@ function TimelineRow({
     const name = mt?.label ?? "Medication";
     title = entry.dose ? `${name} · ${entry.dose}` : name;
     glyphIcon = mt?.form === "tablet" ? "tablet" : mt?.form === "drops" ? "drops" : "syrup";
-    glyphBg = (mt?.color ?? TOKENS.balance) + "22";
-    glyphColor = mt?.color ?? TOKENS.balance;
+    glyphBg = (mt?.color ?? t.balance) + "22";
+    glyphColor = mt?.color ?? t.balance;
   } else if (entry.entryType === "note") {
     title = entry.note ?? "Note";
     glyphIcon = "note";
-    glyphBg = TOKENS.calm;
-    glyphColor = TOKENS.grey;
+    glyphBg = t.calm;
+    glyphColor = t.grey;
   } else {
     title = st?.label ?? "Symptom";
     glyphIcon = st?.icon ?? "note";
-    glyphBg = TOKENS.calm;
-    glyphColor = TOKENS.balance;
+    glyphBg = t.calm;
+    glyphColor = t.balance;
     chip = (entry.severity ?? "mild") as SeverityKey;
   }
 
@@ -223,7 +228,7 @@ function TimelineRow({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   content: { paddingBottom: 24 },
   statsCard: { marginBottom: 14 },
   statsRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
@@ -231,21 +236,21 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontFamily: "Sora_800ExtraBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.5,
   },
   statLabel: {
     fontSize: 11,
-    color: TOKENS.grey,
+    color: t.grey,
     fontFamily: "Sora_600SemiBold",
     marginTop: 4,
   },
-  divider: { width: 1, height: 34, backgroundColor: TOKENS.calm },
+  divider: { width: 1, height: 34, backgroundColor: t.calm },
   chartCard: { marginBottom: 14 },
   sectionLabel: {
     fontSize: 13,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.grey,
+    color: t.grey,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 6,
@@ -253,15 +258,15 @@ const styles = StyleSheet.create({
   timelineHeader: {
     fontSize: 15,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.2,
     marginBottom: 10,
   },
-  emptyText: { fontSize: 14, color: TOKENS.grey, paddingVertical: 8, paddingHorizontal: 4 },
+  emptyText: { fontSize: 14, color: t.grey, paddingVertical: 8, paddingHorizontal: 4 },
   dayHeading: {
     fontSize: 12,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.approach,
+    color: t.approach,
     textTransform: "uppercase",
     letterSpacing: 0.4,
     paddingTop: 8,
@@ -275,7 +280,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 4,
   },
-  rowBorder: { borderBottomWidth: 1, borderBottomColor: TOKENS.calm },
+  rowBorder: { borderBottomWidth: 1, borderBottomColor: t.calm },
   glyph: {
     width: 38,
     height: 38,
@@ -289,13 +294,13 @@ const styles = StyleSheet.create({
     minWidth: 0,
     fontSize: 15.5,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.2,
   },
   rowTime: {
     fontSize: 12.5,
-    color: TOKENS.grey,
+    color: t.grey,
     fontVariant: ["tabular-nums"],
     flexShrink: 0,
   },
-});
+}));

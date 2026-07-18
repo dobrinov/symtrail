@@ -8,7 +8,7 @@ import { Button } from "../../design/Button";
 import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { SeverityChip } from "../../design/SeverityChip";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { SEVERITY, SeverityKey, formatTemp, tempToSeverity } from "../../domain/severity";
 
 function fmtTime(iso: string): string {
@@ -34,6 +34,8 @@ export function EntryDetail({
   onDelete: () => void;
   tempUnit?: "c" | "f";
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const st = useMemo(
     () => (entry.symptomTypeId ? repo.listSymptomTypes().find((s) => s.id === entry.symptomTypeId) : undefined),
     [repo, entry.symptomTypeId],
@@ -55,19 +57,19 @@ export function EntryDetail({
     subtitle = "Temperature";
     glyphIcon = "fever";
     glyphBg = sev.key === "none" ? sev.color : sev.color + "33";
-    glyphColor = sev.key === "none" ? TOKENS.balance : sev.dot;
+    glyphColor = sev.key === "none" ? t.balance : sev.dot;
   } else if (entry.entryType === "med") {
     title = mt?.label ?? "Medication";
     subtitle = entry.dose ?? "Medication";
     glyphIcon = mt?.form === "tablet" ? "tablet" : mt?.form === "drops" ? "drops" : "syrup";
-    glyphBg = (mt?.color ?? TOKENS.balance) + "22";
-    glyphColor = mt?.color ?? TOKENS.balance;
+    glyphBg = (mt?.color ?? t.balance) + "22";
+    glyphColor = mt?.color ?? t.balance;
   } else if (entry.entryType === "note") {
     title = entry.note ?? "Note";
     subtitle = "Note";
     glyphIcon = "note";
-    glyphBg = TOKENS.calm;
-    glyphColor = TOKENS.grey;
+    glyphBg = t.calm;
+    glyphColor = t.grey;
   } else {
     const sev = SEVERITY[(entry.severity ?? "mild") as SeverityKey];
     title = st?.label ?? "Symptom";
@@ -115,7 +117,7 @@ export function EntryDetail({
       {entry.entryType === "med" && entry.reminderAt ? (
         <Card pad={14} style={styles.reminderCard}>
           <View style={styles.bellGlyph}>
-            <Icon name="bell" size={19} color={TOKENS.balance} sw={1.9} />
+            <Icon name="bell" size={19} color={t.balance} sw={1.9} />
           </View>
           <View>
             <Text style={styles.cardCaption}>Reminder</Text>
@@ -130,7 +132,7 @@ export function EntryDetail({
       <Text style={styles.fullDate}>{fullDate}</Text>
 
       <View style={styles.actions}>
-        <Button onPress={onEdit} icon={<Icon name="edit" size={19} color={TOKENS.anchor} sw={2} />}>
+        <Button onPress={onEdit} icon={<Icon name="edit" size={19} color={t.anchor} sw={2} />}>
           Edit entry
         </Button>
         <Button variant="danger" onPress={onDelete}>
@@ -141,26 +143,26 @@ export function EntryDetail({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", gap: 16, marginBottom: 18 },
   glyph: { width: 60, height: 60, borderRadius: 18, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  title: { fontSize: 22, fontFamily: "Sora_700Bold", color: TOKENS.anchor, letterSpacing: -0.4 },
-  subtitle: { fontSize: 14, color: TOKENS.grey },
+  title: { fontSize: 22, fontFamily: "Sora_700Bold", color: t.anchor, letterSpacing: -0.4 },
+  subtitle: { fontSize: 14, color: t.grey },
   sevCard: { marginBottom: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  sevLabel: { fontSize: 14.5, color: TOKENS.balance, fontFamily: "Sora_600SemiBold" },
+  sevLabel: { fontSize: 14.5, color: t.balance, fontFamily: "Sora_600SemiBold" },
   noteCard: { marginBottom: 14 },
   cardCaption: {
     fontSize: 12.5,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.grey,
+    color: t.grey,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 6,
   },
-  noteText: { fontSize: 15, color: TOKENS.anchor, lineHeight: 21 },
+  noteText: { fontSize: 15, color: t.anchor, lineHeight: 21 },
   reminderCard: { marginBottom: 14, flexDirection: "row", alignItems: "center", gap: 12 },
-  bellGlyph: { width: 38, height: 38, borderRadius: 11, backgroundColor: TOKENS.calm, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  reminderText: { fontSize: 14.5, fontFamily: "Sora_600SemiBold", color: TOKENS.anchor },
-  fullDate: { fontSize: 13, color: TOKENS.grey, textAlign: "center", marginBottom: 18 },
+  bellGlyph: { width: 38, height: 38, borderRadius: 11, backgroundColor: t.calm, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  reminderText: { fontSize: 14.5, fontFamily: "Sora_600SemiBold", color: t.anchor },
+  fullDate: { fontSize: 13, color: t.grey, textAlign: "center", marginBottom: 18 },
   actions: { gap: 10 },
-});
+}));

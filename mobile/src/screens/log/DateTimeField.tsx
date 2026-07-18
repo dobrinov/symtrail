@@ -10,7 +10,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTheme, useTokens } from "../../design/theme";
 
 function dKey(d: Date): string {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
@@ -46,6 +46,9 @@ export function DateTimeField({
   onChange: (iso: string) => void;
   label?: string;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
+  const { scheme } = useTheme();
   const date = new Date(value);
   const [iosPicker, setIosPicker] = useState<"date" | "time" | null>(null);
 
@@ -81,18 +84,18 @@ export function DateTimeField({
       <Text style={styles.label}>{label}</Text>
       <View style={styles.row}>
         <PressableScale onPress={() => apply(new Date())} style={styles.nowChip}>
-          <Icon name="clock" size={16} color={TOKENS.balance} sw={2} />
+          <Icon name="clock" size={16} color={t.balance} sw={2} />
           <Text style={styles.nowText}>Now</Text>
         </PressableScale>
         <PressableScale
           onPress={() => (Platform.OS === "android" ? openAndroid() : setIosPicker("date"))}
           style={styles.valueChip}
         >
-          <Icon name="calendar" size={16} color={TOKENS.balance} sw={2} />
+          <Icon name="calendar" size={16} color={t.balance} sw={2} />
           <Text style={styles.valueText}>
             {dayLabel(date)} · {fmtTime(date)}
           </Text>
-          <Icon name="chevR" size={16} color={TOKENS.grey} sw={2} />
+          <Icon name="chevR" size={16} color={t.grey} sw={2} />
         </PressableScale>
       </View>
       {iosPicker ? (
@@ -101,7 +104,7 @@ export function DateTimeField({
             value={date}
             mode={iosPicker}
             display="spinner"
-            themeVariant="light"
+            themeVariant={scheme}
             onChange={onIosChange}
           />
           {iosPicker === "date" ? (
@@ -119,12 +122,12 @@ export function DateTimeField({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   root: { marginBottom: 4 },
   label: {
     fontSize: 13,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.grey,
+    color: t.grey,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 8,
@@ -138,8 +141,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
-    backgroundColor: TOKENS.white,
+    borderColor: t.lavender,
+    backgroundColor: t.white,
   },
   nextChip: {
     alignItems: "center",
@@ -148,14 +151,14 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
-    backgroundColor: TOKENS.white,
+    borderColor: t.lavender,
+    backgroundColor: t.white,
     alignSelf: "flex-end",
   },
   nowText: {
     fontSize: 14,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.balance,
+    color: t.balance,
   },
   valueChip: {
     flex: 1,
@@ -166,14 +169,14 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
-    backgroundColor: TOKENS.white,
+    borderColor: t.lavender,
+    backgroundColor: t.white,
   },
   valueText: {
     flex: 1,
     fontSize: 15,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
   },
   pickerRow: { marginTop: 10 },
-});
+}));

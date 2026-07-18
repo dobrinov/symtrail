@@ -12,7 +12,7 @@ import { Avatar } from "../../design/Avatar";
 import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { ageLabel } from "../../domain/age";
 
 function lastSyncedLabel(iso: string | null): string {
@@ -50,6 +50,8 @@ export function ProfileScreen({
   onOpenReport: () => void;
   lastSyncedAt: string | null;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const profiles = useQuery(["profiles"], () => repo.listProfiles());
   const insets = useSafeAreaInsets();
 
@@ -67,7 +69,7 @@ export function ProfileScreen({
           return (
             <PressableScale key={p.id} onPress={() => onPickProfile(p.id)}>
               <Card pad={14} style={[styles.personRow, active ? styles.personActive : styles.personIdle]}>
-                <Avatar name={p.name} color={p.color ?? TOKENS.approach} size={46} />
+                <Avatar name={p.name} color={p.color ?? t.approach} size={46} />
                 <View style={styles.personMeta}>
                   <View style={styles.personNameRow}>
                     <Text style={styles.personName} numberOfLines={1}>
@@ -82,10 +84,10 @@ export function ProfileScreen({
                   {sub ? <Text style={styles.personSub}>{sub}</Text> : null}
                 </View>
                 <PressableScale onPress={() => onEditProfile(p.id)} style={styles.roundBtn}>
-                  <Icon name="edit" size={18} color={TOKENS.balance} sw={1.9} />
+                  <Icon name="edit" size={18} color={t.balance} sw={1.9} />
                 </PressableScale>
                 <PressableScale onPress={() => onDeleteProfile(p.id)} style={styles.roundBtnBare}>
-                  <Icon name="trash" size={20} color={TOKENS.grey} sw={1.8} />
+                  <Icon name="trash" size={20} color={t.grey} sw={1.8} />
                 </PressableScale>
               </Card>
             </PressableScale>
@@ -95,7 +97,7 @@ export function ProfileScreen({
         <PressableScale onPress={onAddPerson}>
           <View style={styles.addRow}>
             <View style={styles.addGlyph}>
-              <Icon name="plus" size={24} color={TOKENS.balance} sw={2.2} />
+              <Icon name="plus" size={24} color={t.balance} sw={2.2} />
             </View>
             <Text style={styles.addLabel}>Add a person</Text>
           </View>
@@ -107,25 +109,25 @@ export function ProfileScreen({
         <PressableScale onPress={onOpenReport}>
           <View style={[styles.toolRow, styles.toolDivider]}>
             <View style={styles.toolGlyph}>
-              <Icon name="share" size={21} color={TOKENS.balance} sw={1.9} />
+              <Icon name="share" size={21} color={t.balance} sw={1.9} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.toolLabel}>Export report for doctor</Text>
               <Text style={styles.toolSub}>PDF summary of flares & meds</Text>
             </View>
-            <Icon name="chevR" size={18} color={TOKENS.grey} sw={2} />
+            <Icon name="chevR" size={18} color={t.grey} sw={2} />
           </View>
         </PressableScale>
         <PressableScale onPress={onOpenSettings}>
           <View style={styles.toolRow}>
             <View style={styles.toolGlyph}>
-              <Icon name="settings" size={21} color={TOKENS.balance} sw={1.9} />
+              <Icon name="settings" size={21} color={t.balance} sw={1.9} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.toolLabel}>Settings</Text>
               <Text style={styles.toolSub}>Temperature unit & preferences</Text>
             </View>
-            <Icon name="chevR" size={18} color={TOKENS.grey} sw={2} />
+            <Icon name="chevR" size={18} color={t.grey} sw={2} />
           </View>
         </PressableScale>
       </Card>
@@ -135,31 +137,31 @@ export function ProfileScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: TOKENS.canvas },
+const useStyles = themedStyles((t) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: t.canvas },
   content: { paddingHorizontal: 20, paddingBottom: 130 },
   heading: {
     fontSize: 28,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.6,
     marginBottom: 14,
   },
   peopleList: { gap: 10, marginBottom: 22 },
   personRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  personActive: { borderWidth: 2, borderColor: TOKENS.yellow },
+  personActive: { borderWidth: 2, borderColor: t.yellow },
   personIdle: { borderWidth: 2, borderColor: "transparent" },
   personMeta: { flex: 1, minWidth: 0 },
   personNameRow: { flexDirection: "row", alignItems: "center", gap: 7 },
-  personName: { fontSize: 16, fontFamily: "Sora_700Bold", color: TOKENS.anchor, flexShrink: 1 },
-  badge: { backgroundColor: TOKENS.yellow, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 },
-  badgeText: { fontSize: 10.5, fontFamily: "Sora_700Bold", color: TOKENS.anchor },
-  personSub: { fontSize: 13, color: TOKENS.grey, marginTop: 1 },
+  personName: { fontSize: 16, fontFamily: "Sora_700Bold", color: t.anchor, flexShrink: 1 },
+  badge: { backgroundColor: t.yellow, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2 },
+  badgeText: { fontSize: 10.5, fontFamily: "Sora_700Bold", color: t.onYellow },
+  personSub: { fontSize: 13, color: t.grey, marginTop: 1 },
   roundBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: TOKENS.calm,
+    backgroundColor: t.calm,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -178,37 +180,37 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 1.5,
     borderStyle: "dashed",
-    borderColor: TOKENS.lavender,
+    borderColor: t.lavender,
   },
   addGlyph: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: TOKENS.calm,
+    backgroundColor: t.calm,
     alignItems: "center",
     justifyContent: "center",
   },
-  addLabel: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: TOKENS.balance },
+  addLabel: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: t.balance },
   sectionHeader: {
     fontSize: 13,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.grey,
+    color: t.grey,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 10,
     paddingLeft: 4,
   },
   toolRow: { flexDirection: "row", alignItems: "center", gap: 13, paddingVertical: 13, paddingHorizontal: 12 },
-  toolDivider: { borderBottomWidth: 1, borderBottomColor: TOKENS.calm },
+  toolDivider: { borderBottomWidth: 1, borderBottomColor: t.calm },
   toolGlyph: {
     width: 38,
     height: 38,
     borderRadius: 11,
-    backgroundColor: TOKENS.calm,
+    backgroundColor: t.calm,
     alignItems: "center",
     justifyContent: "center",
   },
-  toolLabel: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: TOKENS.anchor },
-  toolSub: { fontSize: 12.5, color: TOKENS.grey },
-  syncCaption: { fontSize: 12.5, color: TOKENS.grey, textAlign: "center", marginTop: 14 },
-});
+  toolLabel: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: t.anchor },
+  toolSub: { fontSize: 12.5, color: t.grey },
+  syncCaption: { fontSize: 12.5, color: t.grey, textAlign: "center", marginTop: 14 },
+}));

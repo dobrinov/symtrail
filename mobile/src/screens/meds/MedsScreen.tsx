@@ -9,7 +9,7 @@ import { useQuery } from "../../db/useQuery";
 import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 
 function fmtTime(iso: string): string {
   const d = new Date(iso);
@@ -66,6 +66,8 @@ export function MedsScreen({
   profileId: string;
   onOpenEntry: (id: string) => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const insets = useSafeAreaInsets();
   const rows = useQuery(["entries", "medication_types"], () => repo.listMedEntries(profileId));
   const profile = useQuery(["profiles"], () => repo.getProfile(profileId));
@@ -101,8 +103,8 @@ export function MedsScreen({
                 <View style={styles.upcomingList}>
                   {upcoming.map((r) => (
                     <Card key={r.entry.id} pad={15} style={styles.upcomingCard}>
-                      <View style={[styles.glyph, { backgroundColor: (r.color ?? TOKENS.balance) + "22" }]}>
-                        <Icon name="bell" size={22} color={r.color ?? TOKENS.balance} sw={1.9} />
+                      <View style={[styles.glyph, { backgroundColor: (r.color ?? t.balance) + "22" }]}>
+                        <Icon name="bell" size={22} color={r.color ?? t.balance} sw={1.9} />
                       </View>
                       <View style={{ flex: 1, minWidth: 0 }}>
                         <Text style={styles.upcomingTitle} numberOfLines={1}>
@@ -131,7 +133,7 @@ export function MedsScreen({
                         onPress={() => onOpenEntry(r.entry.id)}
                         style={[styles.row, i < g.rows.length - 1 && styles.rowBorder]}
                       >
-                        <View style={[styles.dot, { backgroundColor: r.color ?? TOKENS.balance }]} />
+                        <View style={[styles.dot, { backgroundColor: r.color ?? t.balance }]} />
                         <View style={{ flex: 1, minWidth: 0 }}>
                           <Text style={styles.rowTitle} numberOfLines={1}>
                             {r.label}
@@ -153,17 +155,17 @@ export function MedsScreen({
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: TOKENS.canvas },
+const useStyles = themedStyles((t) => StyleSheet.create({
+  screen: { flex: 1, backgroundColor: t.canvas },
   head: { paddingHorizontal: 20, paddingTop: 4, paddingBottom: 10 },
-  title: { fontSize: 28, fontFamily: "Sora_700Bold", color: TOKENS.anchor, letterSpacing: -0.6 },
-  subtitle: { fontSize: 13.5, color: TOKENS.grey, marginTop: 2 },
+  title: { fontSize: 28, fontFamily: "Sora_700Bold", color: t.anchor, letterSpacing: -0.6 },
+  subtitle: { fontSize: 13.5, color: t.grey, marginTop: 2 },
   body: { paddingHorizontal: 20 },
-  emptyText: { fontSize: 15, color: TOKENS.grey },
+  emptyText: { fontSize: 15, color: t.grey },
   sectionHeader: {
     fontSize: 13,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.grey,
+    color: t.grey,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginTop: 18,
@@ -172,20 +174,20 @@ const styles = StyleSheet.create({
   upcomingList: { gap: 10 },
   upcomingCard: { flexDirection: "row", alignItems: "center", gap: 14 },
   glyph: { width: 48, height: 48, borderRadius: 14, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  upcomingTitle: { fontSize: 16, fontFamily: "Sora_700Bold", color: TOKENS.anchor, letterSpacing: -0.2 },
-  upcomingSub: { fontSize: 12.5, color: TOKENS.grey, marginTop: 2 },
+  upcomingTitle: { fontSize: 16, fontFamily: "Sora_700Bold", color: t.anchor, letterSpacing: -0.2 },
+  upcomingSub: { fontSize: 12.5, color: t.grey, marginTop: 2 },
   dayList: { gap: 16 },
   dayHeading: {
     fontSize: 13,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.balance,
+    color: t.balance,
     marginBottom: 8,
     paddingLeft: 4,
   },
   row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 11, paddingHorizontal: 4 },
-  rowBorder: { borderBottomWidth: 1, borderBottomColor: TOKENS.calm },
+  rowBorder: { borderBottomWidth: 1, borderBottomColor: t.calm },
   dot: { width: 12, height: 12, borderRadius: 6, flexShrink: 0 },
-  rowTitle: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: TOKENS.anchor, letterSpacing: -0.2 },
-  rowSub: { fontSize: 12, color: TOKENS.grey, marginTop: 1 },
-  rowTime: { fontSize: 12.5, color: TOKENS.grey, fontVariant: ["tabular-nums"], flexShrink: 0 },
-});
+  rowTitle: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: t.anchor, letterSpacing: -0.2 },
+  rowSub: { fontSize: 12, color: t.grey, marginTop: 1 },
+  rowTime: { fontSize: 12.5, color: t.grey, fontVariant: ["tabular-nums"], flexShrink: 0 },
+}));

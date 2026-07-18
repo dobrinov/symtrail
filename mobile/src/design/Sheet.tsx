@@ -15,7 +15,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "./Icon";
 import { PressableScale } from "./PressableScale";
-import { TOKENS } from "./tokens";
+import { themedStyles, useTokens } from "./theme";
 
 export function Sheet({
   open,
@@ -30,6 +30,8 @@ export function Sheet({
   full?: boolean;
   children: React.ReactNode;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const { height: screenH } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [visible, setVisible] = useState(open);
@@ -86,7 +88,7 @@ export function Sheet({
               {title}
             </Text>
             <PressableScale onPress={onClose} style={styles.closeBtn}>
-              <Icon name="close" size={18} color={TOKENS.balance} sw={2} />
+              <Icon name="close" size={18} color={t.balance} sw={2} />
             </PressableScale>
           </View>
           <ScrollView
@@ -100,7 +102,7 @@ export function Sheet({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: "flex-end",
@@ -110,12 +112,12 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(12,9,23,0.32)",
   },
   sheet: {
-    backgroundColor: TOKENS.canvas,
+    backgroundColor: t.canvas,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     overflow: "hidden",
     // prototype: 0 -10px 40px rgba(12,9,23,0.2)
-    shadowColor: TOKENS.anchor,
+    shadowColor: "#0C0917", // shadows stay dark in both themes
     shadowOpacity: 0.2,
     shadowRadius: 20,
     shadowOffset: { width: 0, height: -10 },
@@ -129,7 +131,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 5,
     borderRadius: 999,
-    backgroundColor: TOKENS.lavender,
+    backgroundColor: t.lavender,
   },
   titleRow: {
     flexDirection: "row",
@@ -145,7 +147,7 @@ const styles = StyleSheet.create({
     minWidth: 0,
     fontSize: 21,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.3,
   },
   closeBtn: {
@@ -153,7 +155,7 @@ const styles = StyleSheet.create({
     height: 32,
     flexShrink: 0,
     borderRadius: 16,
-    backgroundColor: TOKENS.calm,
+    backgroundColor: t.calm,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -161,4 +163,4 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingHorizontal: 20,
   },
-});
+}));

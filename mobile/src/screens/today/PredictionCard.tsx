@@ -5,7 +5,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { CycleStats } from "../../domain/flares";
 
 const DAY_MS = 86400000;
@@ -23,6 +23,8 @@ export function PredictionCard({
   today?: Date;
   onPress?: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const maxDay = cycle.max + 5;
   const pct = (n: number) => Math.min(100, (n / maxDay) * 100);
   const todayPct = pct(cycle.sinceLast);
@@ -44,7 +46,7 @@ export function PredictionCard({
         {onPress ? (
           <View style={styles.headLink}>
             <Text style={styles.headAvg}>avg every {cycle.avg} days</Text>
-            <Icon name="chevR" size={16} color={TOKENS.grey} sw={2.2} />
+            <Icon name="chevR" size={16} color={t.grey} sw={2.2} />
           </View>
         ) : (
           <Text style={styles.headAvg}>avg every {cycle.avg} days</Text>
@@ -67,12 +69,12 @@ export function PredictionCard({
       </View>
       <View style={styles.legendRow}>
         <Text style={styles.legendText}>last onset</Text>
-        <Text style={[styles.legendText, { color: TOKENS.approach, fontFamily: "Sora_600SemiBold" }]}>
+        <Text style={[styles.legendText, { color: t.approach, fontFamily: "Sora_600SemiBold" }]}>
           likely window
         </Text>
       </View>
       <View style={styles.hintBox}>
-        <Icon name="sparkle" size={20} color={TOKENS.approach} sw={1.7} />
+        <Icon name="sparkle" size={20} color={t.approach} sw={1.7} />
         <View style={{ flex: 1 }}>
           <Text style={styles.hintTitle}>{hint}</Text>
           <Text style={styles.hintSub}>
@@ -97,7 +99,7 @@ export function PredictionCard({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   card: {
     marginBottom: 16,
   },
@@ -110,7 +112,7 @@ const styles = StyleSheet.create({
   headLabel: {
     fontSize: 13,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.grey,
+    color: t.grey,
     textTransform: "uppercase",
     letterSpacing: 0.6,
   },
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
   },
   headAvg: {
     fontSize: 13,
-    color: TOKENS.balance,
+    color: t.balance,
     fontFamily: "Sora_600SemiBold",
   },
   dayRow: {
@@ -133,27 +135,27 @@ const styles = StyleSheet.create({
   dayBig: {
     fontSize: 46,
     fontFamily: "Sora_800ExtraBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -1.5,
     lineHeight: 46,
   },
   daySub: {
     fontSize: 14,
-    color: TOKENS.grey,
+    color: t.grey,
     marginBottom: 6,
   },
   track: {
     position: "relative",
     height: 14,
     borderRadius: 999,
-    backgroundColor: TOKENS.calm,
+    backgroundColor: t.calm,
     marginBottom: 8,
   },
   windowBand: {
     position: "absolute",
     top: 0,
     bottom: 0,
-    backgroundColor: TOKENS.approach + "55",
+    backgroundColor: t.approach + "55",
     borderRadius: 4,
   },
   elapsed: {
@@ -161,7 +163,7 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     left: 0,
-    backgroundColor: TOKENS.yellow,
+    backgroundColor: t.yellow,
     borderRadius: 999,
   },
   marker: {
@@ -171,11 +173,11 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: TOKENS.white,
+    backgroundColor: t.white,
     borderWidth: 3,
-    borderColor: TOKENS.anchor,
+    borderColor: t.anchor,
     // prototype: 0 1px 4px rgba(12,9,23,0.25)
-    shadowColor: TOKENS.anchor,
+    shadowColor: "#0C0917", // shadows stay dark in both themes
     shadowOpacity: 0.25,
     shadowRadius: 2,
     shadowOffset: { width: 0, height: 1 },
@@ -188,13 +190,13 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: 11.5,
-    color: TOKENS.grey,
+    color: t.grey,
   },
   hintBox: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: TOKENS.calm,
+    backgroundColor: t.calm,
     borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 14,
@@ -202,11 +204,11 @@ const styles = StyleSheet.create({
   hintTitle: {
     fontSize: 14.5,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.2,
   },
   hintSub: {
     fontSize: 12.5,
-    color: TOKENS.grey,
+    color: t.grey,
   },
-});
+}));

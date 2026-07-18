@@ -5,13 +5,14 @@ import { useRouter } from "expo-router";
 import { useServices } from "../../AppServices";
 import { useQuery } from "../../db/useQuery";
 import { Sheet } from "../../design/Sheet";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles } from "../../design/theme";
 import { ProfileSwitcher } from "../../screens/today/ProfileSwitcher";
 import { TodayScreen } from "../../screens/today/TodayScreen";
 import { useActiveProfile } from "../../state/activeProfile";
 import { useLogSheet } from "../../state/LogSheetContext";
 
 export default function Today(): React.JSX.Element {
+  const styles = useStyles();
   const { repo, sync, session } = useServices();
   const router = useRouter();
   const { openLog, openEntry, openFlare } = useLogSheet();
@@ -67,10 +68,10 @@ export default function Today(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: TOKENS.canvas,
+    backgroundColor: t.canvas,
   },
   empty: {
     flex: 1,
@@ -81,6 +82,6 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.grey,
+    color: t.grey,
   },
-});
+}));

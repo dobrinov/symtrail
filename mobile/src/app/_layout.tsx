@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { AppState } from "react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useFonts, Sora_400Regular, Sora_600SemiBold, Sora_700Bold, Sora_800ExtraBold } from "@expo-google-fonts/sora";
 import { AppServicesProvider, useServices, setCachedToken, getCachedToken } from "../AppServices";
+import { ThemeProvider, useTheme, useTokens } from "../design/theme";
 import { useQuery } from "../db/useQuery";
 import { resolveRoute } from "../session/routing";
 import { LOCAL_ONLY } from "../config";
@@ -53,14 +55,37 @@ function AuthGateAndSync({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Reads the persisted appearance preference (reactive via sync_meta) and
+// mounts the ThemeProvider above everything that renders UI.
+function ThemedApp({ children }: { children: React.ReactNode }) {
+  const { session } = useServices();
+  const preference = useQuery(["sync_meta"], () => session.themePreference());
+  return <ThemeProvider preference={preference}>{children}</ThemeProvider>;
+}
+
+// Inside the provider: themed status bar + navigator background so pushed
+// screens never flash the wrong colour behind their own backgrounds.
+function ThemedChrome() {
+  const { scheme } = useTheme();
+  const t = useTokens();
+  return (
+    <>
+      <StatusBar style={scheme === "dark" ? "light" : "dark"} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.canvas } }} />
+    </>
+  );
+}
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ Sora_400Regular, Sora_600SemiBold, Sora_700Bold, Sora_800ExtraBold });
   if (!fontsLoaded) return null;
   return (
     <AppServicesProvider>
-      <AuthGateAndSync>
-        <Stack screenOptions={{ headerShown: false }} />
-      </AuthGateAndSync>
+      <ThemedApp>
+        <AuthGateAndSync>
+          <ThemedChrome />
+        </AuthGateAndSync>
+      </ThemedApp>
     </AppServicesProvider>
   );
 }

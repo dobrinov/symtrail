@@ -8,7 +8,7 @@ import { useQuery } from "../../db/useQuery";
 import { Button } from "../../design/Button";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTheme, useTokens } from "../../design/theme";
 import { SEVERITY, SEVERITY_ORDER, SeverityKey } from "../../domain/severity";
 import { DateTimeField } from "./DateTimeField";
 
@@ -51,6 +51,9 @@ export function LogSymptom({
   isPfapa?: boolean;
   editEntryId?: string;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
+  const { scheme } = useTheme();
   const existing = useMemo(() => (editEntryId ? repo.getEntry(editEntryId) : null), [editEntryId, repo]);
   const types = useQuery(["symptom_types"], () => repo.listSymptomTypes());
 
@@ -104,7 +107,7 @@ export function LogSymptom({
                   onPress={() => setSelected(s.id)}
                   style={[styles.tile, on ? styles.tileOn : styles.tileOff]}
                 >
-                  <Icon name={s.icon ?? "note"} size={26} color={on ? TOKENS.yellow : TOKENS.balance} sw={1.8} />
+                  <Icon name={s.icon ?? "note"} size={26} color={on ? t.yellow : t.balance} sw={1.8} />
                   <Text style={[styles.tileLabel, on && styles.tileLabelOn]} numberOfLines={2}>
                     {s.label}
                   </Text>
@@ -121,10 +124,11 @@ export function LogSymptom({
           <View>
             <Text style={styles.sectionLabel}>New symptom</Text>
             <TextInput
+          keyboardAppearance={scheme}
               value={customLabel}
               onChangeText={setCustomLabel}
               placeholder="e.g. Cramps, sore eyes…"
-              placeholderTextColor={TOKENS.approach}
+              placeholderTextColor={t.approach}
               style={styles.input}
             />
             <View style={[styles.grid, { marginTop: 10 }]}>
@@ -136,7 +140,7 @@ export function LogSymptom({
                     onPress={() => setCustomIcon(ic)}
                     style={[styles.iconPick, on ? styles.tileOn : styles.tileOff]}
                   >
-                    <Icon name={ic} size={24} color={on ? TOKENS.yellow : TOKENS.balance} sw={1.8} />
+                    <Icon name={ic} size={24} color={on ? t.yellow : t.balance} sw={1.8} />
                   </PressableScale>
                 );
               })}
@@ -149,7 +153,7 @@ export function LogSymptom({
           </View>
         ) : (
           <PressableScale onPress={() => setAdding(true)} style={styles.addRow}>
-            <Icon name="plus" size={18} color={TOKENS.balance} sw={2.2} />
+            <Icon name="plus" size={18} color={t.balance} sw={2.2} />
             <Text style={styles.addText}>Add custom symptom</Text>
           </PressableScale>
         )}
@@ -170,7 +174,7 @@ export function LogSymptom({
                 on ? { backgroundColor: s.color } : styles.sevChipOff,
               ]}
             >
-              <Text style={[styles.sevChipText, { color: on ? s.text : TOKENS.balance }]}>{s.label}</Text>
+              <Text style={[styles.sevChipText, { color: on ? s.text : t.balance }]}>{s.label}</Text>
             </PressableScale>
           );
         })}
@@ -187,12 +191,12 @@ export function LogSymptom({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   section: { marginBottom: 16 },
   sectionLabel: {
     fontSize: 12.5,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.grey,
+    color: t.grey,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 9,
@@ -207,15 +211,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     borderRadius: 15,
   },
-  tileOn: { backgroundColor: TOKENS.anchor },
-  tileOff: { backgroundColor: TOKENS.white, borderWidth: 1.5, borderColor: TOKENS.calm },
+  tileOn: { backgroundColor: t.anchor },
+  tileOff: { backgroundColor: t.white, borderWidth: 1.5, borderColor: t.calm },
   tileLabel: {
     fontSize: 10.5,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     textAlign: "center",
   },
-  tileLabelOn: { color: TOKENS.white },
+  tileLabelOn: { color: t.white },
   iconPick: {
     width: 54,
     height: 54,
@@ -231,21 +235,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
+    borderColor: t.lavender,
     borderStyle: "dashed",
-    backgroundColor: TOKENS.white,
+    backgroundColor: t.white,
   },
-  addText: { fontSize: 15, fontFamily: "Sora_600SemiBold", color: TOKENS.balance },
+  addText: { fontSize: 15, fontFamily: "Sora_600SemiBold", color: t.balance },
   input: {
     height: 50,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
-    backgroundColor: TOKENS.white,
+    borderColor: t.lavender,
+    backgroundColor: t.white,
     paddingHorizontal: 16,
     fontSize: 16,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
   },
   sevRow: { flexDirection: "row", gap: 7, marginBottom: 18 },
   sevChip: {
@@ -255,7 +259,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  sevChipOff: { backgroundColor: TOKENS.white, borderWidth: 1.5, borderColor: TOKENS.lavender },
+  sevChipOff: { backgroundColor: t.white, borderWidth: 1.5, borderColor: t.lavender },
   sevChipText: { fontSize: 13.5, fontFamily: "Sora_700Bold" },
   when: { marginBottom: 20 },
-});
+}));

@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { ApiClient } from "../../api/client";
 import { AccountJson } from "../../api/types";
 import { Button } from "../../design/Button";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles } from "../../design/theme";
 import { AuthField, ErrorText, LinkText, LogoMark, deviceNameOrDefault } from "./shared";
 
 export function SignUpScreen(props: {
@@ -13,6 +13,7 @@ export function SignUpScreen(props: {
   onSignedIn: (token: string) => void;
   goToSignIn: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -62,10 +63,10 @@ export function SignUpScreen(props: {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: TOKENS.canvas,
+    backgroundColor: t.canvas,
     paddingHorizontal: 24,
   },
   spacer: {
@@ -78,14 +79,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 27,
     fontFamily: "Sora_800ExtraBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.6,
     marginTop: 8,
   },
   caption: {
     fontSize: 14.5,
     fontFamily: "Sora_400Regular",
-    color: TOKENS.grey,
+    color: t.grey,
     textAlign: "center",
     lineHeight: 21,
     maxWidth: 300,
@@ -103,6 +104,6 @@ const styles = StyleSheet.create({
   bottomText: {
     fontSize: 14.5,
     fontFamily: "Sora_400Regular",
-    color: TOKENS.grey,
+    color: t.grey,
   },
-});
+}));

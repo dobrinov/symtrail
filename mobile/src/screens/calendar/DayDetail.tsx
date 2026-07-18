@@ -8,7 +8,7 @@ import { useQuery } from "../../db/useQuery";
 import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { formatTemp, SEVERITY, SeverityKey, tempToSeverity } from "../../domain/severity";
 
 function fmtTime(iso: string): string {
@@ -36,6 +36,8 @@ export function DayDetail(props: {
   onAddToDay: (dayIso: string) => void;
   onOpenFlare?: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const { repo, entries, dayIso, tempUnit = "c" } = props;
 
   const lookups = useQuery(["symptom_types", "medication_types"], () => ({
@@ -72,14 +74,14 @@ export function DayDetail(props: {
 
       {props.onOpenFlare ? (
         <PressableScale onPress={props.onOpenFlare} style={styles.flareBtn}>
-          <Icon name="trend" size={18} color={TOKENS.balance} sw={2.2} />
+          <Icon name="trend" size={18} color={t.balance} sw={2.2} />
           <Text style={styles.flareLabel}>View this flare</Text>
-          <Icon name="chevR" size={18} color={TOKENS.grey} sw={2.2} />
+          <Icon name="chevR" size={18} color={t.grey} sw={2.2} />
         </PressableScale>
       ) : null}
 
       <PressableScale onPress={() => props.onAddToDay(dayIso)} style={styles.addBtn}>
-        <Icon name="plus" size={18} color={TOKENS.white} sw={2.4} />
+        <Icon name="plus" size={18} color={t.white} sw={2.4} />
         <Text style={styles.addLabel}>Add to this day</Text>
       </PressableScale>
     </View>
@@ -101,6 +103,8 @@ function Row({
   last: boolean;
   onPress: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const st = entry.symptomTypeId ? symptomTypes.get(entry.symptomTypeId) : undefined;
   const mt = entry.medicationTypeId ? medTypes.get(entry.medicationTypeId) : undefined;
 
@@ -113,18 +117,18 @@ function Row({
     title = entry.tempC != null ? formatTemp(entry.tempC, tempUnit) : "Temperature";
     glyphIcon = "fever";
     glyphBg = sev.key === "none" ? sev.color : sev.color + "33";
-    glyphColor = sev.key === "none" ? TOKENS.balance : sev.dot;
+    glyphColor = sev.key === "none" ? t.balance : sev.dot;
   } else if (entry.entryType === "med") {
     const name = mt?.label ?? "Medication";
     title = entry.dose ? `${name} · ${entry.dose}` : name;
     glyphIcon = mt?.form === "tablet" ? "tablet" : mt?.form === "drops" ? "drops" : "syrup";
-    glyphBg = (mt?.color ?? TOKENS.balance) + "22";
-    glyphColor = mt?.color ?? TOKENS.balance;
+    glyphBg = (mt?.color ?? t.balance) + "22";
+    glyphColor = mt?.color ?? t.balance;
   } else if (entry.entryType === "note") {
     title = entry.note ?? "Note";
     glyphIcon = "note";
-    glyphBg = TOKENS.calm;
-    glyphColor = TOKENS.grey;
+    glyphBg = t.calm;
+    glyphColor = t.grey;
   } else {
     const sev = SEVERITY[(entry.severity ?? "mild") as SeverityKey];
     title = st?.label ?? "Symptom";
@@ -146,16 +150,16 @@ function Row({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   wrap: { marginTop: 4 },
   heading: {
     fontSize: 15,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.2,
     marginBottom: 10,
   },
-  emptyText: { fontSize: 15, color: TOKENS.grey },
+  emptyText: { fontSize: 15, color: t.grey },
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -163,7 +167,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 4,
   },
-  rowBorder: { borderBottomWidth: 1, borderBottomColor: TOKENS.calm },
+  rowBorder: { borderBottomWidth: 1, borderBottomColor: t.calm },
   glyph: {
     width: 38,
     height: 38,
@@ -177,12 +181,12 @@ const styles = StyleSheet.create({
     minWidth: 0,
     fontSize: 15.5,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.2,
   },
   rowTime: {
     fontSize: 12.5,
-    color: TOKENS.grey,
+    color: t.grey,
     fontVariant: ["tabular-nums"],
     flexShrink: 0,
   },
@@ -194,13 +198,13 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     paddingHorizontal: 16,
     borderRadius: 16,
-    backgroundColor: TOKENS.white,
+    backgroundColor: t.white,
   },
   flareLabel: {
     flex: 1,
     fontSize: 15,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.1,
   },
   addBtn: {
@@ -211,12 +215,12 @@ const styles = StyleSheet.create({
     marginTop: 14,
     paddingVertical: 14,
     borderRadius: 16,
-    backgroundColor: TOKENS.anchor,
+    backgroundColor: t.anchor,
   },
   addLabel: {
     fontSize: 15,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.white,
+    color: t.white,
     letterSpacing: -0.1,
   },
-});
+}));

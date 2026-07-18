@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Icon } from "./Icon";
 import { PressableScale } from "./PressableScale";
-import { TOKENS } from "./tokens";
+import { themedStyles, useTokens } from "./theme";
 
 const TABS = [
   { key: "today", label: "Today", icon: "today" },
@@ -23,34 +23,36 @@ export function TabBar({
   onChange: (tab: string) => void;
   onAdd: () => void;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const insets = useSafeAreaInsets();
   return (
     <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 24) }]}>
       <View style={styles.row}>
-        {TABS.map((t) => {
-          if (t.key === "add") {
+        {TABS.map((tab) => {
+          if (tab.key === "add") {
             return (
               <PressableScale key="add" onPress={onAdd} style={styles.addWrap}>
                 <View style={styles.addBtn}>
-                  <Icon name="plus" size={30} color={TOKENS.anchor} sw={2.4} />
+                  <Icon name="plus" size={30} color={t.onYellow} sw={2.4} />
                 </View>
               </PressableScale>
             );
           }
-          const on = active === t.key;
+          const on = active === tab.key;
           return (
-            <PressableScale key={t.key} onPress={() => onChange(t.key)} style={styles.tab}>
-              <Icon name={t.icon} size={26} color={on ? TOKENS.anchor : TOKENS.grey} sw={on ? 2.1 : 1.8} />
+            <PressableScale key={tab.key} onPress={() => onChange(tab.key)} style={styles.tab}>
+              <Icon name={tab.icon} size={26} color={on ? t.anchor : t.grey} sw={on ? 2.1 : 1.8} />
               <Text
                 style={[
                   styles.label,
                   {
-                    color: on ? TOKENS.anchor : TOKENS.grey,
+                    color: on ? t.anchor : t.grey,
                     fontFamily: on ? "Sora_700Bold" : "Sora_400Regular",
                   },
                 ]}
               >
-                {t.label}
+                {tab.label}
               </Text>
             </PressableScale>
           );
@@ -60,7 +62,7 @@ export function TabBar({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   bar: {
     position: "absolute",
     left: 0,
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
     zIndex: 100,
     paddingTop: 8,
     // prototype uses a blurred canvas-colored gradient; RN: near-opaque canvas
-    backgroundColor: "rgba(248,250,255,0.96)",
+    backgroundColor: t.canvas + "F5", // frosted bar: canvas at ~96% alpha
   },
   row: {
     flexDirection: "row",
@@ -95,14 +97,14 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: 20,
-    backgroundColor: TOKENS.yellow,
+    backgroundColor: t.yellow,
     alignItems: "center",
     justifyContent: "center",
     // prototype: 0 6px 18px rgba(254,174,46,0.5)
-    shadowColor: TOKENS.yellow,
+    shadowColor: t.yellow,
     shadowOpacity: 0.5,
     shadowRadius: 9,
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-});
+}));

@@ -4,7 +4,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Entry, Repo } from "../../db/repo";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles } from "../../design/theme";
 import { LogMed } from "./LogMed";
 import { LogSymptom } from "./LogSymptom";
 import { LogTemp } from "./LogTemp";
@@ -26,6 +26,7 @@ export function EditEntry({
   scheduleReminder?: (entry: Entry, medLabel: string) => void;
   cancelReminder?: (entryId: string) => void;
 }): React.JSX.Element {
+  const styles = useStyles();
   if (entry.entryType === "temp") {
     return <LogTemp repo={repo} profileId={entry.profileId} onSaved={onSaved} tempUnit={tempUnit} editEntryId={entry.id} />;
   }
@@ -43,7 +44,7 @@ export function EditEntry({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   fallback: { padding: 24, alignItems: "center" },
-  fallbackText: { fontSize: 15, color: TOKENS.grey, fontFamily: "Sora_600SemiBold" },
-});
+  fallbackText: { fontSize: 15, color: t.grey, fontFamily: "Sora_600SemiBold" },
+}));

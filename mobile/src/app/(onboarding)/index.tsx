@@ -7,10 +7,12 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useServices } from "../../AppServices";
 import { Icon } from "../../design/Icon";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { AddPersonForm } from "../../screens/profile/AddPersonForm";
 
 export default function Onboarding(): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const { repo, sync } = useServices();
   const insets = useSafeAreaInsets();
 
@@ -28,7 +30,7 @@ export default function Onboarding(): React.JSX.Element {
     >
       <View style={styles.header}>
         <View style={styles.glyph}>
-          <Icon name="profile" size={30} color={TOKENS.anchor} sw={2} />
+          <Icon name="profile" size={30} color={t.anchor} sw={2} />
         </View>
         <Text style={styles.title}>Add your first person</Text>
         <Text style={styles.subtitle}>
@@ -42,28 +44,28 @@ export default function Onboarding(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: TOKENS.canvas },
+const useStyles = themedStyles((t) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: t.canvas },
   header: { alignItems: "center", marginBottom: 24, gap: 10 },
   glyph: {
     width: 64,
     height: 64,
     borderRadius: 20,
-    backgroundColor: TOKENS.calm,
+    backgroundColor: t.calm,
     alignItems: "center",
     justifyContent: "center",
   },
   title: {
     fontSize: 26,
     fontFamily: "Sora_800ExtraBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.4,
   },
   subtitle: {
     fontSize: 15,
     fontFamily: "Sora_400Regular",
-    color: TOKENS.grey,
+    color: t.grey,
     textAlign: "center",
     lineHeight: 21,
   },
-});
+}));

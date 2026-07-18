@@ -9,7 +9,7 @@ import { Button } from "../../design/Button";
 import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTheme, useTokens } from "../../design/theme";
 import { DateTimeField } from "./DateTimeField";
 
 function formIcon(form: string | null): string {
@@ -37,6 +37,9 @@ export function LogMed({
   cancelReminder?: (entryId: string) => void;
   editEntryId?: string;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
+  const { scheme } = useTheme();
   const existing = useMemo(() => (editEntryId ? repo.getEntry(editEntryId) : null), [editEntryId, repo]);
   const meds = useQuery(["medication_types"], () => repo.listMedicationTypes());
 
@@ -117,14 +120,14 @@ export function LogMed({
           const sub = [m.brand, m.strength].filter(Boolean).join(" · ");
           return (
             <PressableScale key={m.id} onPress={() => pick(m)} style={[styles.row, on && styles.rowOn]}>
-              <View style={[styles.glyph, { backgroundColor: (m.color ?? TOKENS.balance) + "22" }]}>
-                <Icon name={formIcon(m.form)} size={20} color={m.color ?? TOKENS.balance} sw={1.9} />
+              <View style={[styles.glyph, { backgroundColor: (m.color ?? t.balance) + "22" }]}>
+                <Icon name={formIcon(m.form)} size={20} color={m.color ?? t.balance} sw={1.9} />
               </View>
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text style={[styles.medLabel, on && styles.medLabelOn]}>{m.label}</Text>
                 {sub ? <Text style={[styles.medSub, on && styles.medSubOn]}>{sub}</Text> : null}
               </View>
-              {on ? <Icon name="check" size={20} color={TOKENS.yellow} sw={2.4} /> : null}
+              {on ? <Icon name="check" size={20} color={t.yellow} sw={2.4} /> : null}
             </PressableScale>
           );
         })}
@@ -133,15 +136,15 @@ export function LogMed({
       {/* add custom */}
       {adding ? (
         <Card pad={14} style={styles.customCard}>
-          <TextInput value={cLabel} onChangeText={setCLabel} placeholder="Name (e.g. Calpol)" placeholderTextColor={TOKENS.approach} style={styles.input} />
-          <TextInput value={cStrength} onChangeText={setCStrength} placeholder="Strength (e.g. 120mg/5ml)" placeholderTextColor={TOKENS.approach} style={[styles.input, { marginTop: 8 }]} />
-          <TextInput value={cDose} onChangeText={setCDose} placeholder="Default dose (e.g. 5 ml)" placeholderTextColor={TOKENS.approach} style={[styles.input, { marginTop: 8 }]} />
+          <TextInput keyboardAppearance={scheme} value={cLabel} onChangeText={setCLabel} placeholder="Name (e.g. Calpol)" placeholderTextColor={t.approach} style={styles.input} />
+          <TextInput keyboardAppearance={scheme} value={cStrength} onChangeText={setCStrength} placeholder="Strength (e.g. 120mg/5ml)" placeholderTextColor={t.approach} style={[styles.input, { marginTop: 8 }]} />
+          <TextInput keyboardAppearance={scheme} value={cDose} onChangeText={setCDose} placeholder="Default dose (e.g. 5 ml)" placeholderTextColor={t.approach} style={[styles.input, { marginTop: 8 }]} />
           <View style={styles.formRow}>
             {["syrup", "tablet", "drops"].map((f) => {
               const on = cForm === f;
               return (
                 <PressableScale key={f} onPress={() => setCForm(f)} style={[styles.formChip, on ? styles.formChipOn : styles.formChipOff]}>
-                  <Text style={[styles.formChipText, on && { color: TOKENS.anchor }]}>{f}</Text>
+                  <Text style={[styles.formChipText, on && { color: t.onYellow }]}>{f}</Text>
                 </PressableScale>
               );
             })}
@@ -152,7 +155,7 @@ export function LogMed({
         </Card>
       ) : (
         <PressableScale onPress={() => setAdding(true)} style={styles.addRow}>
-          <Icon name="plus" size={18} color={TOKENS.balance} sw={2.2} />
+          <Icon name="plus" size={18} color={t.balance} sw={2.2} />
           <Text style={styles.addText}>Add custom medication</Text>
         </PressableScale>
       )}
@@ -160,10 +163,11 @@ export function LogMed({
       {/* dose */}
       <Text style={[styles.sectionLabel, { marginTop: 18 }]}>Dose</Text>
       <TextInput
+          keyboardAppearance={scheme}
         value={dose}
         onChangeText={setDose}
         placeholder="e.g. 5 ml"
-        placeholderTextColor={TOKENS.approach}
+        placeholderTextColor={t.approach}
         style={styles.input}
       />
 
@@ -171,13 +175,13 @@ export function LogMed({
       <Card pad={14} style={styles.reminderCard}>
         <View style={styles.reminderHead}>
           <View style={styles.bellGlyph}>
-            <Icon name="bell" size={20} color={remind ? TOKENS.balance : TOKENS.approach} sw={1.9} />
+            <Icon name="bell" size={20} color={remind ? t.balance : t.approach} sw={1.9} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.reminderTitle}>Remind me for the next dose</Text>
             <Text style={styles.reminderSub}>Push notification</Text>
           </View>
-          <Switch value={remind} onValueChange={toggleRemind} trackColor={{ true: TOKENS.yellow, false: TOKENS.lavender }} />
+          <Switch value={remind} onValueChange={toggleRemind} trackColor={{ true: t.yellow, false: t.lavender }} />
         </View>
         {remind && remindAt ? (
           <View style={styles.reminderBody}>
@@ -195,11 +199,11 @@ export function LogMed({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   sectionLabel: {
     fontSize: 13,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.grey,
+    color: t.grey,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 8,
@@ -212,15 +216,15 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 15,
     borderWidth: 1.5,
-    borderColor: TOKENS.calm,
-    backgroundColor: TOKENS.white,
+    borderColor: t.calm,
+    backgroundColor: t.white,
   },
-  rowOn: { borderColor: TOKENS.anchor },
+  rowOn: { borderColor: t.anchor },
   glyph: { width: 38, height: 38, borderRadius: 11, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  medLabel: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: TOKENS.anchor },
-  medLabelOn: { color: TOKENS.anchor },
-  medSub: { fontSize: 12.5, color: TOKENS.grey },
-  medSubOn: { color: TOKENS.grey },
+  medLabel: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: t.anchor },
+  medLabelOn: { color: t.anchor },
+  medSub: { fontSize: 12.5, color: t.grey },
+  medSubOn: { color: t.grey },
   customCard: { marginTop: 10 },
   addRow: {
     flexDirection: "row",
@@ -231,32 +235,32 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
+    borderColor: t.lavender,
     borderStyle: "dashed",
-    backgroundColor: TOKENS.white,
+    backgroundColor: t.white,
   },
-  addText: { fontSize: 15, fontFamily: "Sora_600SemiBold", color: TOKENS.balance },
+  addText: { fontSize: 15, fontFamily: "Sora_600SemiBold", color: t.balance },
   input: {
     height: 52,
     borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
-    backgroundColor: TOKENS.white,
+    borderColor: t.lavender,
+    backgroundColor: t.white,
     paddingHorizontal: 16,
     fontSize: 16.5,
     fontFamily: "Sora_600SemiBold",
-    color: TOKENS.anchor,
+    color: t.anchor,
   },
   formRow: { flexDirection: "row", gap: 8, marginTop: 8 },
   formChip: { flex: 1, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  formChipOn: { backgroundColor: TOKENS.yellow },
-  formChipOff: { backgroundColor: TOKENS.white, borderWidth: 1.5, borderColor: TOKENS.lavender },
-  formChipText: { fontSize: 13.5, fontFamily: "Sora_700Bold", color: TOKENS.balance },
+  formChipOn: { backgroundColor: t.yellow },
+  formChipOff: { backgroundColor: t.white, borderWidth: 1.5, borderColor: t.lavender },
+  formChipText: { fontSize: 13.5, fontFamily: "Sora_700Bold", color: t.balance },
   reminderCard: { marginTop: 18 },
   reminderHead: { flexDirection: "row", alignItems: "center", gap: 12 },
-  bellGlyph: { width: 38, height: 38, borderRadius: 11, backgroundColor: TOKENS.calm, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  reminderTitle: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: TOKENS.anchor },
-  reminderSub: { fontSize: 12.5, color: TOKENS.grey },
-  reminderBody: { marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: TOKENS.calm },
+  bellGlyph: { width: 38, height: 38, borderRadius: 11, backgroundColor: t.calm, alignItems: "center", justifyContent: "center", flexShrink: 0 },
+  reminderTitle: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: t.anchor },
+  reminderSub: { fontSize: 12.5, color: t.grey },
+  reminderBody: { marginTop: 14, paddingTop: 14, borderTopWidth: 1, borderTopColor: t.calm },
   when: { marginTop: 18, marginBottom: 20 },
-});
+}));

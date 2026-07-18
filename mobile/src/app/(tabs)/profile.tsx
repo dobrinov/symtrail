@@ -9,7 +9,7 @@ import { useQuery } from "../../db/useQuery";
 import { Avatar } from "../../design/Avatar";
 import { Button } from "../../design/Button";
 import { Sheet } from "../../design/Sheet";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTokens } from "../../design/theme";
 import { AddPersonForm } from "../../screens/profile/AddPersonForm";
 import { ProfileScreen } from "../../screens/profile/ProfileScreen";
 import { SettingsSheet } from "../../screens/profile/SettingsSheet";
@@ -21,11 +21,14 @@ import { useActiveProfile } from "../../state/activeProfile";
 type PersonSheet = { mode: "add" } | { mode: "edit"; id: string } | null;
 
 export default function Profile(): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
   const { repo, api, sync, session, reminders } = useServices();
   const [activeId, setActive] = useActiveProfile(repo);
   // Reactive: setTempUnit emits a sync_meta change, so the settings sheet's
   // selected card updates immediately when the user taps °C/°F.
   const tempUnit = useQuery(["sync_meta"], () => session.tempUnit());
+  const themePref = useQuery(["sync_meta"], () => session.themePreference());
 
   const [personSheet, setPersonSheet] = useState<PersonSheet>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -119,6 +122,8 @@ export default function Profile(): React.JSX.Element {
           unit={tempUnit}
           setTempUnit={(u) => session.setTempUnit(u)}
           updateSettings={(s) => api.updateSettings(s)}
+          theme={themePref}
+          setTheme={(p) => session.setThemePreference(p)}
         />
       </Sheet>
 
@@ -126,7 +131,7 @@ export default function Profile(): React.JSX.Element {
         {target ? (
           <View>
             <View style={styles.confirmHead}>
-              <Avatar name={target.name} color={target.color ?? TOKENS.approach} size={64} />
+              <Avatar name={target.name} color={target.color ?? t.approach} size={64} />
               <Text style={styles.confirmTitle}>{`Remove ${target.name}?`}</Text>
               <Text style={styles.confirmBody}>
                 {`This permanently deletes ${target.name}'s profile and all their logged symptoms, temperatures and medications.`}
@@ -147,8 +152,8 @@ export default function Profile(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: TOKENS.canvas },
+const useStyles = themedStyles((t) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: t.canvas },
   confirmHead: {
     alignItems: "center",
     paddingHorizontal: 8,
@@ -159,16 +164,16 @@ const styles = StyleSheet.create({
   confirmTitle: {
     fontSize: 18,
     fontFamily: "Sora_700Bold",
-    color: TOKENS.anchor,
+    color: t.anchor,
     marginTop: 6,
     textAlign: "center",
   },
   confirmBody: {
     fontSize: 14,
-    color: TOKENS.grey,
+    color: t.grey,
     lineHeight: 20,
     textAlign: "center",
     maxWidth: 300,
   },
   confirmActions: { gap: 10 },
-});
+}));

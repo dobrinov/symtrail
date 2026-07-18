@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { KeyboardTypeOptions, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { Icon } from "../../design/Icon";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles, useTheme, useTokens } from "../../design/theme";
 
 export const ERROR_RED = "#E1542E";
 
@@ -37,6 +37,7 @@ export function LogoMark({ size = 84 }: { size?: number }): React.JSX.Element {
 }
 
 export function LogoBlock({ markSize = 84, tagline }: { markSize?: number; tagline?: string }): React.JSX.Element {
+  const styles = useStyles();
   return (
     <View style={styles.logoBlock}>
       <LogoMark size={markSize} />
@@ -64,15 +65,19 @@ export function AuthField({
   secure?: boolean;
   keyboardType?: KeyboardTypeOptions;
 }): React.JSX.Element {
+  const styles = useStyles();
+  const t = useTokens();
+  const { scheme } = useTheme();
   const [show, setShow] = useState(false);
   const [focus, setFocus] = useState(false);
   return (
     <View style={[styles.field, focus ? styles.fieldFocus : null]}>
-      <Icon name={icon} size={20} color={focus ? TOKENS.balance : TOKENS.approach} sw={1.9} />
+      <Icon name={icon} size={20} color={focus ? t.balance : t.approach} sw={1.9} />
       <TextInput
+          keyboardAppearance={scheme}
         style={styles.input}
         placeholder={placeholder}
-        placeholderTextColor={TOKENS.grey}
+        placeholderTextColor={t.grey}
         value={value}
         onChangeText={onChangeText}
         onFocus={() => setFocus(true)}
@@ -84,7 +89,7 @@ export function AuthField({
       />
       {secure ? (
         <Pressable onPress={() => setShow((s) => !s)} hitSlop={8}>
-          <Icon name={show ? "eyeoff" : "eye"} size={19} color={TOKENS.grey} sw={1.9} />
+          <Icon name={show ? "eyeoff" : "eye"} size={19} color={t.grey} sw={1.9} />
         </Pressable>
       ) : null}
     </View>
@@ -92,6 +97,7 @@ export function AuthField({
 }
 
 export function ErrorText({ children }: { children?: string | null }): React.JSX.Element | null {
+  const styles = useStyles();
   if (!children) return null;
   return <Text style={styles.error}>{children}</Text>;
 }
@@ -105,6 +111,7 @@ export function LinkText({
   color?: string;
   children: React.ReactNode;
 }): React.JSX.Element {
+  const styles = useStyles();
   return (
     <Text onPress={onPress} suppressHighlighting style={[styles.link, color ? { color } : null]}>
       {children}
@@ -121,7 +128,7 @@ export function deviceNameOrDefault(): string {
   }
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   logoBlock: {
     alignItems: "center",
     gap: 14,
@@ -144,7 +151,7 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: 15,
     fontFamily: "Sora_400Regular",
-    color: TOKENS.grey,
+    color: t.grey,
     textAlign: "center",
     lineHeight: 22,
     maxWidth: 280,
@@ -155,20 +162,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     height: 54,
-    backgroundColor: TOKENS.white,
+    backgroundColor: t.white,
     borderRadius: 14,
     paddingHorizontal: 14,
     borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
+    borderColor: t.lavender,
   },
   fieldFocus: {
-    borderColor: TOKENS.yellow,
+    borderColor: t.yellow,
   },
   input: {
     flex: 1,
     fontSize: 16,
     fontFamily: "Sora_400Regular",
-    color: TOKENS.anchor,
+    color: t.anchor,
     letterSpacing: -0.2,
     paddingVertical: 0,
   },
@@ -180,8 +187,8 @@ const styles = StyleSheet.create({
     lineHeight: 19,
   },
   link: {
-    color: TOKENS.yellow,
+    color: t.yellow,
     fontSize: 14.5,
     fontFamily: "Sora_700Bold",
   },
-});
+}));

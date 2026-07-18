@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useServices } from "../../AppServices";
 import { useQuery } from "../../db/useQuery";
-import { TOKENS } from "../../design/tokens";
+import { themedStyles } from "../../design/theme";
 import { CalendarScreen } from "../../screens/calendar/CalendarScreen";
 import { useActiveProfile } from "../../state/activeProfile";
 import { useLogSheet } from "../../state/LogSheetContext";
@@ -27,6 +27,7 @@ function dayIsoAtNow(dayIso: string): string {
 }
 
 export default function Calendar(): React.JSX.Element {
+  const styles = useStyles();
   const { repo, sync, session } = useServices();
   const { openLog, openEntry, openFlare } = useLogSheet();
   const [profileId] = useActiveProfile(repo);
@@ -64,8 +65,8 @@ export default function Calendar(): React.JSX.Element {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: TOKENS.canvas },
+const useStyles = themedStyles((t) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: t.canvas },
   empty: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
-  emptyText: { fontSize: 16, fontFamily: "Sora_600SemiBold", color: TOKENS.grey },
-});
+  emptyText: { fontSize: 16, fontFamily: "Sora_600SemiBold", color: t.grey },
+}));

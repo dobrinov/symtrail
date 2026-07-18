@@ -1,7 +1,7 @@
 // Avatar — colored circle with the name's initial, per docs/prototype/components.jsx.
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { TOKENS } from "./tokens";
+import { themedStyles } from "./theme";
 
 export function Avatar({
   name,
@@ -12,6 +12,7 @@ export function Avatar({
   color: string;
   size?: number;
 }): React.JSX.Element {
+  const styles = useStyles();
   const initial = name.trim().charAt(0).toUpperCase();
   return (
     <View
@@ -25,15 +26,15 @@ export function Avatar({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = themedStyles((t) => StyleSheet.create({
   circle: {
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
   },
   initial: {
-    color: TOKENS.white,
+    color: t.onAccent,
     fontFamily: "Sora_700Bold",
     letterSpacing: 0.2,
   },
-});
+}));
