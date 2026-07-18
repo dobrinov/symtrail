@@ -5,6 +5,7 @@
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LOCAL_ONLY } from "../../config";
 import { Repo } from "../../db/repo";
 import { useQuery } from "../../db/useQuery";
 import { Avatar } from "../../design/Avatar";
@@ -129,7 +130,7 @@ export function ProfileScreen({
         </PressableScale>
       </Card>
 
-      <Text style={styles.syncCaption}>{lastSyncedLabel(lastSyncedAt)}</Text>
+      {LOCAL_ONLY ? null : <Text style={styles.syncCaption}>{lastSyncedLabel(lastSyncedAt)}</Text>}
     </ScrollView>
   );
 }
