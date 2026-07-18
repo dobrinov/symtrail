@@ -47,8 +47,12 @@ export function AddPersonForm({
   const valid = name.trim().length > 0;
   const age = ageLabel(birthDate);
 
+  // Inline iOS calendar fires onChange only when a day is actually tapped, so
+  // the picker can close itself on selection — no Done button, and no way to
+  // dismiss it thinking today's date was saved when nothing was.
   const onPickDate = (_e: DateTimePickerEvent, d?: Date) => {
     if (d) setBirthDate(d.toISOString());
+    setIosPicker(false);
   };
 
   const openDate = () => {
@@ -110,13 +114,12 @@ export function AddPersonForm({
             <DateTimePicker
               value={birthDate ? new Date(birthDate) : new Date()}
               mode="date"
-              display="spinner"
+              display="inline"
+              themeVariant="light"
+              accentColor={TOKENS.anchor}
               maximumDate={new Date()}
               onChange={onPickDate}
             />
-            <PressableScale onPress={() => setIosPicker(false)} style={styles.doneChip}>
-              <Text style={styles.doneText}>Done</Text>
-            </PressableScale>
           </View>
         ) : null}
       </View>
@@ -236,18 +239,6 @@ const styles = StyleSheet.create({
   },
   dateText: { flex: 1, fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: TOKENS.anchor },
   pickerRow: { marginTop: 10 },
-  doneChip: {
-    alignSelf: "flex-end",
-    paddingHorizontal: 18,
-    height: 44,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
-    backgroundColor: TOKENS.white,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  doneText: { fontSize: 14, fontFamily: "Sora_700Bold", color: TOKENS.balance },
   sexRow: { flexDirection: "row", gap: 8 },
   sexWrap: { flex: 1 },
   sexCell: { height: 52, borderRadius: 14, alignItems: "center", justifyContent: "center" },

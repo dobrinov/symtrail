@@ -5,6 +5,7 @@
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useServices } from "../../AppServices";
+import { useQuery } from "../../db/useQuery";
 import { Avatar } from "../../design/Avatar";
 import { Button } from "../../design/Button";
 import { Sheet } from "../../design/Sheet";
@@ -24,6 +25,9 @@ export default function Profile(): React.JSX.Element {
   const { repo, api, sync, session, reminders } = useServices();
   const { onSignedOut } = useAuthNavigation();
   const [activeId, setActive] = useActiveProfile(repo);
+  // Reactive: setTempUnit emits a sync_meta change, so the settings sheet's
+  // selected card updates immediately when the user taps °C/°F.
+  const tempUnit = useQuery(["sync_meta"], () => session.tempUnit());
 
   const [personSheet, setPersonSheet] = useState<PersonSheet>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -139,7 +143,7 @@ export default function Profile(): React.JSX.Element {
 
       <Sheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title="Settings">
         <SettingsSheet
-          unit={session.tempUnit()}
+          unit={tempUnit}
           setTempUnit={(u) => session.setTempUnit(u)}
           updateSettings={(s) => api.updateSettings(s)}
         />
