@@ -7,7 +7,11 @@ import Svg, { Circle, Line, Path, Text as SvgText } from "react-native-svg";
 import { TOKENS } from "../../design/tokens";
 import { SEVERITY } from "../../domain/severity";
 import { cToF } from "../../domain/severity";
-import { ChartPoint } from "./FlareDetailScreen";
+
+export interface ChartPoint {
+  t: number;
+  temp: number;
+}
 
 const W = 320;
 const H = 160;

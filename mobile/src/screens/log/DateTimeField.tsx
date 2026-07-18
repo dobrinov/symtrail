@@ -101,6 +101,7 @@ export function DateTimeField({
             value={date}
             mode={iosPicker}
             display="spinner"
+            themeVariant="light"
             onChange={onIosChange}
           />
           {iosPicker === "date" ? (

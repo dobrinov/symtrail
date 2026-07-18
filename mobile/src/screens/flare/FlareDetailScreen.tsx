@@ -13,14 +13,9 @@ import { SeverityChip } from "../../design/SeverityChip";
 import { TOKENS } from "../../design/tokens";
 import { Flare } from "../../domain/flares";
 import { formatTemp, SeverityKey, tempToSeverity } from "../../domain/severity";
-import { TempChart } from "./TempChart";
+import { ChartPoint, TempChart } from "./TempChart";
 
 const DAY_MS = 86400000;
-
-export interface ChartPoint {
-  t: number;
-  temp: number;
-}
 
 // Temp readings whose recordedAt falls within the flare's UTC day range
 // [onset 00:00, end 23:59:59.999], sorted ascending by time.
