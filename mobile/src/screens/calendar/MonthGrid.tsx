@@ -41,6 +41,11 @@ export function MonthGrid(props: {
   const blanks = leadingBlanks(year, month);
   const total = daysInMonth(year, month);
 
+  // Days with at least one entry. Med/note logs don't tint the heat-map
+  // (daySeverity ignores them), so severity-less logged days get a dot marker
+  // instead of looking empty.
+  const loggedDays = new Set(entries.map((e) => e.recordedAt.slice(0, 10)));
+
   const cells: React.ReactNode[] = [];
   for (let i = 0; i < blanks; i++) {
     cells.push(<View key={`b${i}`} style={styles.cell} />);
@@ -55,6 +60,7 @@ export function MonthGrid(props: {
     const isToday = key === todayIso;
     const isSelected = key === selectedDay;
     const dotted = windowDays?.has(key);
+    const hasLog = sev === "none" && loggedDays.has(key);
 
     cells.push(
       <View key={key} style={styles.cell}>
@@ -68,7 +74,12 @@ export function MonthGrid(props: {
             ]}
           >
             <Text style={[styles.dayNum, { color: labelColor }]}>{day}</Text>
-            {dotted ? <View style={styles.windowDot} /> : null}
+            {dotted || hasLog ? (
+              <View style={styles.dotRow}>
+                {dotted ? <View style={styles.windowDot} /> : null}
+                {hasLog ? <View style={styles.logDot} testID={`log-dot-${key}`} /> : null}
+              </View>
+            ) : null}
           </View>
         </PressableScale>
       </View>,
@@ -122,12 +133,22 @@ const useStyles = themedStyles((t) => StyleSheet.create({
     fontFamily: "Sora_600SemiBold",
     fontVariant: ["tabular-nums"],
   },
-  windowDot: {
+  dotRow: {
     position: "absolute",
     bottom: 5,
+    flexDirection: "row",
+    gap: 3,
+  },
+  windowDot: {
     width: 4,
     height: 4,
     borderRadius: 2,
     backgroundColor: t.approach,
+  },
+  logDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: t.grey,
   },
 }));

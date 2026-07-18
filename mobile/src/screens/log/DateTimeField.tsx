@@ -81,7 +81,7 @@ export function DateTimeField({
 
   return (
     <View style={styles.root}>
-      <Text style={styles.label}>{label}</Text>
+      {label ? <Text style={styles.label}>{label}</Text> : null}
       <View style={styles.row}>
         <PressableScale onPress={() => apply(new Date())} style={styles.nowChip}>
           <Icon name="clock" size={16} color={t.balance} sw={2} />

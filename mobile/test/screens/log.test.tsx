@@ -132,3 +132,26 @@ test("EntryDetail's delete button fires onDelete", async () => {
   await fireEvent.press(screen.getByText("Delete entry"));
   expect(onDelete).toHaveBeenCalled();
 });
+
+test("LogSymptom wizard: picking a symptom collapses the grid and opens severity", async () => {
+  const { repo, profile } = seed();
+  repo.createSymptomType({ label: "Ulcers", icon: "ulcers", groupName: "PFAPA" });
+  await render(<LogSymptom repo={repo} profileId={profile.id} onSaved={() => {}} />);
+  // symptom section open, severity chips not yet visible
+  expect(screen.getByText("Ulcers")).toBeTruthy();
+  expect(screen.queryByText("Severe")).toBeNull();
+  await fireEvent.press(screen.getByText("Sore throat"));
+  // grid collapsed (other tiles gone), summary shows the pick, severity open
+  expect(screen.queryByText("Ulcers")).toBeNull();
+  expect(screen.getByText("Sore throat")).toBeTruthy();
+  expect(screen.getByText("Severe")).toBeTruthy();
+  // reopen the symptom section to change the pick
+  await fireEvent.press(screen.getByTestId("section-symptom"));
+  await fireEvent.press(screen.getByText("Ulcers"));
+  await fireEvent.press(screen.getByText("Mild"));
+  await fireEvent.press(screen.getByText("Save"));
+  const entries = repo.listEntries(profile.id);
+  expect(entries).toHaveLength(1);
+  expect(entries[0].severity).toBe("mild");
+  expect(repo.listSymptomTypes().find((s) => s.id === entries[0].symptomTypeId)?.label).toBe("Ulcers");
+});
