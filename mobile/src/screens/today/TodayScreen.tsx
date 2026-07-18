@@ -1,6 +1,7 @@
 // TodayScreen — home screen, port of docs/prototype/screens-home.jsx:
-// header w/ profile chip + search, status card, prediction card (PFAPA),
-// recent entries list. Logging happens via the tab bar's "+" button.
+// header w/ profile chip, status card, prediction card (PFAPA), today's
+// entries + "view all" into the history list. Logging happens via the tab
+// bar's "+" button.
 import React from "react";
 import { RefreshControlProps, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,13 +13,11 @@ import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { SeverityChip } from "../../design/SeverityChip";
 import { themedStyles, useTokens } from "../../design/theme";
-import { ageLabel } from "../../domain/age";
 import { cycleStats, deriveFlares, Flare } from "../../domain/flares";
 import { formatTemp, SEVERITY, SEVERITY_ORDER, SeverityKey, tempToSeverity } from "../../domain/severity";
+import { ageLabelI18n, catLabel, fmt, Strings, useT } from "../../i18n";
 import { EntryRow } from "../log/EntryRow";
 import { PredictionCard } from "./PredictionCard";
-
-const DAY_MS = 86400000;
 
 // Day bucketing is UTC across the app (flares, calendar, meds, DayDetail all
 // key on the UTC date prefix of the ISO string), so "today" matches them.
@@ -35,11 +34,13 @@ export function TodayScreen(props: {
   onSwitchProfile: () => void;
   onOpenEntry: (entryId: string) => void;
   onOpenFlare?: (flare: Flare) => void;
+  onViewAll?: () => void;
   tempUnit?: "c" | "f";
   refreshControl?: React.ReactElement<RefreshControlProps>;
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const { repo, profileId, tempUnit = "c" } = props;
   const insets = useSafeAreaInsets();
   const today = new Date();
@@ -59,7 +60,6 @@ export function TodayScreen(props: {
 
   const todayKey = new Date().toISOString().slice(0, 10);
   const todays = entries.filter((e) => e.recordedAt.slice(0, 10) === todayKey);
-  const recent = entries.filter((e) => today.getTime() - new Date(e.recordedAt).getTime() <= 7 * DAY_MS);
 
   // PFAPA flare prediction + most-recent derived flare (tap target).
   let cycle = null;
@@ -78,7 +78,7 @@ export function TodayScreen(props: {
     }
   }
 
-  const subtitle = today.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  const subtitle = today.toLocaleDateString(s.locale, { weekday: "long", day: "numeric", month: "long" });
 
   return (
     <ScrollView
@@ -96,7 +96,7 @@ export function TodayScreen(props: {
               <Icon name="chevD" size={18} color={t.grey} sw={2.2} />
             </View>
             <Text style={styles.subtitle}>
-              {[subtitle, ageLabel(profile.birthDate, today)].filter(Boolean).join(" · ")}
+              {[subtitle, ageLabelI18n(profile.birthDate, s, today)].filter(Boolean).join(" · ")}
             </Text>
           </View>
         </PressableScale>
@@ -118,23 +118,31 @@ export function TodayScreen(props: {
           />
         ) : null}
 
-        {/* recent entries */}
-        <Text style={styles.sectionTitle}>Recent</Text>
-        {recent.length === 0 ? (
+        {/* today's entries */}
+        <View style={styles.sectionRow}>
+          <Text style={styles.sectionTitle}>{s.recent}</Text>
+          {props.onViewAll ? (
+            <PressableScale onPress={props.onViewAll} style={styles.viewAll} testID="view-all">
+              <Text style={styles.viewAllText}>{s.viewAll}</Text>
+              <Icon name="chevR" size={15} color={t.balance} sw={2.2} />
+            </PressableScale>
+          ) : null}
+        </View>
+        {todays.length === 0 ? (
           <Card pad={22} style={{ alignItems: "center" }}>
-            <Text style={styles.emptyText}>Nothing logged this week.</Text>
-            <Text style={styles.emptyHint}>Tap + to add a symptom or medication.</Text>
+            <Text style={styles.emptyText}>{s.nothingLoggedToday}</Text>
+            <Text style={styles.emptyHint}>{s.tapPlusHint}</Text>
           </Card>
         ) : (
           <Card pad={14}>
-            {recent.map((e, i) => (
+            {todays.map((e, i) => (
               <EntryRow
                 key={e.id}
                 entry={e}
                 symptomTypes={symptomTypes}
                 medTypes={medTypes}
                 tempUnit={tempUnit}
-                last={i === recent.length - 1}
+                last={i === todays.length - 1}
                 onPress={() => props.onOpenEntry(e.id)}
               />
             ))}
@@ -158,6 +166,7 @@ function StatusCard({
   tempUnit: "c" | "f";
 }): React.JSX.Element {
   const styles = useStyles();
+  const strings = useT();
   let max: SeverityKey = "none";
   for (const e of todays) {
     const s = entrySeverity(e);
@@ -166,16 +175,18 @@ function StatusCard({
   const unwell = max !== "none";
   const sev = SEVERITY[max];
 
-  let title = "Feeling well";
+  let title = strings.feelingWell;
   let sub = entries.length
-    ? `Last logged ${new Date(entries[0].recordedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`
-    : "No recent symptoms";
+    ? fmt(strings.lastLogged, {
+        date: new Date(entries[0].recordedAt).toLocaleDateString(strings.locale, { day: "numeric", month: "short" }),
+      })
+    : strings.noRecentSymptoms;
   let glyphIcon = "check";
   let glyphBg = "#E3F0E8";
   let glyphColor = "#1F8A5B";
 
   if (unwell) {
-    title = max === "severe" ? "Very unwell" : max === "mild" ? "Mild symptoms" : "Feeling unwell";
+    title = max === "severe" ? strings.veryUnwell : max === "mild" ? strings.mildSymptoms : strings.feelingUnwell;
     const names: string[] = [];
     let topSymptomIcon: string | null = null;
     let topIdx = -1;
@@ -183,7 +194,7 @@ function StatusCard({
     for (const e of todays) {
       if (e.entryType === "symptom") {
         const st = e.symptomTypeId ? symptomTypes.get(e.symptomTypeId) : undefined;
-        const nm = st?.label ?? "Symptom";
+        const nm = st ? catLabel(st.label, strings) : strings.symptomFallback;
         if (!names.includes(nm)) names.push(nm);
         const idx = SEVERITY_ORDER.indexOf((e.severity ?? "mild") as SeverityKey);
         if (idx > topIdx) {
@@ -196,11 +207,13 @@ function StatusCard({
       }
     }
     if (peakTemp != null && tempToSeverity(peakTemp) !== "none") {
-      names.push(`Fever ${formatTemp(peakTemp, tempUnit)}`);
+      names.push(fmt(strings.feverShort, { temp: formatTemp(peakTemp, tempUnit) }));
       if (!topSymptomIcon) topSymptomIcon = "fever";
     }
     const shown = names.slice(0, 2).join(" · ");
-    sub = names.length > 2 ? `${shown} +${names.length - 2} more` : shown || "Symptoms logged today";
+    sub = names.length > 2
+      ? `${shown} ${fmt(strings.nMore, { n: names.length - 2 })}`
+      : shown || strings.symptomsLoggedToday;
     glyphIcon = topSymptomIcon ?? "fever";
     glyphBg = sev.color;
     glyphColor = sev.key === "mild" ? sev.dot : sev.text;
@@ -208,7 +221,7 @@ function StatusCard({
 
   return (
     <Card pad={20} style={{ marginBottom: 16 }}>
-      <Text style={styles.statusLabel}>Status</Text>
+      <Text style={styles.statusLabel}>{strings.statusLabel}</Text>
       <View style={styles.statusRow}>
         <View style={[styles.statusGlyph, { backgroundColor: glyphBg }]}>
           <Icon name={glyphIcon} size={26} color={glyphColor} sw={2.2} />
@@ -304,12 +317,29 @@ const useStyles = themedStyles((t) => StyleSheet.create({
     fontSize: 13,
     color: t.grey,
   },
+  sectionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
   sectionTitle: {
     fontSize: 15,
     fontFamily: "Sora_700Bold",
     color: t.anchor,
     letterSpacing: -0.2,
-    marginBottom: 10,
+  },
+  viewAll: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    paddingVertical: 4,
+    paddingLeft: 8,
+  },
+  viewAllText: {
+    fontSize: 13.5,
+    fontFamily: "Sora_700Bold",
+    color: t.balance,
   },
   emptyText: {
     fontSize: 15,

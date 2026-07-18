@@ -7,8 +7,9 @@
 // catalogue labels) is escaped via esc() to keep injected markup out of the PDF.
 import { CycleStats, Flare } from "../domain/flares";
 import { Entry, Profile } from "../db/repo";
-import { ageLabel } from "../domain/age";
-import { formatTemp } from "../domain/severity";
+import { formatTemp, SeverityKey } from "../domain/severity";
+import { ageLabelI18n, fmt, Strings } from "../i18n";
+import { en } from "../i18n/en";
 
 export interface ReportInput {
   profile: Profile;
@@ -16,7 +17,8 @@ export interface ReportInput {
   flares: Flare[];
   stats: CycleStats | null;
   entries: Entry[]; // the profile's entries, any order
-  labels: Record<string, string>; // catalogue id → display label
+  labels: Record<string, string>; // catalogue id → display label (pre-translated)
+  strings?: Strings; // report language; defaults to English
 }
 
 const DAY_MS = 86400000;
@@ -32,20 +34,20 @@ function esc(s: string | null | undefined): string {
     .replace(/'/g, "&#39;");
 }
 
-function fmtDate(d: Date): string {
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+function fmtDate(d: Date, locale: string): string {
+  return d.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
-function fmtDateTime(iso: string): string {
-  return new Date(iso).toLocaleString("en-GB", {
+function fmtDateTime(iso: string, locale: string): string {
+  return new Date(iso).toLocaleString(locale, {
     day: "numeric", month: "short", year: "numeric",
     hour: "numeric", minute: "2-digit", timeZone: "UTC",
   });
 }
 
-function flareRange(f: Flare): string {
-  const mo = f.onset.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" });
-  const me = f.end.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" });
+function flareRange(f: Flare, locale: string): string {
+  const mo = f.onset.toLocaleDateString(locale, { month: "short", timeZone: "UTC" });
+  const me = f.end.toLocaleDateString(locale, { month: "short", timeZone: "UTC" });
   const od = f.onset.getUTCDate();
   const ed = f.end.getUTCDate();
   return mo === me ? `${od}–${ed} ${mo}` : `${od} ${mo} – ${ed} ${me}`;
@@ -54,7 +56,7 @@ function flareRange(f: Flare): string {
 // Inline <svg> polyline over temp readings from the last 90 days. Emits an <svg>
 // whenever there is ≥1 temp reading (a single point renders as a lone dot);
 // otherwise renders a "not enough data" note.
-function tempChartSvg(entries: Entry[], unit: "c" | "f"): string {
+function tempChartSvg(entries: Entry[], unit: "c" | "f", s: Strings): string {
   const cutoff = Date.now() - 90 * DAY_MS;
   const points = entries
     .filter((e) => e.entryType === "temp" && e.tempC != null)
@@ -63,7 +65,7 @@ function tempChartSvg(entries: Entry[], unit: "c" | "f"): string {
     .sort((a, b) => a.t - b.t);
 
   if (points.length < 1) {
-    return `<p style="color:#777;font-size:13px;margin:8px 0;">Not enough temperature data.</p>`;
+    return `<p style="color:#777;font-size:13px;margin:8px 0;">${esc(s.reportNotEnoughTemp)}</p>`;
   }
 
   const W = 720;
@@ -101,37 +103,39 @@ function tempChartSvg(entries: Entry[], unit: "c" | "f"): string {
     + `</svg>`;
 }
 
-function entryDetail(e: Entry, unit: "c" | "f", labels: Record<string, string>): string {
+function entryDetail(e: Entry, unit: "c" | "f", labels: Record<string, string>, s: Strings): string {
   switch (e.entryType) {
     case "temp":
       return e.tempC != null ? esc(formatTemp(e.tempC, unit)) : "—";
     case "symptom": {
-      const label = (e.symptomTypeId && labels[e.symptomTypeId]) || "Symptom";
-      return esc(e.severity ? `${label} · ${e.severity}` : label);
+      const label = (e.symptomTypeId && labels[e.symptomTypeId]) || s.symptomFallback;
+      const sev = e.severity ? s.severity[e.severity as SeverityKey] ?? e.severity : null;
+      return esc(sev ? `${label} · ${sev}` : label);
     }
     case "med": {
-      const label = (e.medicationTypeId && labels[e.medicationTypeId]) || "Medication";
+      const label = (e.medicationTypeId && labels[e.medicationTypeId]) || s.medicationFallback;
       return esc(e.dose ? `${label} · ${e.dose}` : label);
     }
     case "note":
-      return esc(e.note ?? "Note");
+      return esc(e.note ?? s.noteFallback);
     default:
       return "—";
   }
 }
 
-const TYPE_LABEL: Record<Entry["entryType"], string> = {
-  temp: "Temperature",
-  symptom: "Symptom",
-  med: "Medication",
-  note: "Note",
-};
-
 export function buildReportHtml(input: ReportInput): string {
   const { profile, tempUnit, flares, stats, entries, labels } = input;
+  const s = input.strings ?? en;
+  const locale = s.locale;
+  const typeLabel: Record<Entry["entryType"], string> = {
+    temp: s.temperatureFallback,
+    symptom: s.symptomFallback,
+    med: s.medicationFallback,
+    note: s.noteFallback,
+  };
 
   const headerBits = [
-    ageLabel(profile.birthDate),
+    ageLabelI18n(profile.birthDate, s),
     profile.sex,
     profile.condition,
   ].filter(Boolean).map((b) => esc(b as string));
@@ -141,21 +145,21 @@ export function buildReportHtml(input: ReportInput): string {
     ? flares
         .map(
           (f) =>
-            `<tr><td style="${TD}">${esc(flareRange(f))}</td><td style="${TD}">${esc(formatTemp(f.peak, tempUnit))}</td>`
-            + `<td style="${TD}">${f.lengthDays} day${f.lengthDays === 1 ? "" : "s"}</td></tr>`,
+            `<tr><td style="${TD}">${esc(flareRange(f, locale))}</td><td style="${TD}">${esc(formatTemp(f.peak, tempUnit))}</td>`
+            + `<td style="${TD}">${esc(f.lengthDays === 1 ? s.reportDayOne : fmt(s.reportDaysMany, { n: f.lengthDays }))}</td></tr>`,
         )
         .join("")
-    : `<tr><td colspan="3" style="${TD};color:#777;">No flares recorded.</td></tr>`;
+    : `<tr><td colspan="3" style="${TD};color:#777;">${esc(s.reportNoFlares)}</td></tr>`;
 
   let cycleSection = "";
   if (stats) {
     cycleSection = `
-      <h2 style="${H2}">Cycle summary</h2>
+      <h2 style="${H2}">${esc(s.reportCycleSummary)}</h2>
       <table style="${TABLE}">
-        <tr><td style="${TD}">Average gap</td><td style="${TD}">${stats.avg} days (min ${stats.min}, max ${stats.max})</td></tr>
-        <tr><td style="${TD}">Last onset</td><td style="${TD}">${esc(fmtDate(stats.last))}</td></tr>
-        <tr><td style="${TD}">Predicted next</td><td style="${TD}">${esc(fmtDate(stats.predicted))}</td></tr>
-        <tr><td style="${TD}">Expected window</td><td style="${TD}">${esc(fmtDate(stats.windowStart))} – ${esc(fmtDate(stats.windowEnd))}</td></tr>
+        <tr><td style="${TD}">${esc(s.reportAverageGap)}</td><td style="${TD}">${esc(fmt(s.reportAvgGapValue, { avg: stats.avg, min: stats.min, max: stats.max }))}</td></tr>
+        <tr><td style="${TD}">${esc(s.reportLastOnset)}</td><td style="${TD}">${esc(fmtDate(stats.last, locale))}</td></tr>
+        <tr><td style="${TD}">${esc(s.reportPredictedNext)}</td><td style="${TD}">${esc(fmtDate(stats.predicted, locale))}</td></tr>
+        <tr><td style="${TD}">${esc(s.reportExpectedWindow)}</td><td style="${TD}">${esc(fmtDate(stats.windowStart, locale))} – ${esc(fmtDate(stats.windowEnd, locale))}</td></tr>
       </table>`;
   }
 
@@ -166,12 +170,12 @@ export function buildReportHtml(input: ReportInput): string {
     ? timeline
         .map(
           (e) =>
-            `<tr><td style="${TD}">${esc(fmtDateTime(e.recordedAt))}</td>`
-            + `<td style="${TD}">${TYPE_LABEL[e.entryType]}</td>`
-            + `<td style="${TD}">${entryDetail(e, tempUnit, labels)}</td></tr>`,
+            `<tr><td style="${TD}">${esc(fmtDateTime(e.recordedAt, locale))}</td>`
+            + `<td style="${TD}">${esc(typeLabel[e.entryType])}</td>`
+            + `<td style="${TD}">${entryDetail(e, tempUnit, labels, s)}</td></tr>`,
         )
         .join("")
-    : `<tr><td colspan="3" style="${TD};color:#777;">No entries recorded.</td></tr>`;
+    : `<tr><td colspan="3" style="${TD};color:#777;">${esc(s.reportNoEntries)}</td></tr>`;
 
   return `<!DOCTYPE html>
 <html>
@@ -180,23 +184,23 @@ export function buildReportHtml(input: ReportInput): string {
   <div style="border-bottom:2px solid #6C5CE7;padding-bottom:12px;margin-bottom:20px;">
     <h1 style="font-size:26px;margin:0;color:#1C1B29;">${esc(profile.name)}</h1>
     ${subtitle ? `<p style="margin:4px 0 0;color:#59586E;font-size:14px;">${subtitle}</p>` : ""}
-    <p style="margin:6px 0 0;color:#999;font-size:12px;">Symptom &amp; temperature report · generated ${esc(fmtDate(new Date()))}</p>
+    <p style="margin:6px 0 0;color:#999;font-size:12px;">${esc(fmt(s.reportSubtitle, { date: fmtDate(new Date(), locale) }))}</p>
   </div>
 
   ${cycleSection}
 
-  <h2 style="${H2}">Flares</h2>
+  <h2 style="${H2}">${esc(s.reportFlares)}</h2>
   <table style="${TABLE}">
-    <tr><th style="${TH}">Dates</th><th style="${TH}">Peak</th><th style="${TH}">Length</th></tr>
+    <tr><th style="${TH}">${esc(s.reportDates)}</th><th style="${TH}">${esc(s.reportPeak)}</th><th style="${TH}">${esc(s.reportLength)}</th></tr>
     ${flareRows}
   </table>
 
-  <h2 style="${H2}">Temperature (last 90 days)</h2>
-  ${tempChartSvg(entries, tempUnit)}
+  <h2 style="${H2}">${esc(s.reportTempLast90)}</h2>
+  ${tempChartSvg(entries, tempUnit, s)}
 
-  <h2 style="${H2}">Entries</h2>
+  <h2 style="${H2}">${esc(s.reportEntries)}</h2>
   <table style="${TABLE}">
-    <tr><th style="${TH}">When</th><th style="${TH}">Type</th><th style="${TH}">Detail</th></tr>
+    <tr><th style="${TH}">${esc(s.reportWhen)}</th><th style="${TH}">${esc(s.reportType)}</th><th style="${TH}">${esc(s.reportDetail)}</th></tr>
     ${entryRows}
   </table>
 </body>

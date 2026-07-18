@@ -46,6 +46,16 @@ export class SessionStore {
     emitTableChange("sync_meta");
   }
 
+  // UI language, device-local. Stored as a code from i18n LOCALES; callers
+  // validate via isLanguageCode. Default "en".
+  language(): string {
+    return this.repo.getMeta("language") ?? "en";
+  }
+  setLanguage(code: string): void {
+    this.repo.setMeta("language", code);
+    emitTableChange("sync_meta");
+  }
+
   accountEmail(): string | null { return this.repo.getMeta("account_email"); }
 }
 

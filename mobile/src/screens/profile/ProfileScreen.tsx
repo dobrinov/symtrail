@@ -13,7 +13,7 @@ import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { themedStyles, useTokens } from "../../design/theme";
-import { ageLabel } from "../../domain/age";
+import { ageLabelI18n, useT } from "../../i18n";
 
 function lastSyncedLabel(iso: string | null): string {
   if (!iso) return "Never synced";
@@ -52,6 +52,7 @@ export function ProfileScreen({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const profiles = useQuery(["profiles"], () => repo.listProfiles());
   const insets = useSafeAreaInsets();
 
@@ -60,12 +61,12 @@ export function ProfileScreen({
       style={styles.root}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}
     >
-      <Text style={styles.heading}>Profiles</Text>
+      <Text style={styles.heading}>{s.profilesTitle}</Text>
 
       <View style={styles.peopleList}>
         {profiles.map((p) => {
           const active = p.id === activeId;
-          const sub = [ageLabel(p.birthDate), p.condition].filter(Boolean).join(" · ");
+          const sub = [ageLabelI18n(p.birthDate, s), p.condition].filter(Boolean).join(" · ");
           return (
             <PressableScale key={p.id} onPress={() => onPickProfile(p.id)}>
               <Card pad={14} style={[styles.personRow, active ? styles.personActive : styles.personIdle]}>
@@ -77,7 +78,7 @@ export function ProfileScreen({
                     </Text>
                     {active ? (
                       <View style={styles.badge}>
-                        <Text style={styles.badgeText}>Active</Text>
+                        <Text style={styles.badgeText}>{s.activeBadge}</Text>
                       </View>
                     ) : null}
                   </View>
@@ -99,12 +100,12 @@ export function ProfileScreen({
             <View style={styles.addGlyph}>
               <Icon name="plus" size={24} color={t.balance} sw={2.2} />
             </View>
-            <Text style={styles.addLabel}>Add a person</Text>
+            <Text style={styles.addLabel}>{s.addAPerson}</Text>
           </View>
         </PressableScale>
       </View>
 
-      <Text style={styles.sectionHeader}>Tools</Text>
+      <Text style={styles.sectionHeader}>{s.tools}</Text>
       <Card pad={6}>
         <PressableScale onPress={onOpenReport}>
           <View style={[styles.toolRow, styles.toolDivider]}>
@@ -112,8 +113,8 @@ export function ProfileScreen({
               <Icon name="share" size={21} color={t.balance} sw={1.9} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.toolLabel}>Export report for doctor</Text>
-              <Text style={styles.toolSub}>PDF summary of flares & meds</Text>
+              <Text style={styles.toolLabel}>{s.exportReport}</Text>
+              <Text style={styles.toolSub}>{s.exportReportSub}</Text>
             </View>
             <Icon name="chevR" size={18} color={t.grey} sw={2} />
           </View>
@@ -124,8 +125,8 @@ export function ProfileScreen({
               <Icon name="settings" size={21} color={t.balance} sw={1.9} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.toolLabel}>Settings</Text>
-              <Text style={styles.toolSub}>Temperature unit & preferences</Text>
+              <Text style={styles.toolLabel}>{s.settingsTitle}</Text>
+              <Text style={styles.toolSub}>{s.settingsSub}</Text>
             </View>
             <Icon name="chevR" size={18} color={t.grey} sw={2} />
           </View>

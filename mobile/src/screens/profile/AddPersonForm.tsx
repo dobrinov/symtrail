@@ -16,11 +16,11 @@ import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { AVATAR_COLORS } from "../../design/tokens";
 import { themedStyles, useTheme, useTokens } from "../../design/theme";
-import { ageLabel } from "../../domain/age";
+import { ageLabelI18n, fmt, Strings, useT } from "../../i18n";
 
-function fmtDate(iso: string | null): string {
-  if (!iso) return "Not set";
-  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+function fmtDate(iso: string | null, s: Strings): string {
+  if (!iso) return s.notSet;
+  return new Date(iso).toLocaleDateString(s.locale, { day: "numeric", month: "long", year: "numeric" });
 }
 
 export function AddPersonForm({
@@ -34,6 +34,7 @@ export function AddPersonForm({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const { scheme } = useTheme();
   const existing = useMemo(
     () => (editProfileId ? repo.getProfile(editProfileId) : null),
@@ -49,7 +50,7 @@ export function AddPersonForm({
   const [iosPicker, setIosPicker] = useState(false);
 
   const valid = name.trim().length > 0;
-  const age = ageLabel(birthDate);
+  const age = ageLabelI18n(birthDate, s);
 
   // Inline iOS calendar fires onChange only when a day is actually tapped, so
   // the picker can close itself on selection — no Done button, and no way to
@@ -93,12 +94,12 @@ export function AddPersonForm({
       </View>
 
       <View style={styles.field}>
-        <Text style={styles.fieldLabel}>Name</Text>
+        <Text style={styles.fieldLabel}>{s.nameLabel}</Text>
         <TextInput
           keyboardAppearance={scheme}
           value={name}
           onChangeText={setName}
-          placeholder="Name"
+          placeholder={s.nameLabel}
           placeholderTextColor={t.grey}
           style={styles.input}
         />
@@ -106,12 +107,12 @@ export function AddPersonForm({
 
       <View style={styles.field}>
         <View style={styles.fieldHeadRow}>
-          <Text style={styles.fieldLabel}>Birth date</Text>
-          {age ? <Text style={styles.ageHint}>{age} old</Text> : null}
+          <Text style={styles.fieldLabel}>{s.birthDateLabel}</Text>
+          {age ? <Text style={styles.ageHint}>{fmt(s.ageOld, { age })}</Text> : null}
         </View>
         <PressableScale onPress={openDate} style={styles.dateChip}>
           <Icon name="calendar" size={18} color={t.balance} sw={1.9} />
-          <Text style={styles.dateText}>{fmtDate(birthDate)}</Text>
+          <Text style={styles.dateText}>{fmtDate(birthDate, s)}</Text>
           <Icon name="chevR" size={16} color={t.grey} sw={2} />
         </PressableScale>
         {iosPicker ? (
@@ -130,11 +131,11 @@ export function AddPersonForm({
       </View>
 
       <View style={styles.field}>
-        <Text style={styles.fieldLabel}>Sex</Text>
+        <Text style={styles.fieldLabel}>{s.sexLabel}</Text>
         <View style={styles.sexRow}>
           {[
-            { k: "male", l: "Male" },
-            { k: "female", l: "Female" },
+            { k: "male", l: s.male },
+            { k: "female", l: s.female },
           ].map((o) => {
             const on = sex === o.k;
             return (
@@ -155,7 +156,7 @@ export function AddPersonForm({
       </View>
 
       <View style={styles.field}>
-        <Text style={styles.fieldLabel}>Colour</Text>
+        <Text style={styles.fieldLabel}>{s.colourLabel}</Text>
         <View style={styles.colorRow}>
           {AVATAR_COLORS.map((c) => {
             const on = color === c;
@@ -177,15 +178,15 @@ export function AddPersonForm({
       </View>
 
       <View style={styles.field}>
-        <Text style={styles.fieldLabel}>Condition</Text>
+        <Text style={styles.fieldLabel}>{s.conditionLabel}</Text>
         <PressableScale onPress={() => setPfapa((v) => !v)}>
           <View style={[styles.condRow, pfapa ? styles.condOn : styles.condOff]}>
             <View style={[styles.condGlyph, { backgroundColor: pfapa ? t.yellow : t.calm }]}>
               <Icon name="fever" size={22} color={pfapa ? t.anchor : t.balance} sw={1.9} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.condTitle}>PFAPA patient</Text>
-              <Text style={styles.condSub}>Tracks the flare cycle & predicts the next window</Text>
+              <Text style={styles.condTitle}>{s.pfapaPatient}</Text>
+              <Text style={styles.condSub}>{s.pfapaSub}</Text>
             </View>
             <View style={[styles.switch, { backgroundColor: pfapa ? "#1F8A5B" : t.lavender }]}>
               <View style={[styles.knob, { left: pfapa ? 21 : 3 }]} />
@@ -196,7 +197,7 @@ export function AddPersonForm({
 
       <View style={styles.saveWrap}>
         <Button onPress={save} disabled={!valid}>
-          Save
+          {s.save}
         </Button>
       </View>
     </View>

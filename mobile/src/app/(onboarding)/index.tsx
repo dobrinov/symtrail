@@ -8,11 +8,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useServices } from "../../AppServices";
 import { Icon } from "../../design/Icon";
 import { themedStyles, useTokens } from "../../design/theme";
+import { useT } from "../../i18n";
 import { AddPersonForm } from "../../screens/profile/AddPersonForm";
 
 export default function Onboarding(): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const { repo, sync } = useServices();
   const insets = useSafeAreaInsets();
 
@@ -32,11 +34,8 @@ export default function Onboarding(): React.JSX.Element {
         <View style={styles.glyph}>
           <Icon name="profile" size={30} color={t.anchor} sw={2} />
         </View>
-        <Text style={styles.title}>Add your first person</Text>
-        <Text style={styles.subtitle}>
-          Symtrail tracks symptoms, temperatures and medications per person. Add
-          yourself or someone you care for to get started.
-        </Text>
+        <Text style={styles.title}>{s.onboardTitle}</Text>
+        <Text style={styles.subtitle}>{s.onboardSub}</Text>
       </View>
 
       <AddPersonForm repo={repo} onSaved={onSaved} />

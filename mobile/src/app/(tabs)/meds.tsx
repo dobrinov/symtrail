@@ -4,12 +4,14 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useServices } from "../../AppServices";
 import { themedStyles } from "../../design/theme";
+import { useT } from "../../i18n";
 import { MedsScreen } from "../../screens/meds/MedsScreen";
 import { useActiveProfile } from "../../state/activeProfile";
 import { useLogSheet } from "../../state/LogSheetContext";
 
 export default function Meds(): React.JSX.Element {
   const styles = useStyles();
+  const s = useT();
   const { repo } = useServices();
   const { openEntry } = useLogSheet();
   const [profileId] = useActiveProfile(repo);
@@ -20,7 +22,7 @@ export default function Meds(): React.JSX.Element {
         <MedsScreen repo={repo} profileId={profileId} onOpenEntry={(id) => openEntry(id)} />
       ) : (
         <View style={styles.empty}>
-          <Text style={styles.emptyText}>Add a person to get started</Text>
+          <Text style={styles.emptyText}>{s.addPersonToStart}</Text>
         </View>
       )}
     </View>

@@ -9,6 +9,7 @@ import { useQuery } from "../db/useQuery";
 import { resolveRoute } from "../session/routing";
 import { LOCAL_ONLY } from "../config";
 import { seedBuiltinCatalogues } from "../db/builtinCatalogue";
+import { I18nProvider, isLanguageCode } from "../i18n";
 
 function AuthGateAndSync({ children }: { children: React.ReactNode }) {
   const { session, sync, repo } = useServices();
@@ -63,6 +64,14 @@ function ThemedApp({ children }: { children: React.ReactNode }) {
   return <ThemeProvider preference={preference}>{children}</ThemeProvider>;
 }
 
+// Reads the persisted UI language (reactive via sync_meta) and mounts the
+// I18nProvider so every screen re-renders in the chosen language.
+function LocalizedApp({ children }: { children: React.ReactNode }) {
+  const { session } = useServices();
+  const language = useQuery(["sync_meta"], () => session.language());
+  return <I18nProvider language={isLanguageCode(language) ? language : "en"}>{children}</I18nProvider>;
+}
+
 // Inside the provider: themed status bar + navigator background so pushed
 // screens never flash the wrong colour behind their own backgrounds.
 function ThemedChrome() {
@@ -82,9 +91,11 @@ export default function RootLayout() {
   return (
     <AppServicesProvider>
       <ThemedApp>
-        <AuthGateAndSync>
-          <ThemedChrome />
-        </AuthGateAndSync>
+        <LocalizedApp>
+          <AuthGateAndSync>
+            <ThemedChrome />
+          </AuthGateAndSync>
+        </LocalizedApp>
       </ThemedApp>
     </AppServicesProvider>
   );

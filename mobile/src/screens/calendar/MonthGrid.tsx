@@ -7,8 +7,7 @@ import { Entry } from "../../db/repo";
 import { PressableScale } from "../../design/PressableScale";
 import { themedStyles, useTokens } from "../../design/theme";
 import { daySeverity, SEVERITY, SeverityKey } from "../../domain/severity";
-
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+import { useT, weekdayShortNames } from "../../i18n";
 
 // Zero-padded "YYYY-MM-DD" without timezone conversion — must match the UTC
 // date prefix daySeverity compares against (see domain/severity).
@@ -37,6 +36,7 @@ export function MonthGrid(props: {
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const { year, month, entries, selectedDay, onSelectDay, windowDays, todayIso } = props;
   const blanks = leadingBlanks(year, month);
   const total = daysInMonth(year, month);
@@ -94,8 +94,8 @@ export function MonthGrid(props: {
   return (
     <View style={styles.wrap}>
       <View style={styles.weekRow}>
-        {WEEKDAYS.map((w) => (
-          <Text key={w} style={styles.weekday}>
+        {weekdayShortNames(s).map((w, i) => (
+          <Text key={i} style={styles.weekday}>
             {w}
           </Text>
         ))}

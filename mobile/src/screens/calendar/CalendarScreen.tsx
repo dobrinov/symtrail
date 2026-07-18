@@ -14,6 +14,7 @@ import { Sheet } from "../../design/Sheet";
 import { themedStyles, useTokens } from "../../design/theme";
 import { EMPTY_FILTERS, EntryFilters, filterEntries, filtersActive, summarizeFilters } from "../../domain/entryFilter";
 import { cycleStats, deriveFlares, Flare } from "../../domain/flares";
+import { fmt, monthLongName, Strings, useT } from "../../i18n";
 import { EntryRow } from "../log/EntryRow";
 import { DayDetail } from "./DayDetail";
 import { FilterSheet } from "./FilterSheet";
@@ -45,22 +46,17 @@ function windowDayKeys(start: Date, end: Date): Set<string> {
   return keys;
 }
 
-const MONTH_LABELS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
 // Friendly heading for a "YYYY-MM-DD" day bucket in the history list.
-function relDay(dayIso: string, todayIso: string): string {
+function relDay(dayIso: string, todayIso: string, s: Strings): string {
   const diff = Math.round((Date.parse(`${todayIso}T00:00:00.000Z`) - Date.parse(`${dayIso}T00:00:00.000Z`)) / DAY_MS);
-  if (diff === 0) return "Today";
-  if (diff === 1) return "Yesterday";
+  if (diff === 0) return s.today;
+  if (diff === 1) return s.yesterday;
   const d = new Date(`${dayIso}T00:00:00.000Z`);
   const opts: Intl.DateTimeFormatOptions =
     diff < 365
       ? { weekday: "short", day: "numeric", month: "long", timeZone: "UTC" }
       : { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" };
-  return d.toLocaleDateString("en-GB", opts);
+  return d.toLocaleDateString(s.locale, opts);
 }
 
 // True if the UTC day "YYYY-MM-DD" falls within the flare's [onset, end] range.
@@ -78,10 +74,14 @@ export function CalendarScreen(props: {
   onOpenEntry: (entryId: string) => void;
   onOpenFlare?: (flare: Flare) => void;
   tempUnit?: "c" | "f";
+  /** Controlled view mode (route owns it so other tabs can deep-link); falls back to internal state. */
+  mode?: "month" | "list";
+  onModeChange?: (m: "month" | "list") => void;
   refreshControl?: React.ReactElement<RefreshControlProps>;
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const { repo, profileId, tempUnit = "c" } = props;
   const insets = useSafeAreaInsets();
   const now = new Date();
@@ -89,7 +89,9 @@ export function CalendarScreen(props: {
 
   const [view, setView] = useState(() => ({ year: now.getUTCFullYear(), month: now.getUTCMonth() }));
   const [selectedDay, setSelectedDay] = useState<string | null>(todayIso);
-  const [mode, setMode] = useState<"month" | "list">("month");
+  const [internalMode, setInternalMode] = useState<"month" | "list">("month");
+  const mode = props.mode ?? internalMode;
+  const setMode = props.onModeChange ?? setInternalMode;
   const [filters, setFilters] = useState<EntryFilters>(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
 
@@ -150,8 +152,8 @@ export function CalendarScreen(props: {
       {/* calendar / list toggle */}
       <View style={styles.modeRow}>
         <View style={styles.modeToggle}>
-          <ModeButton icon="calendar" label="Calendar" on={mode === "month"} onPress={() => setMode("month")} />
-          <ModeButton icon="list" label="List" on={mode === "list"} onPress={() => setMode("list")} />
+          <ModeButton icon="calendar" label={s.calendarView} on={mode === "month"} onPress={() => setMode("month")} />
+          <ModeButton icon="list" label={s.listView} on={mode === "list"} onPress={() => setMode("list")} />
         </View>
       </View>
 
@@ -162,7 +164,7 @@ export function CalendarScreen(props: {
               <Icon name="chevL" size={22} color={t.balance} sw={2.4} />
             </PressableScale>
             <Text style={styles.monthLabel}>
-              {MONTH_LABELS[view.month]} {view.year}
+              {monthLongName(view.month, s)} {view.year}
             </Text>
             <PressableScale onPress={goNext} style={styles.chev}>
               <Icon name="chevR" size={22} color={t.balance} sw={2.4} />
@@ -200,7 +202,7 @@ export function CalendarScreen(props: {
             <PressableScale onPress={() => setFilterOpen(true)} style={styles.searchBar} testID="open-filters">
               <Icon name="search" size={18} color={active ? t.balance : t.grey} sw={2} />
               <Text style={[styles.searchText, active && styles.searchTextOn]} numberOfLines={1}>
-                {active ? summarizeFilters(filters) : "Search & filter"}
+                {active ? summarizeFilters(filters, s) : s.searchAndFilter}
               </Text>
             </PressableScale>
             {active ? (
@@ -212,21 +214,21 @@ export function CalendarScreen(props: {
 
           {active ? (
             <Text style={styles.resultCount}>
-              {listEntries.length === 0 ? "No results" : listEntries.length === 1 ? "1 result" : `${listEntries.length} results`}
+              {listEntries.length === 0 ? s.noResults : listEntries.length === 1 ? s.resultOne : fmt(s.resultsMany, { n: listEntries.length })}
             </Text>
           ) : null}
 
           {listEntries.length === 0 ? (
             <Card pad={22} style={{ alignItems: "center" }}>
               <Text style={styles.emptyText}>
-                {active ? "Nothing matches these filters." : "Nothing logged yet."}
+                {active ? s.nothingMatches : s.nothingLoggedYet}
               </Text>
             </Card>
           ) : (
             <View style={styles.dayList}>
               {Array.from(dayGroups, ([day, rows]) => (
                 <View key={day}>
-                  <Text style={styles.dayHeading}>{relDay(day, todayIso)}</Text>
+                  <Text style={styles.dayHeading}>{relDay(day, todayIso, s)}</Text>
                   <Card pad={14}>
                     {rows.map((e, i) => (
                       <EntryRow
@@ -247,7 +249,7 @@ export function CalendarScreen(props: {
         </View>
       )}
 
-      <Sheet open={filterOpen} onClose={() => setFilterOpen(false)} title="Search & filter">
+      <Sheet open={filterOpen} onClose={() => setFilterOpen(false)} title={s.searchAndFilter}>
         <FilterSheet filters={filters} onChange={setFilters} onDone={() => setFilterOpen(false)} />
       </Sheet>
     </ScrollView>

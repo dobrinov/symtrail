@@ -7,16 +7,7 @@ import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { themedStyles, useTokens } from "../../design/theme";
 import { formatTemp, SEVERITY, SeverityKey, tempToSeverity } from "../../domain/severity";
-
-export function fmtEntryTime(iso: string): string {
-  const d = new Date(iso);
-  let h = d.getHours();
-  const m = d.getMinutes();
-  const am = h < 12 ? "am" : "pm";
-  h = h % 12;
-  if (h === 0) h = 12;
-  return `${h}:${String(m).padStart(2, "0")} ${am}`;
-}
+import { catLabel, fmtClock, useT } from "../../i18n";
 
 export function EntryRow({
   entry,
@@ -35,6 +26,7 @@ export function EntryRow({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const st = entry.symptomTypeId ? symptomTypes.get(entry.symptomTypeId) : undefined;
   const mt = entry.medicationTypeId ? medTypes.get(entry.medicationTypeId) : undefined;
 
@@ -44,24 +36,24 @@ export function EntryRow({
   let glyphColor: string;
   if (entry.entryType === "temp") {
     const sev = SEVERITY[tempToSeverity(entry.tempC)];
-    title = entry.tempC != null ? formatTemp(entry.tempC, tempUnit) : "Temperature";
+    title = entry.tempC != null ? formatTemp(entry.tempC, tempUnit) : s.temperatureFallback;
     glyphIcon = "fever";
     glyphBg = sev.key === "none" ? sev.color : sev.color + "33";
     glyphColor = sev.key === "none" ? t.balance : sev.dot;
   } else if (entry.entryType === "med") {
-    const name = mt?.label ?? "Medication";
+    const name = mt ? catLabel(mt.label, s) : s.medicationFallback;
     title = entry.dose ? `${name} · ${entry.dose}` : name;
     glyphIcon = mt?.form === "tablet" ? "tablet" : mt?.form === "drops" ? "drops" : "syrup";
     glyphBg = (mt?.color ?? t.balance) + "22";
     glyphColor = mt?.color ?? t.balance;
   } else if (entry.entryType === "note") {
-    title = entry.note ?? "Note";
+    title = entry.note ?? s.noteFallback;
     glyphIcon = "note";
     glyphBg = t.calm;
     glyphColor = t.grey;
   } else {
     const sev = SEVERITY[(entry.severity ?? "mild") as SeverityKey];
-    title = st?.label ?? "Symptom";
+    title = st ? catLabel(st.label, s) : s.symptomFallback;
     glyphIcon = st?.icon ?? "note";
     glyphBg = sev.key === "none" ? sev.color : sev.color + "33";
     glyphColor = sev.dot;
@@ -75,7 +67,7 @@ export function EntryRow({
       <Text style={styles.entryTitle} numberOfLines={1}>
         {title}
       </Text>
-      <Text style={styles.entryTime}>{fmtEntryTime(entry.recordedAt)}</Text>
+      <Text style={styles.entryTime}>{fmtClock(entry.recordedAt, s)}</Text>
     </PressableScale>
   );
 }

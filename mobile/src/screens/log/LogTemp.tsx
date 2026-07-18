@@ -11,6 +11,7 @@ import { PressableScale } from "../../design/PressableScale";
 import { SeverityChip } from "../../design/SeverityChip";
 import { themedStyles, useTokens } from "../../design/theme";
 import { SEVERITY, cToF, fToC, formatTemp, tempToSeverity } from "../../domain/severity";
+import { useT } from "../../i18n";
 import { DateTimeField } from "./DateTimeField";
 
 // Canonical Celsius bounds; the entry always stores °C.
@@ -39,6 +40,7 @@ export function LogTemp({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const existing = useMemo(() => (editEntryId ? repo.getEntry(editEntryId) : null), [editEntryId, repo]);
   // State is ALWAYS canonical °C; the slider/stepper convert to/from the
   // display unit so the user sees and adjusts °F when that's their preference.
@@ -108,7 +110,7 @@ export function LogTemp({
         <DateTimeField value={at} onChange={setAt} />
       </View>
 
-      <Button onPress={save}>Save</Button>
+      <Button onPress={save}>{s.save}</Button>
     </View>
   );
 }

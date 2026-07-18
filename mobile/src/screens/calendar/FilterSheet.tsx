@@ -12,13 +12,16 @@ import { PressableScale } from "../../design/PressableScale";
 import { themedStyles, useTheme, useTokens } from "../../design/theme";
 import { EMPTY_FILTERS, EntryFilters, filtersActive } from "../../domain/entryFilter";
 import { SEVERITY, SeverityKey } from "../../domain/severity";
+import { Strings, useT } from "../../i18n";
 
-const TYPE_OPTIONS: { key: Entry["entryType"]; label: string }[] = [
-  { key: "symptom", label: "Symptoms" },
-  { key: "temp", label: "Temperature" },
-  { key: "med", label: "Medication" },
-  { key: "note", label: "Notes" },
-];
+function typeOptions(s: Strings): { key: Entry["entryType"]; label: string }[] {
+  return [
+    { key: "symptom", label: s.typeSymptoms },
+    { key: "temp", label: s.typeTemperature },
+    { key: "med", label: s.typeMedication },
+    { key: "note", label: s.typeNotes },
+  ];
+}
 
 const SEVERITY_OPTIONS: SeverityKey[] = ["mild", "moderate", "high", "severe"];
 
@@ -28,8 +31,8 @@ function pickedDayKey(d: Date): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
-function fmtDayChip(dayIso: string): string {
-  return new Date(`${dayIso}T00:00:00.000Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+function fmtDayChip(dayIso: string, s: Strings): string {
+  return new Date(`${dayIso}T00:00:00.000Z`).toLocaleDateString(s.locale, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
 export function FilterSheet({
@@ -43,6 +46,7 @@ export function FilterSheet({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const { scheme } = useTheme();
   const [iosPicker, setIosPicker] = useState<"from" | "to" | null>(null);
 
@@ -88,7 +92,7 @@ export function FilterSheet({
           style={styles.input}
           value={filters.q}
           onChangeText={(q) => onChange({ ...filters, q })}
-          placeholder="Symptom, medication, note…"
+          placeholder={s.searchPlaceholder}
           placeholderTextColor={t.grey}
           autoCorrect={false}
           returnKeyType="search"
@@ -101,9 +105,9 @@ export function FilterSheet({
       </View>
 
       {/* type filter */}
-      <Text style={styles.filterLabel}>Type</Text>
+      <Text style={styles.filterLabel}>{s.typeLabel}</Text>
       <View style={styles.chipRow}>
-        {TYPE_OPTIONS.map((o) => {
+        {typeOptions(s).map((o) => {
           const on = filters.types.includes(o.key);
           return (
             <PressableScale key={o.key} onPress={() => toggleType(o.key)} style={[styles.chip, on && styles.chipOn]}>
@@ -114,29 +118,29 @@ export function FilterSheet({
       </View>
 
       {/* severity filter */}
-      <Text style={styles.filterLabel}>Severity</Text>
+      <Text style={styles.filterLabel}>{s.severityLabel}</Text>
       <View style={styles.chipRow}>
         {SEVERITY_OPTIONS.map((key) => {
-          const s = SEVERITY[key];
+          const sv = SEVERITY[key];
           const on = filters.sevs.includes(key);
           return (
             <PressableScale
               key={key}
               onPress={() => toggleSev(key)}
-              style={[styles.chip, on && { backgroundColor: s.color, borderColor: s.color }]}
+              style={[styles.chip, on && { backgroundColor: sv.color, borderColor: sv.color }]}
             >
-              <View style={[styles.sevDot, { backgroundColor: s.dot }]} />
-              <Text style={[styles.chipText, on && { color: s.text }]}>{s.label}</Text>
+              <View style={[styles.sevDot, { backgroundColor: sv.dot }]} />
+              <Text style={[styles.chipText, on && { color: sv.text }]}>{s.severity[key]}</Text>
             </PressableScale>
           );
         })}
       </View>
 
       {/* date range */}
-      <Text style={styles.filterLabel}>Date range</Text>
+      <Text style={styles.filterLabel}>{s.dateRange}</Text>
       <View style={styles.chipRow}>
-        <DateChip label="From" value={filters.from} onPress={() => openPicker("from")} onClear={() => onChange({ ...filters, from: null })} />
-        <DateChip label="To" value={filters.to} onPress={() => openPicker("to")} onClear={() => onChange({ ...filters, to: null })} />
+        <DateChip label={s.fromLabel} value={filters.from} onPress={() => openPicker("from")} onClear={() => onChange({ ...filters, from: null })} />
+        <DateChip label={s.toLabel} value={filters.to} onPress={() => openPicker("to")} onClear={() => onChange({ ...filters, to: null })} />
       </View>
 
       {iosPicker ? (
@@ -151,16 +155,16 @@ export function FilterSheet({
             }}
           />
           <PressableScale onPress={() => setIosPicker(null)} style={styles.doneChip}>
-            <Text style={styles.doneText}>Done</Text>
+            <Text style={styles.doneText}>{s.done}</Text>
           </PressableScale>
         </View>
       ) : null}
 
       <View style={styles.actions}>
-        <Button onPress={onDone}>Show results</Button>
+        <Button onPress={onDone}>{s.showResults}</Button>
         {filtersActive(filters) ? (
           <Button variant="secondary" onPress={() => onChange({ ...EMPTY_FILTERS })}>
-            Clear all
+            {s.clearAll}
           </Button>
         ) : null}
       </View>
@@ -182,11 +186,12 @@ function DateChip({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   return (
     <PressableScale onPress={onPress} style={[styles.chip, styles.dateChip, value != null && styles.chipOnSoft]}>
       <Icon name="calendar" size={15} color={value ? t.balance : t.grey} sw={2} />
       <Text style={[styles.chipText, value != null && { color: t.balance }]}>
-        {value ? `${label} ${fmtDayChip(value)}` : label}
+        {value ? `${label} ${fmtDayChip(value, s)}` : label}
       </Text>
       {value != null ? (
         <PressableScale onPress={onClear} style={styles.clearBtn}>

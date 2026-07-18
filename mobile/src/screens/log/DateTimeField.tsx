@@ -11,44 +11,39 @@ import DateTimePicker, {
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { themedStyles, useTheme, useTokens } from "../../design/theme";
+import { fmtClock, Strings, useT } from "../../i18n";
 
 function dKey(d: Date): string {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
-function dayLabel(d: Date): string {
+function dayLabel(d: Date, s: Strings): string {
   const now = new Date();
   const today = dKey(now);
   const yest = dKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
   const tom = dKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
   const k = dKey(d);
-  if (k === today) return "Today";
-  if (k === yest) return "Yesterday";
-  if (k === tom) return "Tomorrow";
-  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-}
-
-function fmtTime(d: Date): string {
-  let h = d.getHours();
-  const m = d.getMinutes();
-  const am = h < 12 ? "am" : "pm";
-  h = h % 12;
-  if (h === 0) h = 12;
-  return `${h}:${String(m).padStart(2, "0")} ${am}`;
+  if (k === today) return s.today;
+  if (k === yest) return s.yesterday;
+  if (k === tom) return s.tomorrow;
+  return d.toLocaleDateString(s.locale, { weekday: "short", day: "numeric", month: "short" });
 }
 
 export function DateTimeField({
   value,
   onChange,
-  label = "When",
+  label,
 }: {
   value: string;
   onChange: (iso: string) => void;
+  /** Section label; defaults to the localized "When". Pass "" to hide. */
   label?: string;
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const { scheme } = useTheme();
+  if (label === undefined) label = s.whenSection;
   const date = new Date(value);
   const [iosPicker, setIosPicker] = useState<"date" | "time" | null>(null);
 
@@ -85,7 +80,7 @@ export function DateTimeField({
       <View style={styles.row}>
         <PressableScale onPress={() => apply(new Date())} style={styles.nowChip}>
           <Icon name="clock" size={16} color={t.balance} sw={2} />
-          <Text style={styles.nowText}>Now</Text>
+          <Text style={styles.nowText}>{s.now}</Text>
         </PressableScale>
         <PressableScale
           onPress={() => (Platform.OS === "android" ? openAndroid() : setIosPicker("date"))}
@@ -93,7 +88,7 @@ export function DateTimeField({
         >
           <Icon name="calendar" size={16} color={t.balance} sw={2} />
           <Text style={styles.valueText}>
-            {dayLabel(date)} · {fmtTime(date)}
+            {dayLabel(date, s)} · {fmtClock(value, s)}
           </Text>
           <Icon name="chevR" size={16} color={t.grey} sw={2} />
         </PressableScale>
@@ -109,11 +104,11 @@ export function DateTimeField({
           />
           {iosPicker === "date" ? (
             <PressableScale onPress={() => setIosPicker("time")} style={styles.nextChip}>
-              <Text style={styles.nowText}>Set time</Text>
+              <Text style={styles.nowText}>{s.setTime}</Text>
             </PressableScale>
           ) : (
             <PressableScale onPress={() => setIosPicker(null)} style={styles.nextChip}>
-              <Text style={styles.nowText}>Done</Text>
+              <Text style={styles.nowText}>{s.done}</Text>
             </PressableScale>
           )}
         </View>

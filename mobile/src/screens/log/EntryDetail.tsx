@@ -10,16 +10,7 @@ import { Icon } from "../../design/Icon";
 import { SeverityChip } from "../../design/SeverityChip";
 import { themedStyles, useTokens } from "../../design/theme";
 import { SEVERITY, SeverityKey, formatTemp, tempToSeverity } from "../../domain/severity";
-
-function fmtTime(iso: string): string {
-  const d = new Date(iso);
-  let h = d.getHours();
-  const m = d.getMinutes();
-  const am = h < 12 ? "am" : "pm";
-  h = h % 12;
-  if (h === 0) h = 12;
-  return `${h}:${String(m).padStart(2, "0")} ${am}`;
-}
+import { catLabel, fmtClock, useT } from "../../i18n";
 
 export function EntryDetail({
   repo,
@@ -36,6 +27,7 @@ export function EntryDetail({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const st = useMemo(
     () => (entry.symptomTypeId ? repo.listSymptomTypes().find((s) => s.id === entry.symptomTypeId) : undefined),
     [repo, entry.symptomTypeId],
@@ -53,33 +45,34 @@ export function EntryDetail({
 
   if (entry.entryType === "temp") {
     const sev = SEVERITY[tempToSeverity(entry.tempC)];
-    title = entry.tempC != null ? formatTemp(entry.tempC, tempUnit) : "Temperature";
-    subtitle = "Temperature";
+    title = entry.tempC != null ? formatTemp(entry.tempC, tempUnit) : s.temperatureFallback;
+    subtitle = s.temperatureFallback;
     glyphIcon = "fever";
     glyphBg = sev.key === "none" ? sev.color : sev.color + "33";
     glyphColor = sev.key === "none" ? t.balance : sev.dot;
   } else if (entry.entryType === "med") {
-    title = mt?.label ?? "Medication";
-    subtitle = entry.dose ?? "Medication";
+    title = mt ? catLabel(mt.label, s) : s.medicationFallback;
+    subtitle = entry.dose ?? s.medicationFallback;
     glyphIcon = mt?.form === "tablet" ? "tablet" : mt?.form === "drops" ? "drops" : "syrup";
     glyphBg = (mt?.color ?? t.balance) + "22";
     glyphColor = mt?.color ?? t.balance;
   } else if (entry.entryType === "note") {
-    title = entry.note ?? "Note";
-    subtitle = "Note";
+    title = entry.note ?? s.noteFallback;
+    subtitle = s.noteFallback;
     glyphIcon = "note";
     glyphBg = t.calm;
     glyphColor = t.grey;
   } else {
-    const sev = SEVERITY[(entry.severity ?? "mild") as SeverityKey];
-    title = st?.label ?? "Symptom";
-    subtitle = sev.label;
+    const sevKey = (entry.severity ?? "mild") as SeverityKey;
+    const sev = SEVERITY[sevKey];
+    title = st ? catLabel(st.label, s) : s.symptomFallback;
+    subtitle = s.severity[sevKey];
     glyphIcon = st?.icon ?? "note";
     glyphBg = sev.key === "none" ? sev.color : sev.color + "33";
     glyphColor = sev.dot;
   }
 
-  const fullDate = new Date(entry.recordedAt).toLocaleDateString("en-GB", {
+  const fullDate = new Date(entry.recordedAt).toLocaleDateString(s.locale, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -95,21 +88,21 @@ export function EntryDetail({
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={styles.title} numberOfLines={1}>{title}</Text>
           <Text style={styles.subtitle}>
-            {subtitle} · {fmtTime(entry.recordedAt)}
+            {subtitle} · {fmtClock(entry.recordedAt, s)}
           </Text>
         </View>
       </View>
 
       {entry.entryType === "symptom" && entry.severity ? (
         <Card pad={16} style={styles.sevCard}>
-          <Text style={styles.sevLabel}>Severity</Text>
+          <Text style={styles.sevLabel}>{s.severityLabel}</Text>
           <SeverityChip level={entry.severity as SeverityKey} />
         </Card>
       ) : null}
 
       {entry.entryType === "med" && entry.note ? (
         <Card pad={16} style={styles.noteCard}>
-          <Text style={styles.cardCaption}>Notes</Text>
+          <Text style={styles.cardCaption}>{s.notesLabel}</Text>
           <Text style={styles.noteText}>{entry.note}</Text>
         </Card>
       ) : null}
@@ -120,10 +113,10 @@ export function EntryDetail({
             <Icon name="bell" size={19} color={t.balance} sw={1.9} />
           </View>
           <View>
-            <Text style={styles.cardCaption}>Reminder</Text>
+            <Text style={styles.cardCaption}>{s.reminderLabel}</Text>
             <Text style={styles.reminderText}>
-              {new Date(entry.reminderAt).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })} ·{" "}
-              {fmtTime(entry.reminderAt)}
+              {new Date(entry.reminderAt).toLocaleDateString(s.locale, { weekday: "short", day: "numeric", month: "short" })} ·{" "}
+              {fmtClock(entry.reminderAt, s)}
             </Text>
           </View>
         </Card>
@@ -133,10 +126,10 @@ export function EntryDetail({
 
       <View style={styles.actions}>
         <Button onPress={onEdit} icon={<Icon name="edit" size={19} color={t.anchor} sw={2} />}>
-          Edit entry
+          {s.editEntryAction}
         </Button>
         <Button variant="danger" onPress={onDelete}>
-          Delete entry
+          {s.deleteEntry}
         </Button>
       </View>
     </View>

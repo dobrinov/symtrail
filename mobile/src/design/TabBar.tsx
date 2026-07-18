@@ -2,17 +2,10 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useT } from "../i18n";
 import { Icon } from "./Icon";
 import { PressableScale } from "./PressableScale";
 import { themedStyles, useTokens } from "./theme";
-
-const TABS = [
-  { key: "today", label: "Today", icon: "today" },
-  { key: "calendar", label: "Calendar", icon: "calendar" },
-  { key: "add", label: "", icon: "plus" },
-  { key: "meds", label: "Meds", icon: "syrup" },
-  { key: "profile", label: "Profile", icon: "profile" },
-] as const;
 
 export function TabBar({
   active,
@@ -25,7 +18,15 @@ export function TabBar({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const insets = useSafeAreaInsets();
+  const TABS = [
+    { key: "today", label: s.tabToday, icon: "today" },
+    { key: "calendar", label: s.tabCalendar, icon: "calendar" },
+    { key: "add", label: "", icon: "plus" },
+    { key: "meds", label: s.tabMeds, icon: "syrup" },
+    { key: "profile", label: s.tabProfile, icon: "profile" },
+  ] as const;
   return (
     <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, 24) }]}>
       <View style={styles.row}>

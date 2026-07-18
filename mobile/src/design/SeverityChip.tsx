@@ -2,6 +2,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SEVERITY, SeverityKey } from "../domain/severity";
+import { useT } from "../i18n";
 
 export function SeverityChip({
   level,
@@ -11,6 +12,7 @@ export function SeverityChip({
   small?: boolean;
 }): React.JSX.Element {
   const s = SEVERITY[level];
+  const t = useT();
   const fontSize = small ? 11 : 12.5;
   return (
     <View
@@ -26,7 +28,7 @@ export function SeverityChip({
       <Text
         style={[styles.label, { color: s.text, fontSize, lineHeight: fontSize * 1.3 }]}
       >
-        {s.label}
+        {t.severity[level]}
       </Text>
     </View>
   );

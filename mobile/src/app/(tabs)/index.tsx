@@ -6,6 +6,7 @@ import { useServices } from "../../AppServices";
 import { useQuery } from "../../db/useQuery";
 import { Sheet } from "../../design/Sheet";
 import { themedStyles } from "../../design/theme";
+import { useT } from "../../i18n";
 import { ProfileSwitcher } from "../../screens/today/ProfileSwitcher";
 import { TodayScreen } from "../../screens/today/TodayScreen";
 import { useActiveProfile } from "../../state/activeProfile";
@@ -13,6 +14,7 @@ import { useLogSheet } from "../../state/LogSheetContext";
 
 export default function Today(): React.JSX.Element {
   const styles = useStyles();
+  const s = useT();
   const { repo, sync, session } = useServices();
   const router = useRouter();
   const { openEntry, openFlare } = useLogSheet();
@@ -40,16 +42,17 @@ export default function Today(): React.JSX.Element {
           onSwitchProfile={() => setSwitcherOpen(true)}
           onOpenEntry={(id) => openEntry(id)}
           onOpenFlare={(flare) => openFlare(flare)}
+          onViewAll={() => router.push(`/(tabs)/calendar?view=list&ts=${Date.now()}`)}
           tempUnit={tempUnit}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}
         />
       ) : (
         <View style={styles.empty}>
-          <Text style={styles.emptyText}>Add a person to get started</Text>
+          <Text style={styles.emptyText}>{s.addPersonToStart}</Text>
         </View>
       )}
 
-      <Sheet open={switcherOpen} onClose={() => setSwitcherOpen(false)} title="Switch person">
+      <Sheet open={switcherOpen} onClose={() => setSwitcherOpen(false)} title={s.switchPerson}>
         <ProfileSwitcher
           repo={repo}
           activeId={profileId}

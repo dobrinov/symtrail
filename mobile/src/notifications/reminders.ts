@@ -18,12 +18,12 @@ export interface NotifPort {
 export class ReminderScheduler {
   constructor(private repo: Repo, private port: NotifPort) {}
 
-  async scheduleFor(entry: Entry, medLabel: string): Promise<void> {
+  async scheduleFor(entry: Entry, medLabel: string, title = "Medication reminder"): Promise<void> {
     if (!entry.reminderAt) return;
     if (!(await this.port.requestPermission())) return;
     await this.cancelFor(entry.id);
     const id = await this.port.schedule(
-      "Medication reminder",
+      title,
       `${medLabel}${entry.dose ? ` · ${entry.dose}` : ""}`,
       new Date(entry.reminderAt),
     );

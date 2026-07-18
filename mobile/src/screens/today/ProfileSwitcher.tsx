@@ -8,7 +8,7 @@ import { Avatar } from "../../design/Avatar";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { themedStyles, useTokens } from "../../design/theme";
-import { ageLabel } from "../../domain/age";
+import { ageLabelI18n, useT } from "../../i18n";
 
 export function ProfileSwitcher({
   repo,
@@ -23,12 +23,13 @@ export function ProfileSwitcher({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const profiles = useQuery(["profiles"], () => repo.listProfiles());
   return (
     <View style={styles.list}>
       {profiles.map((p) => {
         const active = p.id === activeId;
-        const sub = [ageLabel(p.birthDate), p.condition].filter(Boolean).join(" · ");
+        const sub = [ageLabelI18n(p.birthDate, s), p.condition].filter(Boolean).join(" · ");
         return (
           <PressableScale key={p.id} onPress={() => onPick(p.id)}>
             <View style={[styles.row, active ? styles.rowActive : styles.rowIdle]}>
@@ -47,7 +48,7 @@ export function ProfileSwitcher({
           <View style={styles.addGlyph}>
             <Icon name="plus" size={22} color={t.balance} sw={2} />
           </View>
-          <Text style={styles.addLabel}>Add a person</Text>
+          <Text style={styles.addLabel}>{s.addAPerson}</Text>
         </View>
       </PressableScale>
     </View>

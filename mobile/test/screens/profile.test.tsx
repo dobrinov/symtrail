@@ -49,7 +49,7 @@ test("SettingsSheet change calls both session.setTempUnit and api.updateSettings
   const updateSettings = jest.fn(async () => ({ account: { id: 1, email: "a@b.com", settings: { temp_unit: "f" as const } } }));
   const setTheme = jest.fn();
   await render(
-    <SettingsSheet unit="c" setTempUnit={setTempUnit} updateSettings={updateSettings} theme="system" setTheme={setTheme} />,
+    <SettingsSheet unit="c" setTempUnit={setTempUnit} updateSettings={updateSettings} theme="system" setTheme={setTheme} language="en" setLanguage={jest.fn()} />,
   );
   await fireEvent.press(screen.getByText("Fahrenheit"));
   expect(setTempUnit).toHaveBeenCalledWith("f");
@@ -58,6 +58,7 @@ test("SettingsSheet change calls both session.setTempUnit and api.updateSettings
 
 test("SettingsSheet appearance pick calls setTheme", async () => {
   const setTheme = jest.fn();
+  const setLanguage = jest.fn();
   await render(
     <SettingsSheet
       unit="c"
@@ -65,8 +66,27 @@ test("SettingsSheet appearance pick calls setTheme", async () => {
       updateSettings={jest.fn(async () => ({}))}
       theme="system"
       setTheme={setTheme}
+      language="en"
+      setLanguage={setLanguage}
     />,
   );
   await fireEvent.press(screen.getByText("Dark"));
   expect(setTheme).toHaveBeenCalledWith("dark");
+});
+
+test("SettingsSheet language pick calls setLanguage", async () => {
+  const setLanguage = jest.fn();
+  await render(
+    <SettingsSheet
+      unit="c"
+      setTempUnit={jest.fn()}
+      updateSettings={jest.fn(async () => ({}))}
+      theme="system"
+      setTheme={jest.fn()}
+      language="en"
+      setLanguage={setLanguage}
+    />,
+  );
+  await fireEvent.press(screen.getByText("Български"));
+  expect(setLanguage).toHaveBeenCalledWith("bg");
 });

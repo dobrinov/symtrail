@@ -2,6 +2,7 @@
 // note text), entry-type and severity multi-selects, and an inclusive
 // from/to day range ("YYYY-MM-DD", UTC day prefix like the rest of the app).
 import type { Entry, MedicationType, SymptomType } from "../db/repo";
+import { fmt, Strings } from "../i18n";
 import { SeverityKey, tempToSeverity } from "./severity";
 
 export interface EntryFilters {
@@ -60,25 +61,24 @@ export function filterEntries(
   });
 }
 
-const TYPE_LABELS: Record<Entry["entryType"], string> = {
-  symptom: "Symptoms",
-  temp: "Temperature",
-  med: "Medication",
-  note: "Notes",
-};
-
-function fmtDay(dayIso: string): string {
-  return new Date(`${dayIso}T00:00:00.000Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+function fmtDay(dayIso: string, locale: string): string {
+  return new Date(`${dayIso}T00:00:00.000Z`).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: "UTC" });
 }
 
 // Short human summary of the active criteria for the search bar.
-export function summarizeFilters(f: EntryFilters): string {
+export function summarizeFilters(f: EntryFilters, s: Strings): string {
+  const typeLabels: Record<Entry["entryType"], string> = {
+    symptom: s.typeSymptoms,
+    temp: s.typeTemperature,
+    med: s.typeMedication,
+    note: s.typeNotes,
+  };
   const parts: string[] = [];
   if (f.q.trim()) parts.push(`"${f.q.trim()}"`);
-  if (f.types.length) parts.push(f.types.map((k) => TYPE_LABELS[k]).join(", "));
-  if (f.sevs.length) parts.push(f.sevs.map((s) => s[0].toUpperCase() + s.slice(1)).join(", "));
-  if (f.from && f.to) parts.push(`${fmtDay(f.from)} – ${fmtDay(f.to)}`);
-  else if (f.from) parts.push(`from ${fmtDay(f.from)}`);
-  else if (f.to) parts.push(`until ${fmtDay(f.to)}`);
+  if (f.types.length) parts.push(f.types.map((k) => typeLabels[k]).join(", "));
+  if (f.sevs.length) parts.push(f.sevs.map((k) => s.severity[k]).join(", "));
+  if (f.from && f.to) parts.push(`${fmtDay(f.from, s.locale)} – ${fmtDay(f.to, s.locale)}`);
+  else if (f.from) parts.push(fmt(s.fromDay, { date: fmtDay(f.from, s.locale) }));
+  else if (f.to) parts.push(fmt(s.untilDay, { date: fmtDay(f.to, s.locale) }));
   return parts.join(" · ");
 }

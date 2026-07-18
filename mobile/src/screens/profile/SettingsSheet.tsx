@@ -1,25 +1,15 @@
-// SettingsSheet — temperature-unit chooser (°C / °F two-card picker) and
-// appearance chooser (Light / Dark / Automatic), port of the prototype's
-// SettingsSheet (docs/prototype/app.jsx). On select it sets the local value
-// immediately; the temp unit is then best-effort synced to the server.
-// Appearance is device-local and never synced.
+// SettingsSheet — language chooser (chip grid of native names), temperature-
+// unit chooser (°C / °F two-card picker) and appearance chooser (Light /
+// Dark / Automatic). On select it sets the local value immediately; the temp
+// unit is then best-effort synced to the server. Language and appearance are
+// device-local and never synced.
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { ThemePreference, themedStyles, useTokens } from "../../design/theme";
-
-const UNIT_OPTIONS: { k: "c" | "f"; label: string; symbol: string }[] = [
-  { k: "c", label: "Celsius", symbol: "°C" },
-  { k: "f", label: "Fahrenheit", symbol: "°F" },
-];
-
-const THEME_OPTIONS: { k: ThemePreference; label: string; icon: string }[] = [
-  { k: "light", label: "Light", icon: "sun" },
-  { k: "dark", label: "Dark", icon: "moon" },
-  { k: "system", label: "Automatic", icon: "phone" },
-];
+import { LANGUAGE_CODES, LanguageCode, LOCALES, useT } from "../../i18n";
 
 export function SettingsSheet({
   unit,
@@ -27,15 +17,31 @@ export function SettingsSheet({
   updateSettings,
   theme,
   setTheme,
+  language,
+  setLanguage,
 }: {
   unit: "c" | "f";
   setTempUnit: (u: "c" | "f") => void;
   updateSettings: (s: { temp_unit: "c" | "f" }) => Promise<unknown>;
   theme: ThemePreference;
   setTheme: (p: ThemePreference) => void;
+  language: LanguageCode;
+  setLanguage: (code: LanguageCode) => void;
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
+
+  const UNIT_OPTIONS: { k: "c" | "f"; label: string; symbol: string }[] = [
+    { k: "c", label: s.celsius, symbol: "°C" },
+    { k: "f", label: s.fahrenheit, symbol: "°F" },
+  ];
+  const THEME_OPTIONS: { k: ThemePreference; label: string; icon: string }[] = [
+    { k: "light", label: s.lightTheme, icon: "sun" },
+    { k: "dark", label: s.darkTheme, icon: "moon" },
+    { k: "system", label: s.autoTheme, icon: "phone" },
+  ];
+
   const pick = (u: "c" | "f") => {
     setTempUnit(u); // immediate local change so the UI never waits on the network
     // best-effort: ignore failures so offline doesn't break the preference
@@ -44,7 +50,27 @@ export function SettingsSheet({
 
   return (
     <View>
-      <Text style={styles.label}>Temperature unit</Text>
+      <Text style={styles.label}>{s.languageLabel}</Text>
+      <View style={styles.langWrap}>
+        {LANGUAGE_CODES.map((code) => {
+          const on = language === code;
+          return (
+            <PressableScale
+              key={code}
+              onPress={() => setLanguage(code)}
+              style={[styles.langChip, on ? styles.langChipOn : styles.langChipOff]}
+              testID={`lang-${code}`}
+            >
+              <Text style={[styles.langText, { color: on ? t.onYellow : t.balance }]}>
+                {LOCALES[code].languageName}
+              </Text>
+            </PressableScale>
+          );
+        })}
+      </View>
+      <Text style={styles.caption}>{s.languageCaption}</Text>
+
+      <Text style={[styles.label, styles.sectionGap]}>{s.tempUnitLabel}</Text>
       <View style={styles.row}>
         {UNIT_OPTIONS.map((o) => {
           const on = unit === o.k;
@@ -62,11 +88,9 @@ export function SettingsSheet({
           );
         })}
       </View>
-      <Text style={styles.caption}>
-        Applies everywhere temperatures appear — logging, calendar, flare charts and history.
-      </Text>
+      <Text style={styles.caption}>{s.tempUnitCaption}</Text>
 
-      <Text style={[styles.label, styles.sectionGap]}>Appearance</Text>
+      <Text style={[styles.label, styles.sectionGap]}>{s.appearanceLabel}</Text>
       <View style={styles.row}>
         {THEME_OPTIONS.map((o) => {
           const on = theme === o.k;
@@ -82,9 +106,7 @@ export function SettingsSheet({
           );
         })}
       </View>
-      <Text style={styles.caption}>
-        Automatic follows your phone&apos;s light or dark mode.
-      </Text>
+      <Text style={styles.caption}>{s.appearanceCaption}</Text>
     </View>
   );
 }
@@ -107,6 +129,22 @@ const useStyles = themedStyles((t) => StyleSheet.create({
   cardOff: { borderWidth: 2, borderColor: "transparent" },
   symbol: { fontSize: 30, fontFamily: "Sora_700Bold", letterSpacing: -1 },
   cardLabel: { fontSize: 13.5, fontFamily: "Sora_600SemiBold" },
+  langWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 8,
+  },
+  langChip: {
+    paddingHorizontal: 13,
+    height: 38,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  langChipOn: { backgroundColor: t.yellow },
+  langChipOff: { backgroundColor: t.white, borderWidth: 1.5, borderColor: t.lavender },
+  langText: { fontSize: 13.5, fontFamily: "Sora_600SemiBold" },
   caption: {
     fontSize: 12.5,
     color: t.grey,

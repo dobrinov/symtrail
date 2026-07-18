@@ -13,6 +13,8 @@ import { SeverityChip } from "../../design/SeverityChip";
 import { themedStyles, useTokens } from "../../design/theme";
 import { Flare } from "../../domain/flares";
 import { formatTemp, SeverityKey, tempToSeverity } from "../../domain/severity";
+import { catLabel, fmtClock, Strings, useT } from "../../i18n";
+import { en } from "../../i18n/en";
 import { ChartPoint, TempChart } from "./TempChart";
 
 const DAY_MS = 86400000;
@@ -33,16 +35,16 @@ export function flareChartSeries(entries: Entry[], flare: Flare): ChartPoint[] {
 // "Flare · 11–13 May" (same UTC month) or "Flare · 28 Feb – 2 Mar" (cross
 // month). Matches the prototype's flareTitle (app.jsx), but reads UTC date
 // parts so it lines up with the UTC-bucketed flare dates.
-export function flareTitle(flare: Flare): string {
-  const mo = monthShortUtc(flare.onset);
-  const me = monthShortUtc(flare.end);
+export function flareTitle(flare: Flare, s: Strings = en): string {
+  const mo = monthShortUtc(flare.onset, s);
+  const me = monthShortUtc(flare.end, s);
   const od = flare.onset.getUTCDate();
   const ed = flare.end.getUTCDate();
-  return mo === me ? `Flare · ${od}–${ed} ${mo}` : `Flare · ${od} ${mo} – ${ed} ${me}`;
+  return mo === me ? `${s.flareWord} · ${od}–${ed} ${mo}` : `${s.flareWord} · ${od} ${mo} – ${ed} ${me}`;
 }
 
-function monthShortUtc(d: Date): string {
-  return d.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" });
+function monthShortUtc(d: Date, s: Strings): string {
+  return d.toLocaleDateString(s.locale, { month: "short", timeZone: "UTC" });
 }
 
 // All entries within the flare's UTC day range, sorted oldest-first.
@@ -62,19 +64,11 @@ function dayKeyUtc(iso: string): string {
   return iso.slice(0, 10);
 }
 
-function dayHeading(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
+function dayHeading(iso: string, s: Strings): string {
+  return new Date(iso).toLocaleDateString(s.locale, {
     weekday: "short",
     day: "numeric",
     month: "short",
-    timeZone: "UTC",
-  });
-}
-
-function fmtTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-GB", {
-    hour: "numeric",
-    minute: "2-digit",
     timeZone: "UTC",
   });
 }
@@ -86,6 +80,7 @@ export function FlareDetailScreen(props: {
   tempUnit?: "c" | "f";
 }): React.JSX.Element {
   const styles = useStyles();
+  const s = useT();
   const { repo, profileId, flare, tempUnit = "c" } = props;
 
   const data = useQuery(["entries", "symptom_types", "medication_types"], () => ({
@@ -105,33 +100,33 @@ export function FlareDetailScreen(props: {
       {/* summary stats */}
       <Card pad={18} style={styles.statsCard}>
         <View style={styles.statsRow}>
-          <Stat value={`${flare.lengthDays}`} label={flare.lengthDays === 1 ? "day" : "days"} />
+          <Stat value={`${flare.lengthDays}`} label={flare.lengthDays === 1 ? s.statDay : s.statDays} />
           <Divider />
-          <Stat value={formatTemp(flare.peak, tempUnit)} label="peak" />
+          <Stat value={formatTemp(flare.peak, tempUnit)} label={s.statPeak} />
           <Divider />
-          <Stat value={`${medCount}`} label={medCount === 1 ? "med" : "meds"} />
+          <Stat value={`${medCount}`} label={medCount === 1 ? s.statMed : s.statMeds} />
           <Divider />
-          <Stat value={`${symptomCount}`} label="symptoms" />
+          <Stat value={`${symptomCount}`} label={s.statSymptoms} />
         </View>
       </Card>
 
       {/* temperature chart */}
       <Card pad={16} style={styles.chartCard}>
-        <Text style={styles.sectionLabel}>Temperature</Text>
+        <Text style={styles.sectionLabel}>{s.temperatureTitle}</Text>
         <TempChart series={series} unit={tempUnit} />
       </Card>
 
       {/* per-day timeline */}
-      <Text style={styles.timelineHeader}>Timeline</Text>
+      <Text style={styles.timelineHeader}>{s.timeline}</Text>
       <Card pad={14}>
         {inFlare.length === 0 ? (
-          <Text style={styles.emptyText}>No entries in this flare.</Text>
+          <Text style={styles.emptyText}>{s.noEntriesFlare}</Text>
         ) : (
           inFlare.map((e, i) => {
             const newDay = i === 0 || dayKeyUtc(e.recordedAt) !== dayKeyUtc(inFlare[i - 1].recordedAt);
             return (
               <React.Fragment key={e.id}>
-                {newDay ? <Text style={styles.dayHeading}>{dayHeading(e.recordedAt)}</Text> : null}
+                {newDay ? <Text style={styles.dayHeading}>{dayHeading(e.recordedAt, s)}</Text> : null}
                 <TimelineRow
                   entry={e}
                   symptomTypes={symptomTypes}
@@ -180,6 +175,7 @@ function TimelineRow({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const st = entry.symptomTypeId ? symptomTypes.get(entry.symptomTypeId) : undefined;
   const mt = entry.medicationTypeId ? medTypes.get(entry.medicationTypeId) : undefined;
 
@@ -190,24 +186,24 @@ function TimelineRow({
   let chip: SeverityKey | null = null;
   if (entry.entryType === "temp") {
     const sev = tempToSeverity(entry.tempC);
-    title = entry.tempC != null ? formatTemp(entry.tempC, tempUnit) : "Temperature";
+    title = entry.tempC != null ? formatTemp(entry.tempC, tempUnit) : s.temperatureFallback;
     glyphIcon = "fever";
     glyphBg = "#F2802E22";
     glyphColor = "#F2802E";
     chip = sev !== "none" ? sev : null;
   } else if (entry.entryType === "med") {
-    const name = mt?.label ?? "Medication";
+    const name = mt ? catLabel(mt.label, s) : s.medicationFallback;
     title = entry.dose ? `${name} · ${entry.dose}` : name;
     glyphIcon = mt?.form === "tablet" ? "tablet" : mt?.form === "drops" ? "drops" : "syrup";
     glyphBg = (mt?.color ?? t.balance) + "22";
     glyphColor = mt?.color ?? t.balance;
   } else if (entry.entryType === "note") {
-    title = entry.note ?? "Note";
+    title = entry.note ?? s.noteFallback;
     glyphIcon = "note";
     glyphBg = t.calm;
     glyphColor = t.grey;
   } else {
-    title = st?.label ?? "Symptom";
+    title = st ? catLabel(st.label, s) : s.symptomFallback;
     glyphIcon = st?.icon ?? "note";
     glyphBg = t.calm;
     glyphColor = t.balance;
@@ -223,7 +219,7 @@ function TimelineRow({
         {title}
       </Text>
       {chip ? <SeverityChip level={chip} small /> : null}
-      <Text style={styles.rowTime}>{fmtTime(entry.recordedAt)}</Text>
+      <Text style={styles.rowTime}>{fmtClock(entry.recordedAt, s)}</Text>
     </View>
   );
 }

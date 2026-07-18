@@ -6,6 +6,7 @@ import { StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, Line, Path, Text as SvgText } from "react-native-svg";
 import { themedStyles, useTokens } from "../../design/theme";
 import { SEVERITY } from "../../domain/severity";
+import { useT } from "../../i18n";
 import { cToF } from "../../domain/severity";
 
 export interface ChartPoint {
@@ -42,12 +43,13 @@ export function TempChart({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   // A single point can't convey a trend (matches the prototype's chart guard).
   if (series.length < 2) {
     return (
       <View style={styles.empty}>
         <Text style={styles.emptyText}>
-          {series.length === 0 ? "No temperature readings" : "Not enough readings to chart"}
+          {series.length === 0 ? s.noTempReadings : s.notEnoughReadings}
         </Text>
       </View>
     );

@@ -14,6 +14,7 @@ import { AddPersonForm } from "../../screens/profile/AddPersonForm";
 import { ProfileScreen } from "../../screens/profile/ProfileScreen";
 import { SettingsSheet } from "../../screens/profile/SettingsSheet";
 import { cycleStats, deriveFlares } from "../../domain/flares";
+import { catLabel, fmt, isLanguageCode, useT } from "../../i18n";
 import { buildReportHtml } from "../../report/html";
 import { shareReportPdf } from "../../report/share";
 import { useActiveProfile } from "../../state/activeProfile";
@@ -23,12 +24,15 @@ type PersonSheet = { mode: "add" } | { mode: "edit"; id: string } | null;
 export default function Profile(): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const { repo, api, sync, session, reminders } = useServices();
   const [activeId, setActive] = useActiveProfile(repo);
   // Reactive: setTempUnit emits a sync_meta change, so the settings sheet's
   // selected card updates immediately when the user taps °C/°F.
   const tempUnit = useQuery(["sync_meta"], () => session.tempUnit());
   const themePref = useQuery(["sync_meta"], () => session.themePreference());
+  const languageRaw = useQuery(["sync_meta"], () => session.language());
+  const language = isLanguageCode(languageRaw) ? languageRaw : "en";
 
   const [personSheet, setPersonSheet] = useState<PersonSheet>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -63,9 +67,10 @@ export default function Profile(): React.JSX.Element {
     const entries = repo.listEntries(activeId);
     const symptomTypes = repo.listSymptomTypes();
     const medTypes = repo.listMedicationTypes();
+    // Catalogue labels translated for the report's display language.
     const labels: Record<string, string> = {};
-    for (const s of symptomTypes) labels[s.id] = s.label;
-    for (const m of medTypes) labels[m.id] = m.label;
+    for (const st of symptomTypes) labels[st.id] = catLabel(st.label, s);
+    for (const m of medTypes) labels[m.id] = catLabel(m.label, s);
 
     const symptomIsFever = new Map(symptomTypes.map((s) => [s.id, s.icon === "fever"]));
     const flares = deriveFlares(
@@ -79,7 +84,7 @@ export default function Profile(): React.JSX.Element {
     const stats = cycleStats(flares, new Date());
 
     try {
-      const html = buildReportHtml({ profile, tempUnit: session.tempUnit(), flares, stats, entries, labels });
+      const html = buildReportHtml({ profile, tempUnit: session.tempUnit(), flares, stats, entries, labels, strings: s });
       await shareReportPdf(html);
     } catch {
       // Sharing can be cancelled or fail; nothing to do.
@@ -105,7 +110,7 @@ export default function Profile(): React.JSX.Element {
       <Sheet
         open={personSheet !== null}
         onClose={() => setPersonSheet(null)}
-        title={personSheet?.mode === "edit" ? "Edit person" : "Add a person"}
+        title={personSheet?.mode === "edit" ? s.editPerson : s.addAPerson}
         full
       >
         {personSheet !== null ? (
@@ -117,32 +122,32 @@ export default function Profile(): React.JSX.Element {
         ) : null}
       </Sheet>
 
-      <Sheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title="Settings">
+      <Sheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title={s.settingsTitle}>
         <SettingsSheet
           unit={tempUnit}
           setTempUnit={(u) => session.setTempUnit(u)}
-          updateSettings={(s) => api.updateSettings(s)}
+          updateSettings={(payload) => api.updateSettings(payload)}
           theme={themePref}
           setTheme={(p) => session.setThemePreference(p)}
+          language={language}
+          setLanguage={(code) => session.setLanguage(code)}
         />
       </Sheet>
 
-      <Sheet open={deletePersonId !== null} onClose={() => setDeletePersonId(null)} title="Remove person">
+      <Sheet open={deletePersonId !== null} onClose={() => setDeletePersonId(null)} title={s.removePerson}>
         {target ? (
           <View>
             <View style={styles.confirmHead}>
               <Avatar name={target.name} color={target.color ?? t.approach} size={64} />
-              <Text style={styles.confirmTitle}>{`Remove ${target.name}?`}</Text>
-              <Text style={styles.confirmBody}>
-                {`This permanently deletes ${target.name}'s profile and all their logged symptoms, temperatures and medications.`}
-              </Text>
+              <Text style={styles.confirmTitle}>{fmt(s.removeName, { name: target.name })}</Text>
+              <Text style={styles.confirmBody}>{fmt(s.removeBody, { name: target.name })}</Text>
             </View>
             <View style={styles.confirmActions}>
               <Button variant="danger" onPress={() => deletePerson(target.id)}>
-                Delete
+                {s.delete}
               </Button>
               <Button variant="secondary" onPress={() => setDeletePersonId(null)}>
-                Cancel
+                {s.cancel}
               </Button>
             </View>
           </View>

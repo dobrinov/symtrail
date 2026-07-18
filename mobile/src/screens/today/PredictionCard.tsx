@@ -7,12 +7,9 @@ import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { themedStyles, useTokens } from "../../design/theme";
 import { CycleStats } from "../../domain/flares";
+import { fmt, useT } from "../../i18n";
 
 const DAY_MS = 86400000;
-
-function fmtDate(d: Date): string {
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-}
 
 export function PredictionCard({
   cycle,
@@ -25,6 +22,8 @@ export function PredictionCard({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
+  const fmtDate = (d: Date) => d.toLocaleDateString(s.locale, { day: "numeric", month: "short" });
   const maxDay = cycle.max + 5;
   const pct = (n: number) => Math.min(100, (n / maxDay) * 100);
   const todayPct = pct(cycle.sinceLast);
@@ -34,27 +33,29 @@ export function PredictionCard({
   // copy deliberately avoids a second "flare" mention (header has the one)
   const hint =
     toWindow <= 0
-      ? "Inside the expected window now"
+      ? s.insideWindowNow
       : toWindow <= 7
-        ? `Next window likely in about ${toWindow} day${toWindow === 1 ? "" : "s"}`
-        : `Next window in roughly ${toWindow} days`;
+        ? toWindow === 1
+          ? s.nextWindowAboutOneDay
+          : fmt(s.nextWindowAboutDays, { n: toWindow })
+        : fmt(s.nextWindowRoughly, { n: toWindow });
 
   const body = (
     <>
       <View style={styles.headRow}>
-        <Text style={styles.headLabel}>Flare cycle</Text>
+        <Text style={styles.headLabel}>{s.flareCycle}</Text>
         {onPress ? (
           <View style={styles.headLink}>
-            <Text style={styles.headAvg}>avg every {cycle.avg} days</Text>
+            <Text style={styles.headAvg}>{fmt(s.avgEveryDays, { n: cycle.avg })}</Text>
             <Icon name="chevR" size={16} color={t.grey} sw={2.2} />
           </View>
         ) : (
-          <Text style={styles.headAvg}>avg every {cycle.avg} days</Text>
+          <Text style={styles.headAvg}>{fmt(s.avgEveryDays, { n: cycle.avg })}</Text>
         )}
       </View>
       <View style={styles.dayRow}>
-        <Text style={styles.dayBig}>Day {cycle.sinceLast}</Text>
-        <Text style={styles.daySub}>since last onset · {fmtDate(cycle.last)}</Text>
+        <Text style={styles.dayBig}>{fmt(s.dayN, { n: cycle.sinceLast })}</Text>
+        <Text style={styles.daySub}>{fmt(s.sinceLastOnset, { date: fmtDate(cycle.last) })}</Text>
       </View>
       {/* cycle track */}
       <View style={styles.track}>
@@ -68,9 +69,9 @@ export function PredictionCard({
         <View style={[styles.marker, { left: `${todayPct}%` as never }]} />
       </View>
       <View style={styles.legendRow}>
-        <Text style={styles.legendText}>last onset</Text>
+        <Text style={styles.legendText}>{s.lastOnsetLegend}</Text>
         <Text style={[styles.legendText, { color: t.approach, fontFamily: "Sora_600SemiBold" }]}>
-          likely window
+          {s.likelyWindowLegend}
         </Text>
       </View>
       <View style={styles.hintBox}>
@@ -78,7 +79,7 @@ export function PredictionCard({
         <View style={{ flex: 1 }}>
           <Text style={styles.hintTitle}>{hint}</Text>
           <Text style={styles.hintSub}>
-            Around {fmtDate(cycle.windowStart)} – {fmtDate(cycle.windowEnd)}
+            {fmt(s.aroundRange, { start: fmtDate(cycle.windowStart), end: fmtDate(cycle.windowEnd) })}
           </Text>
         </View>
       </View>

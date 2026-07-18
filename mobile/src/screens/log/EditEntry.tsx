@@ -5,6 +5,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Entry, Repo } from "../../db/repo";
 import { themedStyles } from "../../design/theme";
+import { useT } from "../../i18n";
 import { LogMed } from "./LogMed";
 import { LogSymptom } from "./LogSymptom";
 import { LogTemp } from "./LogTemp";
@@ -27,6 +28,7 @@ export function EditEntry({
   cancelReminder?: (entryId: string) => void;
 }): React.JSX.Element {
   const styles = useStyles();
+  const s = useT();
   if (entry.entryType === "temp") {
     return <LogTemp repo={repo} profileId={entry.profileId} onSaved={onSaved} tempUnit={tempUnit} editEntryId={entry.id} />;
   }
@@ -39,7 +41,7 @@ export function EditEntry({
   // Notes have no dedicated sheet in Task 16.
   return (
     <View style={styles.fallback}>
-      <Text style={styles.fallbackText}>This entry type can't be edited yet.</Text>
+      <Text style={styles.fallbackText}>{s.cantEditType}</Text>
     </View>
   );
 }

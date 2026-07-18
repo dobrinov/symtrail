@@ -13,6 +13,7 @@ import { PressableScale } from "../../design/PressableScale";
 import { SeverityChip } from "../../design/SeverityChip";
 import { themedStyles, useTheme, useTokens } from "../../design/theme";
 import { SEVERITY, SEVERITY_ORDER, SeverityKey } from "../../domain/severity";
+import { catLabel, fmtClock, Strings, useT } from "../../i18n";
 import { DateTimeField } from "./DateTimeField";
 
 // A small subset of glyphs offered when creating a custom symptom.
@@ -41,21 +42,16 @@ function orderGroups(types: SymptomType[], isPfapa: boolean): [string, SymptomTy
   return ordered;
 }
 
-function fmtWhen(iso: string): string {
+function fmtWhen(iso: string, s: Strings): string {
   const d = new Date(iso);
   const now = new Date();
   const key = (x: Date) => `${x.getFullYear()}-${x.getMonth()}-${x.getDate()}`;
   const yest = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
   const day =
-    key(d) === key(now) ? "Today" :
-    key(d) === key(yest) ? "Yesterday" :
-    d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
-  let h = d.getHours();
-  const m = d.getMinutes();
-  const am = h < 12 ? "am" : "pm";
-  h = h % 12;
-  if (h === 0) h = 12;
-  return `${day} · ${h}:${String(m).padStart(2, "0")} ${am}`;
+    key(d) === key(now) ? s.today :
+    key(d) === key(yest) ? s.yesterday :
+    d.toLocaleDateString(s.locale, { weekday: "short", day: "numeric", month: "short" });
+  return `${day} · ${fmtClock(iso, s)}`;
 }
 
 export function LogSymptom({
@@ -75,6 +71,7 @@ export function LogSymptom({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const strings = useT();
   const { scheme } = useTheme();
   const existing = useMemo(() => (editEntryId ? repo.getEntry(editEntryId) : null), [editEntryId, repo]);
   const types = useQuery(["symptom_types"], () => repo.listSymptomTypes());
@@ -135,23 +132,24 @@ export function LogSymptom({
     <View>
       {/* ── Symptom ── */}
       <Section
-        title="Symptom"
+        title={strings.symptomSection}
+        sectionKey="symptom"
         open={open === "symptom"}
         onToggle={() => toggle("symptom")}
         summary={
           selectedType ? (
             <View style={styles.symptomSummary}>
               <Icon name={selectedType.icon ?? "note"} size={18} color={t.balance} sw={1.9} />
-              <Text style={styles.summaryText}>{selectedType.label}</Text>
+              <Text style={styles.summaryText}>{catLabel(selectedType.label, strings)}</Text>
             </View>
           ) : (
-            <Text style={styles.summaryHint}>Choose a symptom</Text>
+            <Text style={styles.summaryHint}>{strings.chooseSymptom}</Text>
           )
         }
       >
         {sections.map(([label, syms]) => (
           <View key={label} style={styles.group}>
-            <Text style={styles.groupLabel}>{label}</Text>
+            <Text style={styles.groupLabel}>{catLabel(label, strings)}</Text>
             <View style={styles.grid}>
               {syms.map((s) => {
                 const on = selected === s.id;
@@ -163,7 +161,7 @@ export function LogSymptom({
                   >
                     <Icon name={s.icon ?? "note"} size={26} color={on ? t.yellow : t.balance} sw={1.8} />
                     <Text style={[styles.tileLabel, on && styles.tileLabelOn]} numberOfLines={2}>
-                      {s.label}
+                      {catLabel(s.label, strings)}
                     </Text>
                   </PressableScale>
                 );
@@ -175,12 +173,12 @@ export function LogSymptom({
         {/* add your own */}
         {adding ? (
           <View>
-            <Text style={styles.groupLabel}>New symptom</Text>
+            <Text style={styles.groupLabel}>{strings.newSymptom}</Text>
             <TextInput
               keyboardAppearance={scheme}
               value={customLabel}
               onChangeText={setCustomLabel}
-              placeholder="e.g. Cramps, sore eyes…"
+              placeholder={strings.customSymptomPlaceholder}
               placeholderTextColor={t.approach}
               style={styles.input}
             />
@@ -200,25 +198,26 @@ export function LogSymptom({
             </View>
             <View style={{ marginTop: 12 }}>
               <Button onPress={addCustom} disabled={!customLabel.trim()}>
-                Add symptom
+                {strings.addSymptom}
               </Button>
             </View>
           </View>
         ) : (
           <PressableScale onPress={() => setAdding(true)} style={styles.addRow}>
             <Icon name="plus" size={18} color={t.balance} sw={2.2} />
-            <Text style={styles.addText}>Add custom symptom</Text>
+            <Text style={styles.addText}>{strings.addCustomSymptom}</Text>
           </PressableScale>
         )}
       </Section>
 
       {/* ── Severity ── */}
       <Section
-        title="Severity"
+        title={strings.severityLabel}
+        sectionKey="severity"
         open={open === "severity"}
         onToggle={() => toggle("severity")}
         summary={
-          severity ? <SeverityChip level={severity} /> : <Text style={styles.summaryHint}>How bad is it?</Text>
+          severity ? <SeverityChip level={severity} /> : <Text style={styles.summaryHint}>{strings.howBad}</Text>
         }
       >
         <View style={styles.sevRow}>
@@ -234,7 +233,7 @@ export function LogSymptom({
                   on ? { backgroundColor: s.color } : styles.sevChipOff,
                 ]}
               >
-                <Text style={[styles.sevChipText, { color: on ? s.text : t.balance }]}>{s.label}</Text>
+                <Text style={[styles.sevChipText, { color: on ? s.text : t.balance }]}>{strings.severity[key]}</Text>
               </PressableScale>
             );
           })}
@@ -243,17 +242,18 @@ export function LogSymptom({
 
       {/* ── When ── */}
       <Section
-        title="When"
+        title={strings.whenSection}
+        sectionKey="when"
         open={open === "when"}
         onToggle={() => toggle("when")}
-        summary={<Text style={styles.summaryText}>{fmtWhen(at)}</Text>}
+        summary={<Text style={styles.summaryText}>{fmtWhen(at, strings)}</Text>}
       >
         <DateTimeField value={at} onChange={setAt} label="" />
       </Section>
 
       <View style={styles.saveWrap}>
         <Button onPress={save} disabled={!canSave}>
-          Save
+          {strings.save}
         </Button>
       </View>
     </View>
@@ -264,12 +264,14 @@ export function LogSymptom({
 // when collapsed; tapping toggles the body.
 function Section({
   title,
+  sectionKey,
   summary,
   open,
   onToggle,
   children,
 }: {
   title: string;
+  sectionKey: string;
   summary: React.ReactNode;
   open: boolean;
   onToggle: () => void;
@@ -279,7 +281,7 @@ function Section({
   const t = useTokens();
   return (
     <View style={[styles.accCard, open && styles.accCardOpen]}>
-      <PressableScale onPress={onToggle} style={styles.accHeader} testID={`section-${title.toLowerCase()}`}>
+      <PressableScale onPress={onToggle} style={styles.accHeader} testID={`section-${sectionKey}`}>
         <Text style={styles.accTitle}>{title}</Text>
         <View style={styles.accSummary}>{open ? null : summary}</View>
         <Icon name={open ? "chevD" : "chevR"} size={17} color={t.grey} sw={2.2} />

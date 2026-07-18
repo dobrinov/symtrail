@@ -8,13 +8,14 @@ import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { themedStyles, useTokens } from "../../design/theme";
 import { Tokens } from "../../design/tokens";
+import { fmt, Strings, useT } from "../../i18n";
 
 type LogType = "symptom" | "temp" | "med";
 
-const options = (t: Tokens): { k: LogType; label: string; sub: string; icon: string; color: string }[] => [
-  { k: "symptom", label: "Symptom", sub: "Fever, throat, pain…", icon: "rash", color: t.approach },
-  { k: "temp", label: "Temperature", sub: "Record a reading", icon: "fever", color: "#F2802E" },
-  { k: "med", label: "Medication", sub: "A dose you gave", icon: "syrup", color: t.yellow },
+const options = (t: Tokens, s: Strings): { k: LogType; label: string; sub: string; icon: string; color: string }[] => [
+  { k: "symptom", label: s.symptomSection, sub: s.chooserSymptomSub, icon: "rash", color: t.approach },
+  { k: "temp", label: s.temperatureTitle, sub: s.chooserTempSub, icon: "fever", color: "#F2802E" },
+  { k: "med", label: s.medicationTitle, sub: s.chooserMedSub, icon: "syrup", color: t.yellow },
 ];
 
 export function LogChooser({
@@ -26,18 +27,20 @@ export function LogChooser({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   return (
     <View style={styles.root}>
       {forDate ? (
         <View style={styles.caption}>
           <Icon name="calendar" size={17} color={t.balance} sw={2} />
           <Text style={styles.captionText}>
-            Adding to{" "}
-            {new Date(forDate).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "long" })}
+            {fmt(s.addingTo, {
+              date: new Date(forDate).toLocaleDateString(s.locale, { weekday: "short", day: "numeric", month: "long" }),
+            })}
           </Text>
         </View>
       ) : null}
-      {options(t).map((o) => (
+      {options(t, s).map((o) => (
         <PressableScale key={o.k} onPress={() => onPick(o.k)}>
           <Card pad={16} style={styles.card}>
             <View style={[styles.glyph, { backgroundColor: o.color + "22" }]}>

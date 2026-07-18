@@ -10,6 +10,7 @@ import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { themedStyles, useTheme, useTokens } from "../../design/theme";
+import { catLabel, useT } from "../../i18n";
 import { DateTimeField } from "./DateTimeField";
 
 function formIcon(form: string | null): string {
@@ -39,6 +40,7 @@ export function LogMed({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const { scheme } = useTheme();
   const existing = useMemo(() => (editEntryId ? repo.getEntry(editEntryId) : null), [editEntryId, repo]);
   const meds = useQuery(["medication_types"], () => repo.listMedicationTypes());
@@ -115,7 +117,7 @@ export function LogMed({
 
   return (
     <View>
-      <Text style={styles.sectionLabel}>Medication</Text>
+      <Text style={styles.sectionLabel}>{s.medicationTitle}</Text>
       <View style={styles.list}>
         {meds.map((m) => {
           const on = selected === m.id;
@@ -126,7 +128,7 @@ export function LogMed({
                 <Icon name={formIcon(m.form)} size={20} color={m.color ?? t.balance} sw={1.9} />
               </View>
               <View style={{ flex: 1, minWidth: 0 }}>
-                <Text style={[styles.medLabel, on && styles.medLabelOn]}>{m.label}</Text>
+                <Text style={[styles.medLabel, on && styles.medLabelOn]}>{catLabel(m.label, s)}</Text>
                 {sub ? <Text style={[styles.medSub, on && styles.medSubOn]}>{sub}</Text> : null}
               </View>
               {on ? <Icon name="check" size={20} color={t.yellow} sw={2.4} /> : null}
@@ -138,48 +140,48 @@ export function LogMed({
       {/* add custom */}
       {adding ? (
         <Card pad={14} style={styles.customCard}>
-          <TextInput keyboardAppearance={scheme} value={cLabel} onChangeText={setCLabel} placeholder="Name (e.g. Calpol)" placeholderTextColor={t.approach} style={styles.input} />
-          <TextInput keyboardAppearance={scheme} value={cStrength} onChangeText={setCStrength} placeholder="Strength (e.g. 120mg/5ml)" placeholderTextColor={t.approach} style={[styles.input, { marginTop: 8 }]} />
-          <TextInput keyboardAppearance={scheme} value={cDose} onChangeText={setCDose} placeholder="Default dose (e.g. 5 ml)" placeholderTextColor={t.approach} style={[styles.input, { marginTop: 8 }]} />
+          <TextInput keyboardAppearance={scheme} value={cLabel} onChangeText={setCLabel} placeholder={s.medNamePlaceholder} placeholderTextColor={t.approach} style={styles.input} />
+          <TextInput keyboardAppearance={scheme} value={cStrength} onChangeText={setCStrength} placeholder={s.strengthPlaceholder} placeholderTextColor={t.approach} style={[styles.input, { marginTop: 8 }]} />
+          <TextInput keyboardAppearance={scheme} value={cDose} onChangeText={setCDose} placeholder={s.defaultDosePlaceholder} placeholderTextColor={t.approach} style={[styles.input, { marginTop: 8 }]} />
           <View style={styles.formRow}>
             {["syrup", "tablet", "drops"].map((f) => {
               const on = cForm === f;
               return (
                 <PressableScale key={f} onPress={() => setCForm(f)} style={[styles.formChip, on ? styles.formChipOn : styles.formChipOff]}>
-                  <Text style={[styles.formChipText, on && { color: t.onYellow }]}>{f}</Text>
+                  <Text style={[styles.formChipText, on && { color: t.onYellow }]}>{catLabel(f, s)}</Text>
                 </PressableScale>
               );
             })}
           </View>
           <View style={{ marginTop: 12 }}>
-            <Button onPress={addCustom} disabled={!cLabel.trim()}>Add medication</Button>
+            <Button onPress={addCustom} disabled={!cLabel.trim()}>{s.addMedication}</Button>
           </View>
         </Card>
       ) : (
         <PressableScale onPress={() => setAdding(true)} style={styles.addRow}>
           <Icon name="plus" size={18} color={t.balance} sw={2.2} />
-          <Text style={styles.addText}>Add custom medication</Text>
+          <Text style={styles.addText}>{s.addCustomMedication}</Text>
         </PressableScale>
       )}
 
       {/* dose */}
-      <Text style={[styles.sectionLabel, { marginTop: 18 }]}>Dose</Text>
+      <Text style={[styles.sectionLabel, { marginTop: 18 }]}>{s.doseLabel}</Text>
       <TextInput
           keyboardAppearance={scheme}
         value={dose}
         onChangeText={setDose}
-        placeholder="e.g. 5 ml"
+        placeholder={s.dosePlaceholder}
         placeholderTextColor={t.approach}
         style={styles.input}
       />
 
       {/* note */}
-      <Text style={[styles.sectionLabel, { marginTop: 18 }]}>Notes</Text>
+      <Text style={[styles.sectionLabel, { marginTop: 18 }]}>{s.notesLabel}</Text>
       <TextInput
         keyboardAppearance={scheme}
         value={note}
         onChangeText={setNote}
-        placeholder="Optional note (e.g. taken with food)"
+        placeholder={s.medNotePlaceholder}
         placeholderTextColor={t.approach}
         style={[styles.input, styles.noteInput]}
         multiline
@@ -192,14 +194,14 @@ export function LogMed({
             <Icon name="bell" size={20} color={remind ? t.balance : t.approach} sw={1.9} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.reminderTitle}>Remind me for the next dose</Text>
-            <Text style={styles.reminderSub}>Push notification</Text>
+            <Text style={styles.reminderTitle}>{s.remindNextDose}</Text>
+            <Text style={styles.reminderSub}>{s.pushNotification}</Text>
           </View>
           <Switch value={remind} onValueChange={toggleRemind} trackColor={{ true: t.yellow, false: t.lavender }} />
         </View>
         {remind && remindAt ? (
           <View style={styles.reminderBody}>
-            <DateTimeField value={remindAt} onChange={(v) => setRemindAt(v)} label="Remind me at" />
+            <DateTimeField value={remindAt} onChange={(v) => setRemindAt(v)} label={s.remindMeAt} />
           </View>
         ) : null}
       </Card>
@@ -208,7 +210,7 @@ export function LogMed({
         <DateTimeField value={at} onChange={setAt} />
       </View>
 
-      <Button onPress={save} disabled={!canSave}>Save</Button>
+      <Button onPress={save} disabled={!canSave}>{s.save}</Button>
     </View>
   );
 }

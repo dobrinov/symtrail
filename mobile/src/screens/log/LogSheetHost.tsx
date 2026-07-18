@@ -8,6 +8,7 @@ import { Sheet } from "../../design/Sheet";
 import { useServices } from "../../AppServices";
 import { useQuery } from "../../db/useQuery";
 import { useActiveProfile } from "../../state/activeProfile";
+import { useT } from "../../i18n";
 import { useLogSheet } from "../../state/LogSheetContext";
 import { FlareDetailScreen, flareTitle } from "../flare/FlareDetailScreen";
 import { EditEntry } from "./EditEntry";
@@ -17,18 +18,13 @@ import { LogMed } from "./LogMed";
 import { LogSymptom } from "./LogSymptom";
 import { LogTemp } from "./LogTemp";
 
-const TITLES: Record<string, string> = {
-  symptom: "Log a symptom",
-  temp: "Temperature",
-  med: "Medication",
-};
-
 export function LogSheetHost(): React.JSX.Element | null {
   const { repo, reminders, session, scheduleSync } = useServices();
   const { state, openLog, pick, editEntry, close } = useLogSheet();
+  const s = useT();
   const [profileId] = useActiveProfile(repo);
 
-  const scheduleReminder = (e: Entry, label: string) => void reminders.scheduleFor(e, label);
+  const scheduleReminder = (e: Entry, label: string) => void reminders.scheduleFor(e, label, s.medReminderTitle);
   const cancelReminder = (entryId: string) => void reminders.cancelFor(entryId);
 
   // The detail/edit views resolve their entry reactively so deletes/edits
@@ -57,12 +53,17 @@ export function LogSheetHost(): React.JSX.Element | null {
 
   const open = state.mode !== "closed";
 
-  let title = "Add entry";
-  if (state.mode === "choose") title = "Add entry";
+  const TITLES: Record<string, string> = {
+    symptom: s.logSymptomTitle,
+    temp: s.temperatureTitle,
+    med: s.medicationTitle,
+  };
+  let title = s.addEntry;
+  if (state.mode === "choose") title = s.addEntry;
   else if (state.mode === "log") title = TITLES[state.logType];
-  else if (state.mode === "detail") title = "Entry";
-  else if (state.mode === "edit") title = "Edit entry";
-  else if (state.mode === "flare") title = flareTitle(state.flare);
+  else if (state.mode === "detail") title = s.entryTitle;
+  else if (state.mode === "edit") title = s.editEntryTitle;
+  else if (state.mode === "flare") title = flareTitle(state.flare, s);
 
   const full = state.mode === "log" || state.mode === "edit" || state.mode === "flare";
 

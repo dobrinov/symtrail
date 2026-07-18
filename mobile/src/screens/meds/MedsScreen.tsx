@@ -10,16 +10,7 @@ import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { themedStyles, useTokens } from "../../design/theme";
-
-function fmtTime(iso: string): string {
-  const d = new Date(iso);
-  let h = d.getHours();
-  const m = d.getMinutes();
-  const am = h < 12 ? "am" : "pm";
-  h = h % 12;
-  if (h === 0) h = 12;
-  return `${h}:${String(m).padStart(2, "0")} ${am}`;
-}
+import { catLabel, fmt, fmtClock, Strings, useT } from "../../i18n";
 
 // "YYYY-MM-DD" bucket from the UTC date prefix, matching the rest of the app.
 function dayKey(iso: string): string {
@@ -27,17 +18,17 @@ function dayKey(iso: string): string {
 }
 
 // Friendly relative heading for a day bucket: Today / Yesterday / weekday / date.
-function relDay(dayIso: string, now: Date): string {
+function relDay(dayIso: string, now: Date, s: Strings): string {
   const todayKey = now.toISOString().slice(0, 10);
   const dayMs = 86400000;
   const a = Date.parse(`${dayIso}T00:00:00.000Z`);
   const b = Date.parse(`${todayKey}T00:00:00.000Z`);
   const diff = Math.round((b - a) / dayMs);
-  if (diff === 0) return "Today";
-  if (diff === 1) return "Yesterday";
+  if (diff === 0) return s.today;
+  if (diff === 1) return s.yesterday;
   const d = new Date(`${dayIso}T00:00:00.000Z`);
-  if (diff > 1 && diff < 7) return d.toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" });
-  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  if (diff > 1 && diff < 7) return d.toLocaleDateString(s.locale, { weekday: "long", timeZone: "UTC" });
+  return d.toLocaleDateString(s.locale, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 }
 
 interface DayGroup {
@@ -68,6 +59,7 @@ export function MedsScreen({
 }): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
+  const s = useT();
   const insets = useSafeAreaInsets();
   const rows = useQuery(["entries", "medication_types"], () => repo.listMedEntries(profileId));
   const profile = useQuery(["profiles"], () => repo.getProfile(profileId));
@@ -86,20 +78,20 @@ export function MedsScreen({
       contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 130 }}
     >
       <View style={styles.head}>
-        <Text style={styles.title}>Medications</Text>
-        <Text style={styles.subtitle}>{profile ? `${profile.name}'s doses & history` : "Doses & history"}</Text>
+        <Text style={styles.title}>{s.medications}</Text>
+        <Text style={styles.subtitle}>{profile ? fmt(s.dosesAndHistoryFor, { name: profile.name }) : s.dosesAndHistory}</Text>
       </View>
 
       <View style={styles.body}>
         {rows.length === 0 ? (
           <Card pad={22} style={{ alignItems: "center" }}>
-            <Text style={styles.emptyText}>No medications logged yet.</Text>
+            <Text style={styles.emptyText}>{s.noMedsLogged}</Text>
           </Card>
         ) : (
           <>
             {upcoming.length > 0 ? (
               <>
-                <Text style={styles.sectionHeader}>Upcoming reminders</Text>
+                <Text style={styles.sectionHeader}>{s.upcomingReminders}</Text>
                 <View style={styles.upcomingList}>
                   {upcoming.map((r) => (
                     <Card key={r.entry.id} pad={15} style={styles.upcomingCard}>
@@ -108,11 +100,11 @@ export function MedsScreen({
                       </View>
                       <View style={{ flex: 1, minWidth: 0 }}>
                         <Text style={styles.upcomingTitle} numberOfLines={1}>
-                          {r.label}
+                          {catLabel(r.label, s)}
                           {r.entry.dose ? ` · ${r.entry.dose}` : ""}
                         </Text>
                         <Text style={styles.upcomingSub}>
-                          {relDay(dayKey(r.entry.reminderAt!), now)} · {fmtTime(r.entry.reminderAt!)}
+                          {relDay(dayKey(r.entry.reminderAt!), now, s)} · {fmtClock(r.entry.reminderAt!, s)}
                         </Text>
                       </View>
                     </Card>
@@ -121,11 +113,11 @@ export function MedsScreen({
               </>
             ) : null}
 
-            <Text style={styles.sectionHeader}>Dose history</Text>
+            <Text style={styles.sectionHeader}>{s.doseHistory}</Text>
             <View style={styles.dayList}>
               {days.map((g) => (
                 <View key={g.key}>
-                  <Text style={styles.dayHeading}>{relDay(g.key, now)}</Text>
+                  <Text style={styles.dayHeading}>{relDay(g.key, now, s)}</Text>
                   <Card pad={14}>
                     {g.rows.map((r, i) => (
                       <PressableScale
@@ -136,12 +128,12 @@ export function MedsScreen({
                         <View style={[styles.dot, { backgroundColor: r.color ?? t.balance }]} />
                         <View style={{ flex: 1, minWidth: 0 }}>
                           <Text style={styles.rowTitle} numberOfLines={1}>
-                            {r.label}
+                            {catLabel(r.label, s)}
                             {r.entry.dose ? ` · ${r.entry.dose}` : ""}
                           </Text>
                           {r.strength ? <Text style={styles.rowSub}>{r.strength}</Text> : null}
                         </View>
-                        <Text style={styles.rowTime}>{fmtTime(r.entry.recordedAt)}</Text>
+                        <Text style={styles.rowTime}>{fmtClock(r.entry.recordedAt, s)}</Text>
                       </PressableScale>
                     ))}
                   </Card>
