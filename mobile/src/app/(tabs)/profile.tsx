@@ -1,7 +1,7 @@
 // Profile route — orchestrator for the Profile tab. Renders ProfileScreen and
 // owns every sheet + side effect it triggers: add/edit person, settings,
-// delete-person confirm, delete-account confirm, sign-out. People and the
-// active profile are read reactively; saves/deletes kick a sync.
+// delete-person confirm. People and the active profile are read reactively;
+// saves/deletes kick a sync.
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useServices } from "../../AppServices";
@@ -16,14 +16,12 @@ import { SettingsSheet } from "../../screens/profile/SettingsSheet";
 import { cycleStats, deriveFlares } from "../../domain/flares";
 import { buildReportHtml } from "../../report/html";
 import { shareReportPdf } from "../../report/share";
-import { useAuthNavigation } from "../../session/useAuthGate";
 import { useActiveProfile } from "../../state/activeProfile";
 
 type PersonSheet = { mode: "add" } | { mode: "edit"; id: string } | null;
 
 export default function Profile(): React.JSX.Element {
   const { repo, api, sync, session, reminders } = useServices();
-  const { onSignedOut } = useAuthNavigation();
   const [activeId, setActive] = useActiveProfile(repo);
   // Reactive: setTempUnit emits a sync_meta change, so the settings sheet's
   // selected card updates immediately when the user taps °C/°F.
@@ -32,7 +30,6 @@ export default function Profile(): React.JSX.Element {
   const [personSheet, setPersonSheet] = useState<PersonSheet>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [deletePersonId, setDeletePersonId] = useState<string | null>(null);
-  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
 
   const afterMutation = () => {
     setTimeout(() => void sync.syncNow(), 0);
@@ -52,28 +49,6 @@ export default function Profile(): React.JSX.Element {
     repo.deleteProfileCascade(id);
     setDeletePersonId(null);
     afterMutation();
-  };
-
-  const signOut = async () => {
-    try {
-      await api.signout();
-    } catch {
-      // best-effort: still drop the local session even if the request fails
-    }
-    await session.signedOut();
-    onSignedOut();
-  };
-
-  const deleteAccount = async () => {
-    try {
-      await api.deleteAccount();
-    } catch {
-      // best-effort: proceed even when offline or the request fails
-    }
-    repo.wipeAll();
-    await session.signedOut();
-    setDeleteAccountOpen(false);
-    onSignedOut();
   };
 
   // Builds the doctor PDF entirely from local data and opens the share sheet.
@@ -121,8 +96,6 @@ export default function Profile(): React.JSX.Element {
         onDeleteProfile={(id) => setDeletePersonId(id)}
         onOpenSettings={() => setSettingsOpen(true)}
         onOpenReport={() => void openReport()}
-        onSignOut={() => void signOut()}
-        onDeleteAccount={() => setDeleteAccountOpen(true)}
         lastSyncedAt={sync.lastSyncedAt}
       />
 
@@ -169,26 +142,6 @@ export default function Profile(): React.JSX.Element {
             </View>
           </View>
         ) : null}
-      </Sheet>
-
-      <Sheet open={deleteAccountOpen} onClose={() => setDeleteAccountOpen(false)} title="Delete account">
-        <View>
-          <View style={styles.confirmHead}>
-            <Text style={styles.confirmTitle}>Delete your account?</Text>
-            <Text style={styles.confirmBody}>
-              This permanently deletes your account and every profile, symptom, temperature and
-              medication you have logged. This cannot be undone.
-            </Text>
-          </View>
-          <View style={styles.confirmActions}>
-            <Button variant="danger" onPress={() => void deleteAccount()}>
-              Delete my account
-            </Button>
-            <Button variant="secondary" onPress={() => setDeleteAccountOpen(false)}>
-              Cancel
-            </Button>
-          </View>
-        </View>
       </Sheet>
     </View>
   );

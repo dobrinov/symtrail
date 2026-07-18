@@ -1,9 +1,10 @@
-// ProfileScreen — people management, tools (doctor report, settings), sign-out
-// and account deletion. Port of the prototype's ProfileScreen
+// ProfileScreen — people management and tools (doctor report, settings).
+// Port of the prototype's ProfileScreen
 // (docs/prototype/screens-profile.jsx). All actions are explicit props so the
 // hosting route owns the sheets and side effects; people are read reactively.
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Repo } from "../../db/repo";
 import { useQuery } from "../../db/useQuery";
 import { Avatar } from "../../design/Avatar";
@@ -36,8 +37,6 @@ export function ProfileScreen({
   onDeleteProfile,
   onOpenSettings,
   onOpenReport,
-  onSignOut,
-  onDeleteAccount,
   lastSyncedAt,
 }: {
   repo: Repo;
@@ -48,14 +47,16 @@ export function ProfileScreen({
   onDeleteProfile: (id: string) => void;
   onOpenSettings: () => void;
   onOpenReport: () => void;
-  onSignOut: () => void;
-  onDeleteAccount: () => void;
   lastSyncedAt: string | null;
 }): React.JSX.Element {
   const profiles = useQuery(["profiles"], () => repo.listProfiles());
+  const insets = useSafeAreaInsets();
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.root}
+      contentContainerStyle={[styles.content, { paddingTop: insets.top + 8 }]}
+    >
       <Text style={styles.heading}>Profiles</Text>
 
       <View style={styles.peopleList}>
@@ -129,23 +130,13 @@ export function ProfileScreen({
       </Card>
 
       <Text style={styles.syncCaption}>{lastSyncedLabel(lastSyncedAt)}</Text>
-
-      <PressableScale onPress={onSignOut} style={styles.signOutBtn}>
-        <Icon name="share" size={18} color={TOKENS.balance} sw={2} />
-        <Text style={styles.signOutText}>Sign out</Text>
-      </PressableScale>
-
-      <PressableScale onPress={onDeleteAccount} style={styles.deleteBtn}>
-        <Icon name="trash" size={19} color="#E1542E" sw={1.9} />
-        <Text style={styles.deleteText}>Delete my account</Text>
-      </PressableScale>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: TOKENS.canvas },
-  content: { padding: 20, paddingBottom: 120 },
+  content: { paddingHorizontal: 20, paddingBottom: 130 },
   heading: {
     fontSize: 28,
     fontFamily: "Sora_700Bold",
@@ -219,28 +210,4 @@ const styles = StyleSheet.create({
   toolLabel: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: TOKENS.anchor },
   toolSub: { fontSize: 12.5, color: TOKENS.grey },
   syncCaption: { fontSize: 12.5, color: TOKENS.grey, textAlign: "center", marginTop: 14 },
-  signOutBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 14,
-    paddingVertical: 14,
-    borderRadius: 16,
-    backgroundColor: TOKENS.white,
-    borderWidth: 1.5,
-    borderColor: TOKENS.lavender,
-  },
-  signOutText: { fontSize: 15, fontFamily: "Sora_700Bold", color: TOKENS.balance },
-  deleteBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 14,
-    paddingVertical: 14,
-    borderRadius: 16,
-    backgroundColor: "#FCE9E2",
-  },
-  deleteText: { fontSize: 15, fontFamily: "Sora_700Bold", color: "#E1542E" },
 });
