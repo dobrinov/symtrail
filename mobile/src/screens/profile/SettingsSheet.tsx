@@ -1,9 +1,9 @@
-// SettingsSheet — language chooser (chip grid of native names), temperature-
-// unit chooser (°C / °F two-card picker) and appearance chooser (Light /
-// Dark / Automatic). On select it sets the local value immediately; the temp
-// unit is then best-effort synced to the server. Language and appearance are
-// device-local and never synced.
-import React from "react";
+// SettingsSheet — language dropdown (select-style field expanding into the
+// option list), temperature-unit chooser (°C / °F two-card picker) and
+// appearance chooser (Light / Dark / Automatic). On select it sets the local
+// value immediately; the temp unit is then best-effort synced to the server.
+// Language and appearance are device-local and never synced.
+import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Card } from "../../design/Card";
 import { Icon } from "../../design/Icon";
@@ -31,6 +31,7 @@ export function SettingsSheet({
   const styles = useStyles();
   const t = useTokens();
   const s = useT();
+  const [langOpen, setLangOpen] = useState(false);
 
   const UNIT_OPTIONS: { k: "c" | "f"; label: string; symbol: string }[] = [
     { k: "c", label: s.celsius, symbol: "°C" },
@@ -51,23 +52,37 @@ export function SettingsSheet({
   return (
     <View>
       <Text style={styles.label}>{s.languageLabel}</Text>
-      <View style={styles.langWrap}>
-        {LANGUAGE_CODES.map((code) => {
-          const on = language === code;
-          return (
-            <PressableScale
-              key={code}
-              onPress={() => setLanguage(code)}
-              style={[styles.langChip, on ? styles.langChipOn : styles.langChipOff]}
-              testID={`lang-${code}`}
-            >
-              <Text style={[styles.langText, { color: on ? t.onYellow : t.balance }]}>
-                {LOCALES[code].languageName}
-              </Text>
-            </PressableScale>
-          );
-        })}
-      </View>
+      <PressableScale
+        onPress={() => setLangOpen((v) => !v)}
+        style={[styles.langField, langOpen && styles.langFieldOpen]}
+        testID="language-field"
+      >
+        <Text style={styles.langValue}>{LOCALES[language].languageName}</Text>
+        <Icon name={langOpen ? "chevD" : "chevR"} size={17} color={t.grey} sw={2.2} />
+      </PressableScale>
+      {langOpen ? (
+        <View style={styles.langList}>
+          {LANGUAGE_CODES.map((code, i) => {
+            const on = language === code;
+            return (
+              <PressableScale
+                key={code}
+                onPress={() => {
+                  setLanguage(code);
+                  setLangOpen(false);
+                }}
+                style={[styles.langRow, i < LANGUAGE_CODES.length - 1 && styles.langRowBorder]}
+                testID={`lang-${code}`}
+              >
+                <Text style={[styles.langRowText, on && styles.langRowTextOn]}>
+                  {LOCALES[code].languageName}
+                </Text>
+                {on ? <Icon name="check" size={18} color={t.yellow} sw={2.6} /> : null}
+              </PressableScale>
+            );
+          })}
+        </View>
+      ) : null}
       <Text style={styles.caption}>{s.languageCaption}</Text>
 
       <Text style={[styles.label, styles.sectionGap]}>{s.tempUnitLabel}</Text>
@@ -129,22 +144,38 @@ const useStyles = themedStyles((t) => StyleSheet.create({
   cardOff: { borderWidth: 2, borderColor: "transparent" },
   symbol: { fontSize: 30, fontFamily: "Sora_700Bold", letterSpacing: -1 },
   cardLabel: { fontSize: 13.5, fontFamily: "Sora_600SemiBold" },
-  langWrap: {
+  langField: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
+    alignItems: "center",
+    justifyContent: "space-between",
+    height: 52,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: t.lavender,
+    backgroundColor: t.white,
     marginBottom: 8,
   },
-  langChip: {
-    paddingHorizontal: 13,
-    height: 38,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
+  langFieldOpen: { borderColor: t.approach },
+  langValue: { fontSize: 15.5, fontFamily: "Sora_600SemiBold", color: t.anchor },
+  langList: {
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: t.lavender,
+    backgroundColor: t.white,
+    marginBottom: 8,
+    overflow: "hidden",
   },
-  langChipOn: { backgroundColor: t.yellow },
-  langChipOff: { backgroundColor: t.white, borderWidth: 1.5, borderColor: t.lavender },
-  langText: { fontSize: 13.5, fontFamily: "Sora_600SemiBold" },
+  langRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  langRowBorder: { borderBottomWidth: 1, borderBottomColor: t.calm },
+  langRowText: { fontSize: 15, fontFamily: "Sora_600SemiBold", color: t.balance },
+  langRowTextOn: { color: t.anchor, fontFamily: "Sora_700Bold" },
   caption: {
     fontSize: 12.5,
     color: t.grey,

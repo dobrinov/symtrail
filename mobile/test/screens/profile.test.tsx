@@ -87,6 +87,9 @@ test("SettingsSheet language pick calls setLanguage", async () => {
       setLanguage={setLanguage}
     />,
   );
+  // dropdown starts collapsed showing the current language
+  expect(screen.queryByText("Български")).toBeNull();
+  await fireEvent.press(screen.getByTestId("language-field"));
   await fireEvent.press(screen.getByText("Български"));
   expect(setLanguage).toHaveBeenCalledWith("bg");
 });
