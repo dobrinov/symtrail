@@ -41,10 +41,12 @@ export function MonthGrid(props: {
   const blanks = leadingBlanks(year, month);
   const total = daysInMonth(year, month);
 
-  // Days with at least one entry. Med/note logs don't tint the heat-map
-  // (daySeverity ignores them), so severity-less logged days get a dot marker
-  // instead of looking empty.
-  const loggedDays = new Set(entries.map((e) => e.recordedAt.slice(0, 10)));
+  // Days with a med/note entry. Those don't tint the heat-map (daySeverity
+  // ignores them), so they get a dot marker — shown on tinted days too, so a
+  // dose logged during a symptomatic day stays visible.
+  const medDays = new Set(
+    entries.filter((e) => e.entryType === "med" || e.entryType === "note").map((e) => e.recordedAt.slice(0, 10)),
+  );
 
   const cells: React.ReactNode[] = [];
   for (let i = 0; i < blanks; i++) {
@@ -60,7 +62,7 @@ export function MonthGrid(props: {
     const isToday = key === todayIso;
     const isSelected = key === selectedDay;
     const dotted = windowDays?.has(key);
-    const hasLog = sev === "none" && loggedDays.has(key);
+    const hasLog = medDays.has(key);
 
     cells.push(
       <View key={key} style={styles.cell}>
@@ -77,7 +79,10 @@ export function MonthGrid(props: {
             {dotted || hasLog ? (
               <View style={styles.dotRow}>
                 {dotted ? <View style={styles.windowDot} /> : null}
-                {hasLog ? <View style={styles.logDot} testID={`log-dot-${key}`} /> : null}
+                {hasLog ? (
+                  // Same ink as the day number so it contrasts with any tint.
+                  <View style={[styles.logDot, { backgroundColor: labelColor }]} testID={`log-dot-${key}`} />
+                ) : null}
               </View>
             ) : null}
           </View>
@@ -119,13 +124,15 @@ const useStyles = themedStyles((t) => StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
+    // Border is always reserved (transparent by default) so today/selected
+    // highlighting only recolours it — no layout shift of the number/dots.
+    borderWidth: 2,
+    borderColor: "transparent",
   },
   dayToday: {
-    borderWidth: 2,
     borderColor: t.anchor,
   },
   daySelected: {
-    borderWidth: 2,
     borderColor: t.approach,
   },
   dayNum: {
@@ -146,9 +153,8 @@ const useStyles = themedStyles((t) => StyleSheet.create({
     backgroundColor: t.approach,
   },
   logDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: t.grey,
+    width: 5.5,
+    height: 5.5,
+    borderRadius: 3,
   },
 }));

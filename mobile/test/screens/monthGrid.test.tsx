@@ -18,10 +18,13 @@ function entry(p: Partial<Entry> & { entryType: Entry["entryType"]; recordedAt: 
   };
 }
 
-test("med-only days get a log dot; severity-tinted days do not", async () => {
+test("med/note days get a log dot, including days tinted by a symptom", async () => {
   const entries = [
     entry({ entryType: "med", medicationTypeId: "m1", recordedAt: "2026-07-17T08:37:00.000Z" }),
     entry({ entryType: "symptom", symptomTypeId: "s1", severity: "moderate", recordedAt: "2026-07-10T09:00:00.000Z" }),
+    // symptom + med on the same day → tinted AND dotted
+    entry({ entryType: "symptom", symptomTypeId: "s1", severity: "severe", recordedAt: "2026-07-12T09:00:00.000Z" }),
+    entry({ entryType: "med", medicationTypeId: "m1", recordedAt: "2026-07-12T12:00:00.000Z" }),
   ];
   await render(
     <MonthGrid
@@ -34,6 +37,7 @@ test("med-only days get a log dot; severity-tinted days do not", async () => {
     />
   );
   expect(screen.getByTestId("log-dot-2026-07-17")).toBeTruthy(); // med logged, no severity tint
-  expect(screen.queryByTestId("log-dot-2026-07-10")).toBeNull(); // symptom day is tinted instead
+  expect(screen.getByTestId("log-dot-2026-07-12")).toBeTruthy(); // med marker survives the symptom tint
+  expect(screen.queryByTestId("log-dot-2026-07-10")).toBeNull(); // symptom-only day: tint, no dot
   expect(screen.queryByTestId("log-dot-2026-07-05")).toBeNull(); // nothing logged
 });
