@@ -6,13 +6,12 @@ import { StyleSheet, Text, View } from "react-native";
 import { Entry } from "../../db/repo";
 import { PressableScale } from "../../design/PressableScale";
 import { TOKENS } from "../../design/tokens";
-import { SEVERITY, SeverityKey } from "../../domain/severity";
-import { daySeverity } from "./CalendarScreen";
+import { daySeverity, SEVERITY, SeverityKey } from "../../domain/severity";
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 // Zero-padded "YYYY-MM-DD" without timezone conversion — must match the UTC
-// date prefix daySeverity compares against (see CalendarScreen).
+// date prefix daySeverity compares against (see domain/severity).
 function dayKey(year: number, monthIndex: number, day: number): string {
   return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }

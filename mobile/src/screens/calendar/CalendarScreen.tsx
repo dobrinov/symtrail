@@ -3,33 +3,16 @@
 import React, { useState } from "react";
 import { RefreshControlProps, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Entry, Repo } from "../../db/repo";
+import { Repo } from "../../db/repo";
 import { useQuery } from "../../db/useQuery";
 import { Icon } from "../../design/Icon";
 import { PressableScale } from "../../design/PressableScale";
 import { TOKENS } from "../../design/tokens";
 import { cycleStats, deriveFlares, Flare } from "../../domain/flares";
-import { SEVERITY_ORDER, SeverityKey, tempToSeverity } from "../../domain/severity";
 import { DayDetail } from "./DayDetail";
 import { MonthGrid } from "./MonthGrid";
 
 const DAY_MS = 86400000;
-
-// Max severity logged on a given day. The whole app buckets days in UTC
-// (flares.ts dayOf uses Date.UTC; entries are stored as ISO UTC strings), so
-// `dayIso` ("YYYY-MM-DD") is matched against the UTC date prefix of recordedAt.
-// Only temp + symptom entries colour a day; med/note do not.
-export function daySeverity(entries: Entry[], dayIso: string): SeverityKey {
-  let maxIdx = 0;
-  for (const e of entries) {
-    if (!e.recordedAt.startsWith(dayIso)) continue;
-    const s: SeverityKey =
-      e.entryType === "temp" ? tempToSeverity(e.tempC) :
-      e.entryType === "symptom" ? ((e.severity as SeverityKey) ?? "none") : "none";
-    maxIdx = Math.max(maxIdx, SEVERITY_ORDER.indexOf(s));
-  }
-  return SEVERITY_ORDER[maxIdx];
-}
 
 // Zero-padded "YYYY-MM-DD" for a calendar day, formatted WITHOUT timezone
 // conversion so it lines up with the UTC date prefix daySeverity matches on.

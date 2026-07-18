@@ -1,4 +1,4 @@
-import { daySeverity } from "../../src/screens/calendar/CalendarScreen";
+import { daySeverity } from "../../src/domain/severity";
 import { Entry } from "../../src/db/repo";
 
 function entry(partial: Partial<Entry>): Entry {

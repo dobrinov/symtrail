@@ -1,3 +1,5 @@
+import type { Entry } from "../db/repo";
+
 export type SeverityKey = "none" | "mild" | "moderate" | "high" | "severe";
 export const SEVERITY: Record<SeverityKey, { key: SeverityKey; label: string; color: string; text: string; dot: string }> = {
   none:     { key: "none",     label: "Well",     color: "#DAD8E3", text: "#59586E", dot: "#C7C3D6" },
@@ -15,6 +17,22 @@ export function tempToSeverity(t: number | null | undefined): SeverityKey {
   if (t < 39.0) return "moderate";
   if (t < 40.0) return "high";
   return "severe";
+}
+
+// Max severity logged on a given day. The whole app buckets days in UTC
+// (flares.ts dayOf uses Date.UTC; entries are stored as ISO UTC strings), so
+// `dayIso` ("YYYY-MM-DD") is matched against the UTC date prefix of recordedAt.
+// Only temp + symptom entries colour a day; med/note do not.
+export function daySeverity(entries: Entry[], dayIso: string): SeverityKey {
+  let maxIdx = 0;
+  for (const e of entries) {
+    if (!e.recordedAt.startsWith(dayIso)) continue;
+    const s: SeverityKey =
+      e.entryType === "temp" ? tempToSeverity(e.tempC) :
+      e.entryType === "symptom" ? ((e.severity as SeverityKey) ?? "none") : "none";
+    maxIdx = Math.max(maxIdx, SEVERITY_ORDER.indexOf(s));
+  }
+  return SEVERITY_ORDER[maxIdx];
 }
 
 export function cToF(c: number): number { return Math.round((c * 9 / 5 + 32) * 10) / 10; }
