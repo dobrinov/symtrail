@@ -8,9 +8,23 @@
 # Marketing website (`website/`)
 
 A single static page, `website/index.html`, aimed at organic search traffic.
-Everything is self-contained: no build step, no dependencies, no external
-requests — CSS is inline in `<style>`, the logo/store glyphs are inline SVG,
-and the favicon is an SVG data URI. Open the file in a browser to preview it.
+No build step, no dependencies, no external requests — CSS is inline in
+`<style>` and the store glyphs are inline SVG. Open the file in a browser to
+preview it.
+
+The brand mark is `website/logo.png` (96×96, transparent rounded corners so it
+sits on both the light and dark background), used by the header, the footer and
+`rel="icon"`; `website/apple-touch-icon.png` (180×180, opaque — iOS applies its
+own mask) covers the home-screen case. Both are downscaled from the app icon
+master described in `mobile/CLAUDE.md`, so the site and the app stay in step.
+The page previously used an inline SVG chevron for all three; if you swap the
+mark again, remember it lives in a CSS rule (`.logo img`) plus two `<img>` tags
+plus the two `<link>` tags.
+
+**The site is duplicated at the repo root** on the `marketing-website` branch
+(`index.html`, `logo.png`, `apple-touch-icon.png`, `robots.txt`, `sitemap.xml`,
+`CNAME`, `.nojekyll`) so Pages can serve it from the branch root. The copies
+are byte-identical — change `website/` and copy across, or the two drift.
 
 ## Deployment — GitHub Pages
 
