@@ -46,10 +46,11 @@ export class SessionStore {
     emitTableChange("sync_meta");
   }
 
-  // UI language, device-local. Stored as a code from i18n LOCALES; callers
-  // validate via isLanguageCode. Default "en".
-  language(): string {
-    return this.repo.getMeta("language") ?? "en";
+  // UI language, device-local. Stored as a code from i18n LOCALES; null until
+  // the user picks one explicitly — callers resolve via i18n resolveLanguage
+  // (device locale, then "en").
+  language(): string | null {
+    return this.repo.getMeta("language");
   }
   setLanguage(code: string): void {
     this.repo.setMeta("language", code);

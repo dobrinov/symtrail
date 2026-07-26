@@ -3,9 +3,28 @@
     "version": ">= 12.0.0"
   },
   "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "development",
+        "EXPO_PUBLIC_POSTHOG_API_KEY": "phc_om3XaZf4xJZpXy3X97SgWgAhm7JQYKLTwHxdnab9FbTm"
+      }
+    },
+    "staging": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "staging",
+        "EXPO_PUBLIC_POSTHOG_API_KEY": "phc_om3XaZf4xJZpXy3X97SgWgAhm7JQYKLTwHxdnab9FbTm"
+      }
+    },
     "production": {
       "ios": {
         "distribution": "store"
+      },
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "production",
+        "EXPO_PUBLIC_POSTHOG_API_KEY": "phc_om3XaZf4xJZpXy3X97SgWgAhm7JQYKLTwHxdnab9FbTm"
       }
     }
   },

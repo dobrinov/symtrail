@@ -6,6 +6,7 @@ import { ApiClient } from "./api/client";
 import { SyncClient } from "./sync/client";
 import { SessionStore, expoSecureKV } from "./session/store";
 import { ReminderScheduler, expoNotifPort } from "./notifications/reminders";
+import { Analytics, createAnalytics } from "./analytics";
 
 export interface Services {
   repo: Repo;
@@ -13,6 +14,7 @@ export interface Services {
   sync: SyncClient;
   session: SessionStore;
   reminders: ReminderScheduler;
+  analytics: Analytics;
   // Debounced after-write sync: coalesces a burst of edits into one push.
   scheduleSync: () => void;
 }
@@ -36,6 +38,7 @@ export function AppServicesProvider({ children }: { children: React.ReactNode })
       session.signedOut();
     });
     const reminders = new ReminderScheduler(repo, expoNotifPort());
+    const analytics = createAnalytics();
 
     // Debounce: reset a single timer on each call, firing one sync ~3s after
     // the last write so a burst of edits coalesces into a single push.
@@ -48,7 +51,7 @@ export function AppServicesProvider({ children }: { children: React.ReactNode })
       }, 3000);
     };
 
-    return { repo, api, sync, session, reminders, scheduleSync };
+    return { repo, api, sync, session, reminders, analytics, scheduleSync };
   }, []);
   return <Ctx.Provider value={services}>{children}</Ctx.Provider>;
 }

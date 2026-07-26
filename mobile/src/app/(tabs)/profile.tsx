@@ -14,7 +14,7 @@ import { AddPersonForm } from "../../screens/profile/AddPersonForm";
 import { ProfileScreen } from "../../screens/profile/ProfileScreen";
 import { SettingsSheet } from "../../screens/profile/SettingsSheet";
 import { cycleStats, deriveFlares } from "../../domain/flares";
-import { catLabel, fmt, isLanguageCode, useT } from "../../i18n";
+import { catLabel, fmt, resolveLanguage, useT } from "../../i18n";
 import { buildReportHtml } from "../../report/html";
 import { shareReportPdf } from "../../report/share";
 import { useActiveProfile } from "../../state/activeProfile";
@@ -25,14 +25,13 @@ export default function Profile(): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
   const s = useT();
-  const { repo, api, sync, session, reminders } = useServices();
+  const { repo, api, sync, session, reminders, analytics } = useServices();
   const [activeId, setActive] = useActiveProfile(repo);
   // Reactive: setTempUnit emits a sync_meta change, so the settings sheet's
   // selected card updates immediately when the user taps °C/°F.
   const tempUnit = useQuery(["sync_meta"], () => session.tempUnit());
   const themePref = useQuery(["sync_meta"], () => session.themePreference());
-  const languageRaw = useQuery(["sync_meta"], () => session.language());
-  const language = isLanguageCode(languageRaw) ? languageRaw : "en";
+  const language = useQuery(["sync_meta"], () => resolveLanguage(session.language()));
 
   const [personSheet, setPersonSheet] = useState<PersonSheet>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -43,6 +42,8 @@ export default function Profile(): React.JSX.Element {
   };
 
   const onSavedPerson = () => {
+    if (personSheet?.mode === "add") analytics.track("person_added", { source: "profile" });
+    else analytics.track("person_edited");
     setPersonSheet(null);
     afterMutation();
   };
@@ -54,6 +55,7 @@ export default function Profile(): React.JSX.Element {
       if (row.entry.reminderAt) void reminders.cancelFor(row.entry.id);
     }
     repo.deleteProfileCascade(id);
+    analytics.track("person_deleted");
     setDeletePersonId(null);
     afterMutation();
   };
@@ -86,6 +88,7 @@ export default function Profile(): React.JSX.Element {
     try {
       const html = buildReportHtml({ profile, tempUnit: session.tempUnit(), flares, stats, entries, labels, strings: s });
       await shareReportPdf(html);
+      analytics.track("report_exported");
     } catch {
       // Sharing can be cancelled or fail; nothing to do.
     }
@@ -98,7 +101,10 @@ export default function Profile(): React.JSX.Element {
       <ProfileScreen
         repo={repo}
         activeId={activeId}
-        onPickProfile={(id) => setActive(id)}
+        onPickProfile={(id) => {
+          if (id !== activeId) analytics.track("person_switched");
+          setActive(id);
+        }}
         onEditProfile={(id) => setPersonSheet({ mode: "edit", id })}
         onAddPerson={() => setPersonSheet({ mode: "add" })}
         onDeleteProfile={(id) => setDeletePersonId(id)}
@@ -125,12 +131,21 @@ export default function Profile(): React.JSX.Element {
       <Sheet open={settingsOpen} onClose={() => setSettingsOpen(false)} title={s.settingsTitle}>
         <SettingsSheet
           unit={tempUnit}
-          setTempUnit={(u) => session.setTempUnit(u)}
+          setTempUnit={(u) => {
+            session.setTempUnit(u);
+            analytics.track("settings_changed", { setting: "temp_unit", value: u });
+          }}
           updateSettings={(payload) => api.updateSettings(payload)}
           theme={themePref}
-          setTheme={(p) => session.setThemePreference(p)}
+          setTheme={(p) => {
+            session.setThemePreference(p);
+            analytics.track("settings_changed", { setting: "theme", value: p });
+          }}
           language={language}
-          setLanguage={(code) => session.setLanguage(code)}
+          setLanguage={(code) => {
+            session.setLanguage(code);
+            analytics.track("settings_changed", { setting: "language", value: code });
+          }}
         />
       </Sheet>
 

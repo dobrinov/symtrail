@@ -2,8 +2,9 @@
 // the log flow floats above every tab. Reads useLogSheet() and renders the
 // matching Sheet: chooser → Log{Symptom,Temp,Med}, or EntryDetail → EditEntry.
 // On any successful save it kicks a debounced sync and closes.
-import React from "react";
+import React, { useEffect } from "react";
 import { Entry } from "../../db/repo";
+import { LOG_TYPE_NAMES } from "../../analytics";
 import { Sheet } from "../../design/Sheet";
 import { useServices } from "../../AppServices";
 import { useQuery } from "../../db/useQuery";
@@ -19,12 +20,15 @@ import { LogSymptom } from "./LogSymptom";
 import { LogTemp } from "./LogTemp";
 
 export function LogSheetHost(): React.JSX.Element | null {
-  const { repo, reminders, session, scheduleSync } = useServices();
+  const { repo, reminders, session, analytics, scheduleSync } = useServices();
   const { state, openLog, pick, editEntry, close } = useLogSheet();
   const s = useT();
   const [profileId] = useActiveProfile(repo);
 
-  const scheduleReminder = (e: Entry, label: string) => void reminders.scheduleFor(e, label, s.medReminderTitle);
+  const scheduleReminder = (e: Entry, label: string) => {
+    analytics.track("medication_reminder_set");
+    void reminders.scheduleFor(e, label, s.medReminderTitle);
+  };
   const cancelReminder = (entryId: string) => void reminders.cancelFor(entryId);
 
   // The detail/edit views resolve their entry reactively so deletes/edits
@@ -36,7 +40,15 @@ export function LogSheetHost(): React.JSX.Element | null {
   // Subscribe to sync_meta so a unit change re-renders the open sheet.
   const tempUnit = useQuery(["sync_meta"], () => session.tempUnit());
 
+  // Viewing a flare detail is a distinctive feature worth its own signal.
+  useEffect(() => {
+    if (state.mode === "flare") analytics.track("flare_viewed");
+  }, [state.mode, analytics]);
+
   const afterSave = () => {
+    // Coarse events only: the log type, never its contents (health data).
+    if (state.mode === "log") analytics.track(`${LOG_TYPE_NAMES[state.logType]}_logged`);
+    else if (state.mode === "edit") analytics.track("log_edited", { log_type: entry ? LOG_TYPE_NAMES[entry.entryType] : "unknown" });
     scheduleSync();
     close();
   };
@@ -46,6 +58,7 @@ export function LogSheetHost(): React.JSX.Element | null {
       // Cancel any device-local reminder before the entry goes away.
       if (entry?.entryType === "med") void reminders.cancelFor(entryId);
       repo.deleteRecord("entries", entryId);
+      analytics.track("log_deleted", { log_type: entry ? LOG_TYPE_NAMES[entry.entryType] : "unknown" });
     }
     scheduleSync();
     close();

@@ -1,5 +1,6 @@
 // i18n runtime — provider + hooks around the locale string tables.
-// The language preference is device-local (sync_meta "language", default en).
+// The language preference is device-local (sync_meta "language"); when unset
+// the device locale is used, falling back to en (resolveLanguage).
 // Dates/times format through each table's `locale` BCP-47 tag.
 import React, { createContext, useContext } from "react";
 import { en, Strings } from "./en";
@@ -36,6 +37,24 @@ export const LANGUAGE_CODES: LanguageCode[] = [
 
 export function isLanguageCode(v: string | null | undefined): v is LanguageCode {
   return !!v && v in LOCALES;
+}
+
+/** First device locale we ship a translation for, else en. */
+export function detectDeviceLanguage(): LanguageCode {
+  try {
+    const { getLocales } = require("expo-localization") as typeof import("expo-localization");
+    for (const locale of getLocales()) {
+      if (isLanguageCode(locale.languageCode)) return locale.languageCode;
+    }
+  } catch {
+    // native module unavailable (tests, web without polyfill)
+  }
+  return "en";
+}
+
+/** Effective UI language: explicit preference wins, else device locale, else en. */
+export function resolveLanguage(stored: string | null): LanguageCode {
+  return isLanguageCode(stored) ? stored : detectDeviceLanguage();
 }
 
 const Ctx = createContext<Strings>(en);

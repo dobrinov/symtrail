@@ -77,6 +77,8 @@ export function CalendarScreen(props: {
   /** Controlled view mode (route owns it so other tabs can deep-link); falls back to internal state. */
   mode?: "month" | "list";
   onModeChange?: (m: "month" | "list") => void;
+  /** Fired when the filter sheet closes with active filters (analytics). */
+  onFilterApplied?: () => void;
   refreshControl?: React.ReactElement<RefreshControlProps>;
 }): React.JSX.Element {
   const styles = useStyles();
@@ -250,7 +252,14 @@ export function CalendarScreen(props: {
       )}
 
       <Sheet open={filterOpen} onClose={() => setFilterOpen(false)} title={s.searchAndFilter}>
-        <FilterSheet filters={filters} onChange={setFilters} onDone={() => setFilterOpen(false)} />
+        <FilterSheet
+          filters={filters}
+          onChange={setFilters}
+          onDone={() => {
+            setFilterOpen(false);
+            if (filtersActive(filters)) props.onFilterApplied?.();
+          }}
+        />
       </Sheet>
     </ScrollView>
   );

@@ -34,7 +34,7 @@ function dayIsoAtNow(dayIso: string): string {
 export default function Calendar(): React.JSX.Element {
   const styles = useStyles();
   const s = useT();
-  const { repo, sync, session } = useServices();
+  const { repo, sync, session, analytics } = useServices();
   const { openLog, openEntry, openFlare } = useLogSheet();
   const [profileId] = useActiveProfile(repo);
   const [refreshing, setRefreshing] = useState(false);
@@ -67,7 +67,12 @@ export default function Calendar(): React.JSX.Element {
           onOpenFlare={(flare) => openFlare(flare)}
           tempUnit={tempUnit}
           mode={mode}
-          onModeChange={setMode}
+          onModeChange={(m) => {
+            // Only explicit toggles; the "View all" deep-link sets mode via params.
+            if (m !== mode) analytics.track("history_view_changed", { view: m });
+            setMode(m);
+          }}
+          onFilterApplied={() => analytics.track("history_filter_applied")}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void onRefresh()} />}
         />
       ) : (

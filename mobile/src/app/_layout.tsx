@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AppState } from "react-native";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { Stack, usePathname, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts, Sora_400Regular, Sora_600SemiBold, Sora_700Bold, Sora_800ExtraBold } from "@expo-google-fonts/sora";
 import { AppServicesProvider, useServices, setCachedToken, getCachedToken } from "../AppServices";
@@ -9,7 +9,7 @@ import { useQuery } from "../db/useQuery";
 import { resolveRoute } from "../session/routing";
 import { LOCAL_ONLY } from "../config";
 import { seedBuiltinCatalogues } from "../db/builtinCatalogue";
-import { I18nProvider, isLanguageCode } from "../i18n";
+import { I18nProvider, resolveLanguage } from "../i18n";
 
 function AuthGateAndSync({ children }: { children: React.ReactNode }) {
   const { session, sync, repo } = useServices();
@@ -65,11 +65,24 @@ function ThemedApp({ children }: { children: React.ReactNode }) {
 }
 
 // Reads the persisted UI language (reactive via sync_meta) and mounts the
-// I18nProvider so every screen re-renders in the chosen language.
+// I18nProvider so every screen re-renders in the chosen language. With no
+// stored preference the device locale decides (falling back to English).
 function LocalizedApp({ children }: { children: React.ReactNode }) {
   const { session } = useServices();
-  const language = useQuery(["sync_meta"], () => session.language());
-  return <I18nProvider language={isLanguageCode(language) ? language : "en"}>{children}</I18nProvider>;
+  const language = useQuery(["sync_meta"], () => resolveLanguage(session.language()));
+  return <I18nProvider language={language}>{children}</I18nProvider>;
+}
+
+// Screen views: expo-router doesn't expose the NavigationContainer, so route
+// changes are captured manually from the pathname (a no-op without an
+// analytics key — see src/analytics).
+function ScreenTracker() {
+  const { analytics } = useServices();
+  const pathname = usePathname();
+  useEffect(() => {
+    analytics.screen(pathname);
+  }, [pathname, analytics]);
+  return null;
 }
 
 // Inside the provider: themed status bar + navigator background so pushed
@@ -93,6 +106,7 @@ export default function RootLayout() {
       <ThemedApp>
         <LocalizedApp>
           <AuthGateAndSync>
+            <ScreenTracker />
             <ThemedChrome />
           </AuthGateAndSync>
         </LocalizedApp>

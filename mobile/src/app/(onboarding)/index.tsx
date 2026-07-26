@@ -15,12 +15,14 @@ export default function Onboarding(): React.JSX.Element {
   const styles = useStyles();
   const t = useTokens();
   const s = useT();
-  const { repo, sync } = useServices();
+  const { repo, sync, analytics } = useServices();
   const insets = useSafeAreaInsets();
 
   // The root gate (AuthGateAndSync) watches the profile count and redirects to
   // the tabs once one exists, so we only need to persist + sync here.
   const onSaved = () => {
+    analytics.track("person_added", { source: "onboarding" });
+    analytics.track("onboarding_completed");
     void sync.syncNow();
   };
 

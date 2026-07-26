@@ -15,7 +15,7 @@ import { useLogSheet } from "../../state/LogSheetContext";
 export default function Today(): React.JSX.Element {
   const styles = useStyles();
   const s = useT();
-  const { repo, sync, session } = useServices();
+  const { repo, sync, session, analytics } = useServices();
   const router = useRouter();
   const { openEntry, openFlare } = useLogSheet();
   // Subscribe to sync_meta so a unit change re-renders this route.
@@ -57,6 +57,7 @@ export default function Today(): React.JSX.Element {
           repo={repo}
           activeId={profileId}
           onPick={(id) => {
+            if (id !== profileId) analytics.track("person_switched");
             setActiveProfile(id);
             setSwitcherOpen(false);
           }}
