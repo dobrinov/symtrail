@@ -3,21 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Symtrail — Track symptoms, fevers and medications for the people you care for</title>
-<meta name="description" content="Symtrail is a private symptom diary for families. Log symptoms, temperatures and medication doses per person, spot flare-up patterns, and export a clean PDF report for your doctor. Works offline, no account needed.">
-<meta name="theme-color" content="#208AEF">
+<title>Symtrail — track your child's fevers, symptoms and medicines, privately</title>
+<meta name="description" content="A private symptom, temperature and medication diary for your child. Spot the pattern behind recurring fevers, and walk into the paediatrician with a report instead of a guess. No account, works offline, nothing ever uploaded.">
+<meta name="theme-color" content="#F8FAFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E0C15" media="(prefers-color-scheme: dark)">
 
 <link rel="canonical" href="https://symtrail.com/">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Symtrail">
-<meta property="og:title" content="Symtrail — a private symptom, fever & medication diary">
-<meta property="og:description" content="Log symptoms, temperatures and medication doses per person, spot flare-up patterns, and export a PDF report for your doctor. Works offline, no account needed.">
+<meta property="og:title" content="Symtrail — a private symptom, fever & medication diary for your child">
+<meta property="og:description" content="Spot the pattern behind recurring fevers, and walk into the paediatrician with a report instead of a guess. No account, works offline, nothing ever uploaded.">
 <meta property="og:url" content="https://symtrail.com/">
 <meta property="og:image" content="https://symtrail.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Symtrail — a private symptom, fever & medication diary">
+<meta property="og:image:alt" content="Symtrail — a private symptom, fever & medication diary for your child">
 <meta name="twitter:card" content="summary_large_image">
 
 <link rel="icon" type="image/png" href="/logo.png">
@@ -32,7 +33,7 @@
       "name": "Symtrail",
       "applicationCategory": "HealthApplication",
       "operatingSystem": "iOS, Android",
-      "description": "A private symptom, temperature and medication diary for families. Track each person separately, spot flare-up patterns, and export a PDF report for your doctor.",
+      "description": "A private symptom, temperature and medication diary for your child. Keep a separate diary per child, track flare cycles like PFAPA, and export a PDF report for the paediatrician. Nothing is uploaded.",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
     },
     {
@@ -40,28 +41,38 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Is my health data private?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Everything you log stays on your phone. Symtrail does not require an account, and symptom names, temperatures and notes are never uploaded." }
+          "name": "Does this send my child's information anywhere?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Everything you log — symptoms, temperatures, doses, notes — stays on your phone and is never uploaded. We only see anonymous, coarse counts of which screens get used, never what you actually logged." }
         },
         {
           "@type": "Question",
-          "name": "Can I track more than one person?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Symtrail is built around profiles, so you can keep a separate diary for each child, for a partner or parent you care for, and for yourself. Switching between people takes one tap." }
+          "name": "Do I need to make an account first?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. There's no sign-up, no email, no password. Install it and start logging." }
         },
         {
           "@type": "Question",
-          "name": "Does Symtrail work offline?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Logging works with no signal at all — in a waiting room, on a plane, or at 3am in a hospital corridor." }
+          "name": "My son gets a fever every few weeks — is this what it's for?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Mark his profile as a PFAPA patient and Symtrail groups fever days into flares, works out the average gap between them, and shows the window when the next one is likely. It works just as well for any recurring pattern, whether or not it has a name yet." }
         },
         {
           "@type": "Question",
-          "name": "Does Symtrail help with PFAPA?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Mark a profile as a PFAPA patient and Symtrail groups fevers into flares, works out the average gap between them, and shows the window when the next flare is likely." }
+          "name": "What if I have no signal at the hospital?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Logging works fully offline — in a waiting room, a hospital corridor, or on a plane. Nothing about using Symtrail depends on a connection." }
         },
         {
           "@type": "Question",
-          "name": "How much does Symtrail cost?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Symtrail is free to download." }
+          "name": "Can I track more than just my kids?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. Symtrail keeps a separate diary per person, so alongside your children you can add yourself — useful if you're tracking your own recurring migraines or fevers too." }
+        },
+        {
+          "@type": "Question",
+          "name": "Will a doctor take a printout from an app seriously?",
+          "acceptedAnswer": { "@type": "Answer", "text": "The report is your own observations laid out clearly — dates, temperatures, doses, flare patterns — not a diagnosis. It's built to make a five-minute appointment more useful, not to replace the conversation with your paediatrician." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Symtrail going to tell me what's wrong with my child?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Symtrail is a diary, not a medical device. It doesn't diagnose, treat or give medical advice — it just helps you keep track of what you're already observing, and show it to someone qualified." }
         }
       ]
     }
@@ -71,223 +82,187 @@
 
 <style>
   :root {
-    --anchor:#0C0917; --balance:#59586E; --grey:#606C83;
-    --canvas:#F8FAFF; --surface:#FFFFFF; --calm:#F2F3F9; --line:#DAD8E3;
-    --brand:#208AEF; --brand-ink:#0A5FB0; --yellow:#FEAE2E; --lilac:#958CBE;
-    --shadow:0 1px 2px rgba(12,9,23,.05), 0 12px 32px -12px rgba(12,9,23,.14);
-    --radius:18px;
+    --ink:#0C0917; --ink2:#59586E; --muted:#606C83;
+    --canvas:#F8FAFF; --surface:#FFFFFF; --fill:#F2F3F9; --line:#DAD8E3;
+    --amber:#FEAE2E; --amber-ink:#0C0917; --lavender:#958CBE; --deep:#F2802E;
+    --shadow:0 1px 2px rgba(12,9,23,.05), 0 16px 40px -18px rgba(12,9,23,.18);
+    --radius:20px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --anchor:#F3F1FA; --balance:#C9C5DA; --grey:#9C97B0;
-      --canvas:#0E0C15; --surface:#1B1826; --calm:#252132; --line:#3A3450;
-      --brand:#4FA3F5; --brand-ink:#9BCBFA; --lilac:#A89ED8;
-      --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 32px -12px rgba(0,0,0,.7);
+      --ink:#F3F1FA; --ink2:#C9C5DA; --muted:#9C97B0;
+      --canvas:#0E0C15; --surface:#1B1826; --fill:#252132; --line:#3A3450;
+      --amber:#FEAE2E; --amber-ink:#0C0917; --lavender:#A89ED8; --deep:#F2802E;
+      --shadow:0 1px 2px rgba(0,0,0,.45), 0 16px 40px -18px rgba(0,0,0,.75);
     }
   }
 
   * { box-sizing:border-box; }
   html { scroll-behavior:smooth; }
   body {
-    margin:0; background:var(--canvas); color:var(--anchor);
+    margin:0; background:var(--canvas); color:var(--ink);
     font:400 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    text-wrap:pretty;
   }
-  h1,h2,h3 { line-height:1.15; letter-spacing:-.022em; margin:0; text-wrap:balance; }
-  h1 { font-size:clamp(2.1rem, 6vw, 3.5rem); font-weight:800; }
-  h2 { font-size:clamp(1.6rem, 4vw, 2.3rem); font-weight:750; }
-  h3 { font-size:1.075rem; font-weight:650; letter-spacing:-.01em; }
+  h1,h2,h3 { line-height:1.12; letter-spacing:-.025em; margin:0; text-wrap:balance; font-weight:800; }
+  h1 { font-size:clamp(2.15rem, 5.6vw, 3.4rem); }
+  h2 { font-size:clamp(1.55rem, 3.6vw, 2.2rem); }
+  h3 { font-size:1.1rem; font-weight:750; letter-spacing:-.012em; }
   p { margin:0; }
-  a { color:inherit; }
-  img, svg { max-width:100%; }
+  a { color:var(--deep); text-decoration-thickness: 1.5px; }
+  a:hover { color:var(--amber); }
+  img, svg { max-width:100%; display:block; }
+  ul { margin:0; padding:0; }
 
-  .wrap { width:100%; max-width:1080px; margin-inline:auto; padding-inline:24px; }
-  section { padding-block:clamp(56px, 9vw, 104px); }
-  .lede { color:var(--balance); font-size:clamp(1.05rem,2.4vw,1.25rem); max-width:60ch; }
+  .wrap { width:100%; max-width:1120px; margin-inline:auto; padding-inline:24px; }
+  section { padding-block:clamp(56px, 9vw, 108px); }
+  .lede { color:var(--ink2); font-size:clamp(1.05rem,2.2vw,1.2rem); max-width:56ch; }
   .eyebrow {
-    font-size:.78rem; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
-    color:var(--brand-ink); margin-bottom:14px;
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:.78rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--deep); margin-bottom:14px;
   }
 
-  /* ── header ── */
+  /* header */
   header {
     position:sticky; top:0; z-index:20; backdrop-filter:saturate(180%) blur(14px);
-    background:color-mix(in srgb, var(--canvas) 82%, transparent);
+    background:color-mix(in srgb, var(--canvas) 84%, transparent);
     border-bottom:1px solid transparent; transition:border-color .2s;
   }
   header.scrolled { border-bottom-color:var(--line); }
-  .bar { display:flex; align-items:center; gap:16px; height:64px; }
-  .logo { display:flex; align-items:center; gap:9px; font-weight:750; letter-spacing:-.02em; font-size:1.12rem; text-decoration:none; }
-  .logo img { width:26px; height:26px; flex:none; }
-  nav { margin-left:auto; display:flex; align-items:center; gap:26px; }
-  nav a { color:var(--balance); text-decoration:none; font-size:.94rem; font-weight:550; }
-  nav a:hover { color:var(--anchor); }
-  @media (max-width:720px) { nav .hide-sm { display:none; } }
+  .bar { display:flex; align-items:center; gap:16px; height:66px; }
+  .logo { display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:-.02em; font-size:1.12rem; text-decoration:none; color:var(--ink); }
+  .logo img { width:28px; height:28px; flex:none; border-radius:7px; }
+  nav.primary { margin-left:auto; display:flex; align-items:center; gap:28px; }
+  nav.primary a { color:var(--ink2); text-decoration:none; font-size:.94rem; font-weight:600; }
+  nav.primary a:hover { color:var(--ink); }
+  @media (max-width:760px) { nav.primary .hide-sm { display:none; } }
 
-  /* ── hero ── */
-  .hero { padding-top:clamp(40px,7vw,80px); padding-bottom:clamp(48px,7vw,88px); position:relative; overflow:hidden; }
-  .hero::before {
-    content:""; position:absolute; inset:-30% 30% auto -10%; height:620px;
-    background:radial-gradient(closest-side, color-mix(in srgb, var(--brand) 16%, transparent), transparent);
-    pointer-events:none;
-  }
-  .hero-grid { position:relative; display:grid; grid-template-columns:1.05fr .95fr; gap:clamp(32px,5vw,64px); align-items:center; }
-  @media (max-width:880px) { .hero-grid { grid-template-columns:1fr; } }
-  .hero h1 span { display:block; color:var(--brand-ink); }
-  .hero .lede { margin-top:20px; }
-
-  /* ── store buttons ── */
-  .stores { display:flex; flex-wrap:wrap; gap:12px; margin-top:32px; }
+  /* store buttons */
+  .stores { display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
   .store {
-    display:flex; align-items:center; gap:12px; padding:11px 20px 11px 16px;
-    border-radius:14px; text-decoration:none; border:1px solid var(--line);
+    display:flex; align-items:center; gap:12px; padding:12px 22px 12px 17px;
+    border-radius:15px; text-decoration:none; border:1px solid var(--line);
     background:var(--surface); box-shadow:var(--shadow); min-width:196px; min-height:68px;
   }
   .store svg { width:24px; height:24px; flex:none; fill:currentColor; }
   .store .txt { display:flex; flex-direction:column; line-height:1.25; }
-  .store .top { font-size:.72rem; color:var(--grey); letter-spacing:.02em; }
-  .store .bot { font-size:1.02rem; font-weight:650; letter-spacing:-.015em; }
-  /* Live state — applied automatically once an href is filled in below. */
-  .store[href] { background:var(--anchor); color:var(--canvas); border-color:transparent; }
+  .store .top { font-size:.72rem; color:var(--muted); letter-spacing:.02em; }
+  .store .bot { font-size:1.02rem; font-weight:700; letter-spacing:-.015em; }
+  .store[href] { background:var(--amber); color:var(--amber-ink); border-color:transparent; }
   .store[href]:hover { transform:translateY(-1px); }
-  .store[href] .top { color:color-mix(in srgb, var(--canvas) 72%, transparent); }
-  /* Coming-soon state — no href yet. */
-  .store:not([href]) { cursor:default; color:var(--balance); }
+  .store[href] .top { color:color-mix(in srgb, var(--amber-ink) 62%, transparent); }
+  .store:not([href]) { cursor:default; color:var(--ink2); }
   .store:not([href]) .bot::after {
     content:"Coming soon"; display:block; font-size:.74rem; font-weight:600;
-    color:var(--brand-ink); letter-spacing:0;
+    color:var(--deep); letter-spacing:0;
   }
-  .store-note { margin-top:14px; font-size:.88rem; color:var(--grey); }
+  .store-note { margin-top:14px; font-size:.88rem; color:var(--muted); }
 
-  /* ── trust strip ── */
-  .trust { display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:28px; font-size:.9rem; color:var(--balance); }
-  .trust span { display:flex; align-items:center; gap:7px; }
+  /* phone frame */
+  .phone-frame {
+    border-radius:34px; overflow:hidden; border:1px solid var(--line);
+    box-shadow:0 46px 80px -34px rgba(12,9,23,.5), var(--shadow);
+    background:var(--surface);
+  }
+  .phone-frame img { width:100%; height:auto; }
+
+  /* hero */
+  .hero { padding-top:clamp(36px,6vw,72px); padding-bottom:clamp(48px,7vw,88px); position:relative; overflow:hidden; }
+  .hero::before {
+    content:""; position:absolute; inset:-28% 26% auto -14%; height:600px;
+    background:radial-gradient(closest-side, color-mix(in srgb, var(--amber) 22%, transparent), transparent);
+    pointer-events:none;
+  }
+  .hero-grid { position:relative; display:grid; grid-template-columns:1.08fr .92fr; gap:clamp(32px,5vw,72px); align-items:center; }
+  @media (max-width:900px) { .hero-grid { grid-template-columns:1fr; } }
+  .hero .lede { margin-top:20px; }
+  .hero .phone-frame { justify-self:center; width:min(300px, 74vw); }
+  @media (max-width:900px) { .hero .phone-frame { width:min(260px, 62vw); } }
+
+  .trust { display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:30px; font-size:.9rem; color:var(--ink2); }
+  .trust span { display:flex; align-items:center; gap:8px; }
   .trust span::before {
-    content:""; width:16px; height:16px; flex:none; border-radius:50%;
-    background:color-mix(in srgb, var(--brand) 18%, transparent);
-    box-shadow:inset 0 0 0 1.5px var(--brand);
+    content:""; width:7px; height:7px; flex:none; border-radius:50%; background:var(--amber);
   }
 
-  /* ── phone mock ── */
-  .phone {
-    justify-self:center; width:min(300px, 78vw); aspect-ratio:9/18.6; border-radius:42px;
-    background:var(--surface); border:1px solid var(--line); padding:14px 12px;
-    box-shadow:0 40px 70px -30px rgba(12,9,23,.45), var(--shadow); position:relative;
+  /* proof / split sections */
+  .proof { display:grid; grid-template-columns:.9fr 1.1fr; gap:clamp(32px,6vw,80px); align-items:center; }
+  .proof.reverse { grid-template-columns:1.1fr .9fr; }
+  .proof.reverse .proof-media { order:2; }
+  @media (max-width:880px) {
+    .proof, .proof.reverse { grid-template-columns:1fr; }
+    .proof.reverse .proof-media { order:0; }
   }
-  .phone::before {
-    content:""; position:absolute; top:14px; left:50%; translate:-50% 0;
-    width:92px; height:22px; border-radius:12px; background:var(--calm);
-  }
-  .screen { height:100%; overflow:hidden; padding-top:38px; display:flex; flex-direction:column; gap:10px; }
-  .mock-h { display:flex; align-items:baseline; justify-content:space-between; padding:0 4px; }
-  .mock-h b { font-size:1.22rem; letter-spacing:-.02em; }
-  .mock-h em { font-style:normal; font-size:.7rem; color:var(--grey); }
-  .card { background:var(--calm); border-radius:16px; padding:12px 13px; }
-  .card .k { font-size:.65rem; text-transform:uppercase; letter-spacing:.07em; color:var(--grey); font-weight:700; }
-  .status { display:flex; align-items:center; gap:9px; margin-top:7px; font-size:.92rem; font-weight:650; }
-  .dot { width:10px; height:10px; border-radius:50%; background:var(--yellow); flex:none; }
-  .spark { display:flex; align-items:flex-end; gap:4px; height:44px; margin-top:10px; }
-  .spark i { flex:1; border-radius:3px 3px 0 0; background:color-mix(in srgb, var(--brand) 32%, transparent); }
-  .spark i.hi { background:var(--brand); }
-  .row { display:flex; align-items:center; gap:10px; background:var(--calm); border-radius:14px; padding:10px 12px; }
-  .pill { width:30px; height:30px; border-radius:9px; flex:none; display:grid; place-items:center; font-size:.8rem; }
-  .row .t { font-size:.85rem; font-weight:600; }
-  .row .s { font-size:.7rem; color:var(--grey); }
-  .row .time { margin-left:auto; font-size:.7rem; color:var(--grey); }
-  .tabs {
-    margin-top:auto; display:flex; align-items:center; justify-content:space-between;
-    border-top:1px solid var(--line); padding:11px 6px 4px; gap:4px;
-  }
-  .tab { font-size:.62rem; color:var(--grey); font-weight:600; }
-  .tab.on { color:var(--brand); }
-  .fab {
-    width:34px; height:34px; border-radius:50%; background:var(--brand); color:#fff;
-    display:grid; place-items:center; font-size:1.2rem; line-height:1; margin-top:-16px;
-    box-shadow:0 6px 14px -4px color-mix(in srgb, #208AEF 70%, transparent);
-  }
-  @media (max-width:880px) { .phone { display:none; } }
+  .proof-media .phone-frame { width:min(320px, 88vw); margin-inline:auto; }
+  .proof-media.wide .phone-frame { width:min(360px, 92vw); }
+  .proof ul.checks { margin-top:22px; display:grid; gap:12px; list-style:none; }
+  .proof ul.checks li { display:flex; gap:11px; color:var(--ink2); font-size:1rem; }
+  .proof ul.checks li::before { content:"✓"; color:var(--deep); font-weight:800; flex:none; }
+  .band { background:var(--fill); }
 
-  /* ── features ── */
-  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:44px; }
-  @media (max-width:900px) { .grid { grid-template-columns:repeat(2,1fr); } }
-  @media (max-width:600px) { .grid { grid-template-columns:1fr; } }
-  .feat {
-    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
-    padding:22px; box-shadow:var(--shadow);
+  /* wide report image */
+  .report-shot {
+    border-radius:var(--radius); overflow:hidden; border:1px solid var(--line);
+    box-shadow:var(--shadow); background:var(--surface);
   }
-  .feat .ico {
-    width:38px; height:38px; border-radius:11px; display:grid; place-items:center; margin-bottom:14px;
-    background:color-mix(in srgb, var(--brand) 13%, transparent); color:var(--brand-ink); font-size:1.1rem;
+  .report-shot img { width:100%; height:auto; }
+
+  /* two-up small phone frames */
+  .duo { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:640px) { .duo { grid-template-columns:1fr; max-width:320px; margin-inline:auto; } }
+  .duo .phone-frame { width:100%; }
+
+  .stat-row { display:flex; flex-wrap:wrap; gap:28px; margin-top:26px; }
+  .stat-row div { display:flex; flex-direction:column; }
+  .stat-row b { font-size:1.7rem; font-weight:800; letter-spacing:-.02em; }
+  .stat-row span { font-size:.82rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:2px; }
+
+  /* privacy — plain rows, not cards */
+  .privacy-list { margin-top:38px; display:grid; gap:0; border-top:1px solid var(--line); }
+  .privacy-row {
+    display:grid; grid-template-columns:220px 1fr; gap:24px; padding:24px 0;
+    border-bottom:1px solid var(--line);
   }
-  .feat p { margin-top:7px; color:var(--balance); font-size:.95rem; }
+  @media (max-width:680px) { .privacy-row { grid-template-columns:1fr; gap:8px; } }
+  .privacy-row h3 { color:var(--ink); }
+  .privacy-row p { color:var(--ink2); font-size:.98rem; max-width:60ch; }
 
-  /* ── alternating detail blocks ── */
-  .split { display:grid; grid-template-columns:1fr 1fr; gap:clamp(28px,5vw,64px); align-items:center; }
-  @media (max-width:820px) { .split { grid-template-columns:1fr; } }
-  .split + .split { margin-top:clamp(48px,7vw,88px); }
-  .split ul { margin:20px 0 0; padding:0; list-style:none; display:grid; gap:11px; }
-  .split li { display:flex; gap:11px; color:var(--balance); font-size:1rem; }
-  .split li::before { content:"✓"; color:var(--brand); font-weight:750; flex:none; }
-  .panel {
-    background:var(--surface); border:1px solid var(--line); border-radius:22px;
-    padding:24px; box-shadow:var(--shadow);
-  }
-  .band { background:var(--calm); }
-
-  /* flare timeline illustration */
-  .tl { display:flex; align-items:flex-end; gap:6px; height:120px; }
-  .tl i { flex:1; border-radius:4px 4px 0 0; background:color-mix(in srgb, var(--brand) 22%, transparent); }
-  .tl i.f { background:var(--brand); }
-  .tl i.next { background:repeating-linear-gradient(45deg, color-mix(in srgb,var(--yellow) 55%,transparent) 0 4px, transparent 4px 8px); box-shadow:inset 0 0 0 1.5px var(--yellow); }
-  .tl-legend { display:flex; gap:16px; margin-top:14px; font-size:.78rem; color:var(--grey); flex-wrap:wrap; }
-  .tl-legend b { display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
-
-  /* report illustration */
-  .doc { display:grid; gap:9px; }
-  .doc .line { height:9px; border-radius:5px; background:var(--calm); }
-  .doc .line.w70 { width:70%; } .doc .line.w45 { width:45%; } .doc .line.w85 { width:85%; }
-  .doc .title { height:13px; width:55%; border-radius:5px; background:color-mix(in srgb, var(--brand) 45%, transparent); }
-  .doc .stat { display:flex; gap:9px; margin:5px 0; }
-  .doc .stat div { flex:1; background:var(--calm); border-radius:10px; padding:9px 11px; }
-  .doc .stat b { display:block; font-size:1rem; letter-spacing:-.02em; }
-  .doc .stat span { font-size:.65rem; color:var(--grey); text-transform:uppercase; letter-spacing:.06em; }
-
-  /* ── privacy ── */
-  .privacy { text-align:center; }
-  .privacy .grid { margin-top:36px; }
-  .privacy .feat { text-align:left; }
-
-  /* ── faq ── */
-  details {
-    border-bottom:1px solid var(--line); padding:18px 0;
-  }
+  /* faq */
+  details { border-bottom:1px solid var(--line); padding:20px 0; }
   details summary {
-    cursor:pointer; font-weight:650; font-size:1.05rem; letter-spacing:-.01em;
+    cursor:pointer; font-weight:700; font-size:1.06rem; letter-spacing:-.01em;
     list-style:none; display:flex; align-items:center; gap:14px;
   }
   details summary::-webkit-details-marker { display:none; }
   details summary::after {
-    content:"+"; margin-left:auto; color:var(--brand); font-weight:600; font-size:1.35rem; line-height:1;
+    content:"+"; margin-left:auto; color:var(--deep); font-weight:700; font-size:1.4rem; line-height:1;
   }
   details[open] summary::after { content:"–"; }
-  details p { color:var(--balance); margin-top:11px; font-size:.98rem; max-width:70ch; }
-  .faq-list { margin-top:32px; border-top:1px solid var(--line); }
+  details p { color:var(--ink2); margin-top:12px; font-size:.98rem; max-width:68ch; }
+  .faq-list { margin-top:34px; border-top:1px solid var(--line); }
 
-  /* ── cta ── */
+  /* cta */
   .cta { text-align:center; }
   .cta .stores { justify-content:center; }
   .cta-box {
-    background:var(--surface); border:1px solid var(--line); border-radius:26px;
-    padding:clamp(32px,5vw,56px) 24px; box-shadow:var(--shadow);
+    background:var(--surface); border:1px solid var(--line); border-radius:28px;
+    padding:clamp(36px,5vw,60px) 24px; box-shadow:var(--shadow);
   }
+  .cta .lede { margin-inline:auto; }
 
-  /* ── footer ── */
-  footer { border-top:1px solid var(--line); padding-block:32px; color:var(--grey); font-size:.88rem; }
+  /* footer */
+  footer { border-top:1px solid var(--line); padding-block:36px; color:var(--muted); font-size:.88rem; }
   .foot { display:flex; flex-wrap:wrap; gap:14px 24px; align-items:center; }
-  .foot nav { margin-left:auto; gap:20px; }
-  .foot a { color:var(--grey); text-decoration:none; }
-  .foot a:hover { color:var(--anchor); }
-  .disclaimer { margin-top:18px; max-width:70ch; font-size:.8rem; line-height:1.6; }
+  .foot nav { margin-left:auto; display:flex; gap:20px; }
+  .foot a { color:var(--muted); text-decoration:none; }
+  .foot a:hover { color:var(--ink); }
+  .disclaimer { margin-top:20px; max-width:70ch; font-size:.82rem; line-height:1.65; }
+
+  a:focus-visible, .store:focus-visible, summary:focus-visible {
+    outline:2px solid var(--deep); outline-offset:3px; border-radius:4px;
+  }
 </style>
 </head>
 <body>
@@ -298,9 +273,9 @@
       <img src="/logo.png" width="96" height="96" alt="" aria-hidden="true">
       Symtrail
     </a>
-    <nav>
-      <a class="hide-sm" href="#features">Features</a>
-      <a class="hide-sm" href="#flares">Flare tracking</a>
+    <nav class="primary">
+      <a class="hide-sm" href="#flares">Flare cycles</a>
+      <a class="hide-sm" href="#appointment">The report</a>
       <a class="hide-sm" href="#privacy">Privacy</a>
       <a href="#get">Get the app</a>
     </nav>
@@ -309,228 +284,190 @@
 
 <main id="top">
 
-  <!-- ───────────────────────── hero ───────────────────────── -->
+  <!-- ───────────────────────── hero: the situation ───────────────────────── -->
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
-        <h1>Keep track of every symptom, fever and&nbsp;dose<span>for everyone you care for</span></h1>
+        <h1>You know it's the third time this term.</h1>
         <p class="lede">
-          Symtrail is a calm, private health diary for families. Log a symptom in seconds,
-          see patterns emerge over weeks, and walk into your next appointment with a clear
-          report instead of a fuzzy memory.
+          Symtrail is where you keep the fevers, the sore throats and the doses you gave
+          at 2am — so when the paediatrician asks how often this happens, you have an
+          answer instead of a guess pulled together in the waiting room.
         </p>
 
         <div class="stores" id="get">
-          <!-- TODO: when the App Store listing is live, add href="https://apps.apple.com/app/…"
-               to this <a>. The "Coming soon" label disappears automatically. -->
+          <!-- TODO: when the App Store listing is live, add href="https://apps.apple.com/app/…" to this <a>. The "Coming soon" label disappears automatically. -->
           <a class="store" aria-label="Download on the App Store — coming soon">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.7c0-2.2 1.8-3.3 1.9-3.4-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.7.8-3.3.8-.7 0-1.7-.8-2.8-.8-1.5 0-2.8.8-3.6 2.1-1.5 2.6-.4 6.5 1.1 8.6.7 1 1.6 2.2 2.7 2.1 1.1 0 1.5-.7 2.8-.7s1.6.7 2.8.7c1.2 0 1.9-1 2.6-2.1.8-1.2 1.2-2.4 1.2-2.4s-2.2-.9-2.2-3.2zM14.3 5.9c.6-.7 1-1.7.9-2.7-.9 0-2 .6-2.6 1.3-.6.6-1.1 1.7-.9 2.6 1 .1 2-.5 2.6-1.2z"/></svg>
             <span class="txt"><span class="top">Download on the</span><span class="bot">App Store</span></span>
           </a>
-
           <!-- TODO: when the Play Store listing is live, add href="https://play.google.com/store/apps/details?id=com.symtrail.app" -->
           <a class="store" aria-label="Get it on Google Play — coming soon">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 2.3c-.3.3-.5.8-.5 1.4v16.6c0 .6.2 1.1.5 1.4l.1.1 9.3-9.3v-.2L3.6 2.3zm12.5 6.2L13 5.4 4.4 1.7 14 11.3l2.1-2.8zM4.4 22.3 13 18.6l3.1-3.1-2.1-2.1-9.6 8.9zM20.5 10.4l-2.9-1.6-2.3 2.3v.2l2.3 2.3 2.9-1.6c.9-.5.9-1.1 0-1.6z"/></svg>
             <span class="txt"><span class="top">Get it on</span><span class="bot">Google Play</span></span>
           </a>
         </div>
-        <p class="store-note">Free to download. No account, no ads, no data selling.</p>
+        <p class="store-note">Free to download. No account, no ads.</p>
 
         <div class="trust">
-          <span>Works offline</span>
-          <span>One diary per person</span>
+          <span>Never leaves your phone</span>
+          <span>Works with no signal</span>
+          <span>A diary per child</span>
           <span>20 languages</span>
-          <span>Light &amp; dark</span>
         </div>
       </div>
 
-      <!-- Illustrative mock of the Today screen -->
-      <div class="phone" aria-hidden="true">
-        <div class="screen">
-          <div class="mock-h"><b>Today</b><em>Tue 14 Oct</em></div>
-
-          <div class="card">
-            <div class="k">Status</div>
-            <div class="status"><span class="dot"></span> Mild symptoms · 37.9°</div>
-          </div>
-
-          <div class="card">
-            <div class="k">Flare cycle · avg every 28 days</div>
-            <div class="spark">
-              <i style="height:22%"></i><i style="height:34%"></i><i class="hi" style="height:86%"></i>
-              <i class="hi" style="height:64%"></i><i style="height:28%"></i><i style="height:20%"></i>
-              <i style="height:26%"></i><i style="height:40%"></i><i class="hi" style="height:92%"></i>
-              <i style="height:44%"></i><i style="height:24%"></i><i style="height:30%"></i>
-            </div>
-          </div>
-
-          <div class="row">
-            <span class="pill" style="background:color-mix(in srgb,#FEAE2E 22%,transparent)">🌡️</span>
-            <span><span class="t">Temperature</span><br><span class="s">37.9 °C</span></span>
-            <span class="time">08:20</span>
-          </div>
-          <div class="row">
-            <span class="pill" style="background:color-mix(in srgb,#958CBE 24%,transparent)">💊</span>
-            <span><span class="t">Ibuprofen</span><br><span class="s">5 ml syrup</span></span>
-            <span class="time">08:25</span>
-          </div>
-          <div class="row">
-            <span class="pill" style="background:color-mix(in srgb,#208AEF 20%,transparent)">🤒</span>
-            <span><span class="t">Sore throat</span><br><span class="s">Moderate</span></span>
-            <span class="time">09:10</span>
-          </div>
-
-          <div class="tabs">
-            <span class="tab on">Today</span>
-            <span class="tab">Calendar</span>
-            <span class="fab">+</span>
-            <span class="tab">Meds</span>
-            <span class="tab">Profile</span>
-          </div>
-        </div>
-      </div>
+      <picture class="phone-frame">
+        <source srcset="/assets/02-today-dark.png" media="(prefers-color-scheme: dark)">
+        <img src="/assets/01-today-light.png" width="1206" height="2622" alt="Symtrail's Today screen for Mila, age 6: a mild-symptoms status card and a flare-cycle card reading Day 26 since last onset, average every 28 days, next window likely in about 1 day." loading="eager">
+      </picture>
     </div>
   </section>
 
-  <!-- ───────────────────────── features ───────────────────────── -->
-  <section id="features" class="band">
-    <div class="wrap">
-      <p class="eyebrow">What it does</p>
-      <h2>Everything you'd otherwise scribble on the back of an envelope</h2>
-      <p class="lede" style="margin-top:16px">
-        Built by a parent who got tired of reconstructing three weeks of fevers from memory
-        in a five-minute appointment.
-      </p>
-
-      <div class="grid">
-        <article class="feat">
-          <div class="ico">🤒</div>
-          <h3>Symptoms in seconds</h3>
-          <p>Pick from a ready-made list — fever, sore throat, mouth ulcers, stomachache — or add your own. Rate it from mild to severe and you're done.</p>
-        </article>
-        <article class="feat">
-          <div class="ico">🌡️</div>
-          <h3>Temperature log</h3>
-          <p>Every reading with its exact time, charted so you can see a fever climb and break. Celsius or Fahrenheit, your choice.</p>
-        </article>
-        <article class="feat">
-          <div class="ico">💊</div>
-          <h3>Doses &amp; reminders</h3>
-          <p>Record what you gave, how much and when — then set a reminder for the next dose so nobody has to do mental arithmetic at 2am.</p>
-        </article>
-        <article class="feat">
-          <div class="ico">👨‍👩‍👧</div>
-          <h3>One diary per person</h3>
-          <p>A separate history for each child, for a parent you care for, and for yourself. Switch between them in a tap.</p>
-        </article>
-        <article class="feat">
-          <div class="ico">📅</div>
-          <h3>Calendar &amp; search</h3>
-          <p>Scan the month at a glance, or filter the whole history by symptom, severity, type and date range to answer "when did this last happen?"</p>
-        </article>
-        <article class="feat">
-          <div class="ico">📄</div>
-          <h3>Report for the doctor</h3>
-          <p>Export a tidy PDF summary of flares, temperatures and medications — share it before the appointment or hand over your phone during it.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ───────────────────────── flares / PFAPA ───────────────────────── -->
+  <!-- ───────────────────────── flare cycle proof ───────────────────────── -->
   <section id="flares">
+    <div class="wrap proof">
+      <div>
+        <p class="eyebrow">The pattern</p>
+        <h2>Turn "he's always ill" into a chart</h2>
+        <p class="lede" style="margin-top:16px">
+          Some children spike a fever on something close to a schedule — the clinical name is
+          <strong>PFAPA</strong>, periodic fever syndrome, and if that's where you've ended up
+          searching, this is built for exactly that. Mark a child's profile and Symtrail groups
+          the fever days into a single <strong>flare</strong>, works out the average gap between
+          flares, and tells you the window when the next one is likely.
+        </p>
+        <ul class="checks">
+          <li>Automatic flare grouping from temperature and symptom entries</li>
+          <li>Average, shortest and longest gap between flares, updated every time</li>
+          <li>A predicted window, so you can plan a birthday party or a work trip around it</li>
+        </ul>
+      </div>
+      <div class="proof-media wide">
+        <picture class="phone-frame">
+          <source srcset="/assets/04-flare-detail-dark.png" media="(prefers-color-scheme: dark)">
+          <img src="/assets/03-flare-detail-light.png" width="1206" height="2622" alt="Flare detail for 1–4 July: 4 days, 39.8°C peak, 5 medications, 6 symptoms, a temperature chart crossing the 38° fever line, and an hour-by-hour timeline of the flare." loading="lazy">
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── the appointment ───────────────────────── -->
+  <section id="appointment" class="band">
     <div class="wrap">
-      <div class="split">
-        <div>
-          <p class="eyebrow">Patterns, not guesswork</p>
-          <h2>See the rhythm behind recurring fevers</h2>
-          <p class="lede" style="margin-top:16px">
-            Some fevers come back on a schedule. Symtrail groups related days into a single
-            <strong>flare</strong>, measures the gap between them and shows you the window
-            when the next one is likely — so you can plan around it instead of being ambushed.
-          </p>
-          <ul>
-            <li>Automatic flare grouping from your temperature and symptom logs</li>
-            <li>Average, shortest and longest gap between flares</li>
-            <li>A predicted window for the next onset, updated with every entry</li>
-            <li>Purpose-built for <strong>PFAPA</strong> — mark a profile and cycle tracking turns on</li>
-          </ul>
-        </div>
-        <div class="panel">
-          <div class="tl" aria-hidden="true">
-            <i class="f" style="height:88%"></i><i style="height:18%"></i><i style="height:14%"></i>
-            <i style="height:22%"></i><i class="f" style="height:95%"></i><i style="height:20%"></i>
-            <i style="height:16%"></i><i style="height:24%"></i><i class="f" style="height:82%"></i>
-            <i style="height:18%"></i><i style="height:14%"></i><i class="next" style="height:70%"></i>
-          </div>
-          <div class="tl-legend">
-            <span><b style="background:#208AEF"></b>Flare</span>
-            <span><b style="background:#FEAE2E"></b>Predicted window</span>
-            <span style="margin-left:auto">Avg every 28 days</span>
-          </div>
+      <div style="max-width:64ch">
+        <p class="eyebrow">The appointment</p>
+        <h2>Walk in with a document, not an apology</h2>
+        <p class="lede" style="margin-top:16px">
+          Doctors get minutes, not hours. Symtrail exports a PDF, generated on your phone:
+          the cycle summary, every flare with its dates, peak temperature and length, a 90-day
+          temperature chart, then the full entry list underneath. Hand over the phone, or
+          share the file before you even sit down.
+        </p>
+        <div class="stat-row">
+          <div><b>28 d</b><span>Average gap</span></div>
+          <div><b>39.8°</b><span>Peak</span></div>
+          <div><b>5</b><span>Flares on record</span></div>
         </div>
       </div>
+      <div class="report-shot" style="margin-top:40px">
+        <img src="/assets/report-top.png" width="900" height="1450" alt="The first page of a Symtrail PDF report for Mila: cycle summary showing a 28-day average gap, a table of five flares with dates and peak temperatures, and a 90-day temperature chart." loading="lazy">
+      </div>
+      <p class="lede" style="margin-top:18px; font-size:.95rem">Nothing is uploaded to make it — the report is built on your phone, from your own entries.</p>
+    </div>
+  </section>
 
-      <div class="split">
-        <div class="panel">
-          <div class="doc" aria-hidden="true">
-            <div class="title"></div>
-            <div class="line w70"></div>
-            <div class="stat">
-              <div><b>28 d</b><span>Avg gap</span></div>
-              <div><b>39.4°</b><span>Peak</span></div>
-              <div><b>4 d</b><span>Length</span></div>
-            </div>
-            <div class="line w85"></div>
-            <div class="line"></div>
-            <div class="line w45"></div>
-            <div class="line w70"></div>
-            <div class="line"></div>
-            <div class="line w85"></div>
-          </div>
+  <!-- ───────────────────────── logging, one-handed ───────────────────────── -->
+  <section>
+    <div class="wrap proof reverse">
+      <div class="proof-media">
+        <div class="duo">
+          <picture class="phone-frame">
+            <source srcset="/assets/11-log-symptom-dark.png" media="(prefers-color-scheme: dark)">
+            <img src="/assets/10-log-symptom-light.png" width="1206" height="2622" alt="Log a symptom screen: an icon grid of symptoms grouped into PFAPA, Infection and General." loading="lazy">
+          </picture>
+          <picture class="phone-frame">
+            <img src="/assets/12-log-temperature-light.png" width="1206" height="2622" alt="Log a temperature screen with a large 38.3°C readout, plus and minus buttons, a slider and a severity chip." loading="lazy">
+          </picture>
         </div>
-        <div>
-          <p class="eyebrow">Appointments</p>
-          <h2>Turn months of notes into one page</h2>
-          <p class="lede" style="margin-top:16px">
-            Doctors get minutes, not hours. Symtrail's export gives them the cycle summary,
-            every flare with its dates, peak temperature and length, a 90-day temperature
-            chart, and the full entry list underneath.
-          </p>
-          <ul>
-            <li>Clean PDF, generated on your phone</li>
-            <li>Share by email, message or AirDrop — or just show the screen</li>
-            <li>Nothing is uploaded to make it</li>
-          </ul>
-        </div>
+      </div>
+      <div>
+        <p class="eyebrow">2am, one hand free</p>
+        <h2>Built to log fast, in the dark, holding a hot, crying child</h2>
+        <p class="lede" style="margin-top:16px">
+          A temperature, a dose, a symptom — each one is a couple of taps, not a form. No
+          typing required unless you want to add a note. It works exactly the same with the
+          phone in aeroplane mode as it does at home with full signal, because it was never
+          talking to a server in the first place.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── calendar & history ───────────────────────── -->
+  <section class="band">
+    <div class="wrap proof">
+      <div>
+        <p class="eyebrow">The month, at a glance</p>
+        <h2>See the whole picture, not just today</h2>
+        <p class="lede" style="margin-top:16px">
+          The calendar heat-maps every day by severity, so a bad week is visible before you
+          even open it — and the lavender dots mark the window a flare is predicted, before it
+          arrives. Search the full history by symptom, severity or date range to answer the
+          question you'll actually be asked: <em>when did this last happen?</em>
+        </p>
+      </div>
+      <div class="proof-media wide">
+        <picture class="phone-frame">
+          <source srcset="/assets/06-calendar-month-dark.png" media="(prefers-color-scheme: dark)">
+          <img src="/assets/05-calendar-month-light.png" width="1206" height="2622" alt="July calendar with a severity heat map: 1–4 July shown in orange and red for a flare, lavender dots on 28–30 July marking the predicted next window, and Sunday 26 July's entries listed below." loading="lazy">
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────────────────── every child, own diary ───────────────────────── -->
+  <section>
+    <div class="wrap proof reverse">
+      <div class="proof-media">
+        <picture class="phone-frame" style="width:min(300px, 78vw); margin-inline:auto">
+          <img src="/assets/17-profiles-light.png" width="1206" height="2622" alt="Profiles screen showing Mila, Noah and Elena, with the active profile highlighted and options to export a report or open settings." loading="lazy">
+        </picture>
+      </div>
+      <div>
+        <p class="eyebrow">One diary per child</p>
+        <h2>Each child's history stands on its own</h2>
+        <p class="lede" style="margin-top:16px">
+          Add a profile for each child — name, birth date, a PFAPA toggle if it applies —
+          and switch between them in a tap. Nothing gets mixed together, so one child's flare
+          pattern is never diluted by another's cold. If you're tracking your own recurring
+          migraines or fevers, add yourself too; it's the same diary, just one more person in it.
+        </p>
       </div>
     </div>
   </section>
 
   <!-- ───────────────────────── privacy ───────────────────────── -->
   <section id="privacy" class="band">
-    <div class="wrap privacy">
+    <div class="wrap">
       <p class="eyebrow">Privacy</p>
-      <h2>Health data belongs on your phone</h2>
-      <p class="lede" style="margin:16px auto 0">
-        Symtrail is built so that the sensitive part of your diary never leaves your device.
+      <h2>This is your child's medical history. It stays on your phone.</h2>
+      <p class="lede" style="margin-top:16px">
+        Not encrypted-in-the-cloud. Not backed up to an account. On the device, full stop.
       </p>
-      <div class="grid">
-        <article class="feat">
-          <div class="ico">🔒</div>
-          <h3>Stored on your device</h3>
-          <p>Symptoms, temperatures, medications and notes are saved locally. They aren't uploaded to a server.</p>
-        </article>
-        <article class="feat">
-          <div class="ico">🙈</div>
-          <h3>No account required</h3>
-          <p>No email, no password, no profile to create. Install it and start logging.</p>
-        </article>
-        <article class="feat">
-          <div class="ico">📵</div>
-          <h3>No ads, no data selling</h3>
-          <p>We use anonymous usage counts to see which screens get used — never symptom names, temperatures or notes.</p>
-        </article>
+      <div class="privacy-list">
+        <div class="privacy-row">
+          <h3>No account, no upload</h3>
+          <p>There's nothing to sign up for. Symptoms, temperatures, medications and notes are saved on your phone and never sent anywhere.</p>
+        </div>
+        <div class="privacy-row">
+          <h3>Works with no signal</h3>
+          <p>Airport mode, a dead zone in the hospital, a house with bad reception — logging doesn't care, because it never needed a connection.</p>
+        </div>
+        <div class="privacy-row">
+          <h3>Anonymous, coarse analytics only</h3>
+          <p>We see which screens get used, as plain counts — never symptom names, temperatures, notes, or anything that identifies your child.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -539,48 +476,48 @@
   <section id="faq">
     <div class="wrap">
       <p class="eyebrow">Questions</p>
-      <h2>Frequently asked</h2>
+      <h2>What people ask before they download it</h2>
 
       <div class="faq-list">
         <details>
-          <summary>Is my health data private?</summary>
-          <p>Yes. Everything you log stays on your phone. Symtrail doesn't require an account, and symptom names, temperatures and notes are never uploaded.</p>
+          <summary>Does this send my child's information anywhere?</summary>
+          <p>No. Everything you log — symptoms, temperatures, doses, notes — stays on your phone and is never uploaded. We only see anonymous, coarse counts of which screens get used, never what you actually logged.</p>
         </details>
         <details>
-          <summary>Can I track more than one person?</summary>
-          <p>Yes. Symtrail is built around profiles, so you can keep a separate diary for each child, for a partner or parent you care for, and for yourself. Switching between people takes one tap.</p>
+          <summary>Do I need to make an account first?</summary>
+          <p>No. There's no sign-up, no email, no password. Install it and start logging.</p>
         </details>
         <details>
-          <summary>Does it work offline?</summary>
-          <p>Yes. Logging works with no signal at all — in a waiting room, on a plane, or at 3am in a hospital corridor.</p>
+          <summary>My son gets a fever every few weeks — is this what it's for?</summary>
+          <p>Yes. Mark his profile as a PFAPA patient and Symtrail groups fever days into flares, works out the average gap between them, and shows the window when the next one is likely. It works just as well for any recurring pattern, whether or not it has a name yet.</p>
         </details>
         <details>
-          <summary>Does Symtrail help with PFAPA?</summary>
-          <p>Yes. Mark a profile as a PFAPA patient and Symtrail groups fevers into flares, works out the average gap between them, and shows the window when the next flare is likely. It's just as useful for any recurring or hard-to-describe symptom pattern.</p>
+          <summary>What if I have no signal at the hospital?</summary>
+          <p>Logging works fully offline — in a waiting room, a hospital corridor, or on a plane. Nothing about using Symtrail depends on a connection.</p>
         </details>
         <details>
-          <summary>What languages does it support?</summary>
-          <p>Twenty, including English, Spanish, French, German, Italian, Portuguese, Dutch, Polish, Czech, Romanian, Bulgarian, Greek, Swedish, Turkish, Ukrainian, Russian, Hindi, Japanese, Korean and Chinese. The app picks up your phone's language automatically, and dates follow it too.</p>
+          <summary>Can I track more than just my kids?</summary>
+          <p>Yes. Symtrail keeps a separate diary per person, so alongside your children you can add yourself — useful if you're tracking your own recurring migraines or fevers too.</p>
         </details>
         <details>
-          <summary>How much does it cost?</summary>
-          <p>Symtrail is free to download.</p>
+          <summary>Will a doctor take a printout from an app seriously?</summary>
+          <p>The report is your own observations laid out clearly — dates, temperatures, doses, flare patterns — not a diagnosis. It's built to make a five-minute appointment more useful, not to replace the conversation with your paediatrician.</p>
         </details>
         <details>
-          <summary>Is Symtrail a medical device?</summary>
-          <p>No. It's a diary that helps you record and share what you observe. It doesn't diagnose anything and it isn't a substitute for medical advice.</p>
+          <summary>Is Symtrail going to tell me what's wrong with my child?</summary>
+          <p>No. Symtrail is a diary, not a medical device. It doesn't diagnose, treat or give medical advice — it just helps you keep track of what you're already observing, and show it to someone qualified.</p>
         </details>
       </div>
     </div>
   </section>
 
-  <!-- ───────────────────────── cta ───────────────────────── -->
+  <!-- ───────────────────────── closing cta ───────────────────────── -->
   <section class="cta">
     <div class="wrap">
       <div class="cta-box">
-        <h2>Start your first entry today</h2>
+        <h2>Start tonight's entry before you forget it</h2>
         <p class="lede" style="margin:16px auto 0">
-          Symtrail is launching on iOS and Android shortly.
+          Symtrail is launching on iOS and Android shortly — free, with nothing to sign up for.
         </p>
         <div class="stores">
           <!-- TODO: same App Store URL as the hero button -->
@@ -604,20 +541,21 @@
   <div class="wrap">
     <div class="foot">
       <a class="logo" href="#top" style="font-size:1rem">
-        <img src="/logo.png" width="96" height="96" alt="" aria-hidden="true" style="width:20px;height:20px">
+        <img src="/logo.png" width="96" height="96" alt="" aria-hidden="true" style="width:22px;height:22px">
         Symtrail
       </a>
       <nav>
-        <a href="#features">Features</a>
+        <a href="#flares">Flare cycles</a>
         <a href="#privacy">Privacy</a>
         <a href="#faq">FAQ</a>
         <a href="mailto:martina.dobrinova@gmail.com">Contact</a>
       </nav>
     </div>
     <p class="disclaimer">
-      Symtrail is a personal health diary. It does not diagnose, treat or give medical advice,
-      and it is not a medical device. Always speak to a qualified healthcare professional about
-      symptoms and treatment.
+      Symtrail is a personal health diary. It doesn't diagnose, treat or give medical advice,
+      and it isn't a medical device — it's a place to keep track of what you're already
+      noticing, so you can describe it clearly to someone qualified. Always speak to a doctor
+      about symptoms and treatment.
     </p>
     <p class="disclaimer">© <span id="year">2026</span> Symtrail</p>
   </div>
@@ -625,8 +563,8 @@
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
-  const header = document.getElementById('site-header');
-  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
+  var header = document.getElementById('site-header');
+  var onScroll = function () { header.classList.toggle('scrolled', window.scrollY > 8); };
   onScroll();
   addEventListener('scroll', onScroll, { passive: true });
 </script>
