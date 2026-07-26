@@ -30,11 +30,33 @@ are byte-identical — change `website/` and copy across, or the two drift.
 
 Live at **https://symtrail.com** (registered at Namecheap).
 
-`.github/workflows/pages.yml` publishes the `website/` folder to GitHub Pages
-on every push to `main` that touches it (plus manual `workflow_dispatch`).
-It uses the Pages *artifact* flow. `configure-pages` runs with
-`enablement: true`, so it switches Pages on itself (`build_type=workflow`) —
-no manual **Settings → Pages → Source** step is needed.
+**What's actually live today:** GitHub's legacy branch-deploy Pages, sourced
+from the repo root of the `marketing-website` branch. That's why the site is
+duplicated there (see above) — Pages serves whatever's at that branch's root,
+not `website/`. Pushing `marketing-website` is what deploys; it lands in
+15-30s. This is a `pages-build-deployment` run, not one of ours.
+
+`.github/workflows/pages.yml` is the *intended* replacement — it would publish
+`website/` straight from `main` via the Actions artifact flow, making the
+branch-root duplicate unnecessary. **It has never once succeeded.** Every run
+is rejected before any step executes:
+`Branch "main" is not allowed to deploy to github-pages due to environment
+protection rules.` (visible via the Checks API annotations, not the run log).
+
+The repo's auto-created `github-pages` environment has a branch policy
+allowing only `gh-pages` and `marketing-website` to deploy to it — left over
+from when Pages was first set to branch-deploy mode. `configure-pages`'s
+`enablement: true` never gets a chance to run (the block happens before
+Checkout), so it has **not** switched Pages to the Actions build type; a prior
+version of this doc claimed otherwise — that was wrong.
+
+**To actually finish the switch** (one-time, needs a write-scoped token this
+assistant doesn't have): Settings → Environments → `github-pages` →
+Deployment branches and tags → add `main` (or set "No restriction"). Once
+`pages.yml` can run, it will flip Pages' Source to "GitHub Actions" itself.
+From that point on, deploy by pushing `main` (paths `website/**`), not
+`marketing-website` — and the branch-root duplicate can be retired.
+Until then, keep pushing `marketing-website` for real deploys.
 
 The folder is uploaded as the site root, so `website/index.html` is served at
 `/`. `website/.nojekyll` stops Pages from running the content through Jekyll.

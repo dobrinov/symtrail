@@ -1,7 +1,15 @@
 name: Deploy marketing website
 
-# Publishes website/ to GitHub Pages. Enable once in the repo settings:
-# Settings → Pages → Build and deployment → Source: "GitHub Actions".
+# Publishes website/ to GitHub Pages.
+#
+# BLOCKED as of 2026-07-26: every run is rejected before Checkout —
+# "Branch main is not allowed to deploy to github-pages due to environment
+# protection rules." The repo's github-pages environment currently only
+# allows gh-pages/marketing-website to deploy to it (left over from legacy
+# branch-deploy mode). Fix once, by hand: Settings → Environments →
+# github-pages → Deployment branches and tags → add "main" (or "No
+# restriction"). See CLAUDE.md's Deployment section for the live/intended
+# split until that's done.
 
 on:
   push:
