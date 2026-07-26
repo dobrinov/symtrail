@@ -18,8 +18,9 @@ Live at **https://symtrail.com** (registered at Namecheap).
 
 `.github/workflows/pages.yml` publishes the `website/` folder to GitHub Pages
 on every push to `main` that touches it (plus manual `workflow_dispatch`).
-It uses the Pages *artifact* flow, so the repo must have
-**Settings → Pages → Source: "GitHub Actions"** selected once, by hand.
+It uses the Pages *artifact* flow. `configure-pages` runs with
+`enablement: true`, so it switches Pages on itself (`build_type=workflow`) —
+no manual **Settings → Pages → Source** step is needed.
 
 The folder is uploaded as the site root, so `website/index.html` is served at
 `/`. `website/.nojekyll` stops Pages from running the content through Jekyll.
