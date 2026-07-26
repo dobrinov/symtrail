@@ -30,42 +30,32 @@ are byte-identical — change `website/` and copy across, or the two drift.
 
 Live at **https://symtrail.com** (registered at Namecheap).
 
-**What's actually live today:** GitHub's legacy branch-deploy Pages, sourced
-from the repo root of the `marketing-website` branch. That's why the site is
-duplicated there (see above) — Pages serves whatever's at that branch's root,
-not `website/`. Pushing `marketing-website` is what deploys; it lands in
-15-30s. This is a `pages-build-deployment` run, not one of ours.
+Deploys via GitHub's legacy branch-deploy Pages, sourced from the repo root of
+the `marketing-website` branch — that's why the site is duplicated there (see
+above); Pages serves whatever's at that branch's root, not `website/`. **Pushing
+`marketing-website` is what deploys** (keep it byte-identical to `website/`,
+as noted above); it lands in 15-30s as a `pages-build-deployment` run.
 
-`.github/workflows/pages.yml` is the *intended* replacement — it would publish
-`website/` straight from `main` via the Actions artifact flow, making the
-branch-root duplicate unnecessary. **It has never once succeeded.** Every run
-is rejected before any step executes:
-`Branch "main" is not allowed to deploy to github-pages due to environment
-protection rules.` (visible via the Checks API annotations, not the run log).
+An Actions-artifact workflow (`.github/workflows/pages.yml`) was tried as a
+replacement that would publish `website/` straight from `main`, but the repo's
+auto-created `github-pages` environment only allows `gh-pages`/
+`marketing-website` to deploy to it (left over from when Pages was first set
+to branch-deploy mode), so every run was rejected before checkout ever ran.
+Fixing that needs a one-time manual change at Settings → Environments →
+`github-pages` → Deployment branches and tags → add `main`. **Decided
+2026-07-26: not making that change** — branch-deploy off `marketing-website`
+works fine, so the workflow was deleted rather than left permanently failing.
+If this is ever revisited, `website/` is already in the right shape for the
+Actions artifact flow; only the environment's branch policy needs to change.
 
-The repo's auto-created `github-pages` environment has a branch policy
-allowing only `gh-pages` and `marketing-website` to deploy to it — left over
-from when Pages was first set to branch-deploy mode. `configure-pages`'s
-`enablement: true` never gets a chance to run (the block happens before
-Checkout), so it has **not** switched Pages to the Actions build type; a prior
-version of this doc claimed otherwise — that was wrong.
-
-**To actually finish the switch** (one-time, needs a write-scoped token this
-assistant doesn't have): Settings → Environments → `github-pages` →
-Deployment branches and tags → add `main` (or set "No restriction"). Once
-`pages.yml` can run, it will flip Pages' Source to "GitHub Actions" itself.
-From that point on, deploy by pushing `main` (paths `website/**`), not
-`marketing-website` — and the branch-root duplicate can be retired.
-Until then, keep pushing `marketing-website` for real deploys.
-
-The folder is uploaded as the site root, so `website/index.html` is served at
-`/`. `website/.nojekyll` stops Pages from running the content through Jekyll.
+`.nojekyll` at the branch root stops Pages from running the content through
+Jekyll.
 
 ### Custom domain
 
-`website/CNAME` holds `symtrail.com`. It must stay inside `website/` — with the
-Actions artifact flow, Pages reads the custom domain from the CNAME file in the
-uploaded artifact, so deleting it can drop the domain on the next deploy.
+`CNAME` (holding `symtrail.com`) must stay at the `marketing-website` branch
+root — in branch-deploy mode Pages reads the custom domain straight from that
+file, so deleting it can drop the domain on the next deploy.
 
 DNS lives at Namecheap (Domain List → Manage → Advanced DNS):
 
