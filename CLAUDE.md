@@ -75,14 +75,23 @@ So shipping the real links is only adding `href="…"` to the four anchors
 (marked with `TODO` comments); no CSS or copy changes needed. The Android
 bundle id is `com.symtrail.app`.
 
+## Share image
+
+`website/og.png` (1200×630) is the `og:image`, generated rather than hand-drawn:
+the app mark plus the `og:title` copy set in Sora — the same family as the app's
+own wordmark — on the site's `--canvas` with washes of the brand blue and the
+icon's teal. The Sora TTFs come from `mobile/node_modules/@expo-google-fonts`,
+so regenerating needs the mobile deps installed. Keep the headline in step with
+`og:title` and the feature line in step with the hero's bullets.
+
+All the ink sits inside a 55px margin, so the 2:1 crop some platforms apply
+(Twitter's `summary_large_image`) can't clip any of it.
+
 ## Other placeholders to fill in
 
-Search for `TODO` in `website/`:
-
-- `og:image` is commented out until a 1200×630 share image exists at `/og.png`
-
 The footer contact address is `martina.dobrinova@gmail.com` (set, not a
-placeholder).
+placeholder). The remaining `TODO`s in `website/index.html` are the four store
+`href`s described above.
 
 ## Content notes
 
