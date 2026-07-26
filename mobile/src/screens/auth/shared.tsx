@@ -1,38 +1,24 @@
 // shared.tsx — common auth-screen pieces ported from docs/prototype/screens-auth.jsx
 // ("centered" variant): logo block, Card-styled input field, inline error, link text.
 import React, { useState } from "react";
-import { KeyboardTypeOptions, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import Svg, { Path } from "react-native-svg";
+import { Image, KeyboardTypeOptions, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { Icon } from "../../design/Icon";
 import { themedStyles, useTheme, useTokens } from "../../design/theme";
 
 export const ERROR_RED = "#E1542E";
 
-// Symtrail brand colours (heart + cross identity)
-const LOGO_NAVY = "#16335B";
-const LOGO_PINK = "#F49AC1";
-const LOGO_BLUE = "#54C5E8";
+// Brand blue from the app icon / splash screen (assets/images/logo-mark.png).
+const LOGO_BLUE = "#208AEF";
+const LOGO_MARK = require("../../../assets/images/logo-mark.png");
 
 export function LogoMark({ size = 84 }: { size?: number }): React.JSX.Element {
-  const h = Math.round((size * 112) / 120);
   return (
-    <Svg width={size} height={h} viewBox="0 0 120 112" fill="none">
-      <Path
-        d="M60 100 C 28 79, 12 58, 12 38 C 12 23, 23 13, 36 13 C 47 13, 55 20, 60 30 C 65 20, 73 13, 84 13 C 97 13, 108 23, 108 38 C 108 58, 92 79, 60 100 Z"
-        fill={LOGO_PINK}
-        stroke={LOGO_NAVY}
-        strokeWidth={7}
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M52 34 H68 V40 H74 V56 H68 V62 H52 V56 H46 V40 H52 Z"
-        fill={LOGO_BLUE}
-        stroke={LOGO_NAVY}
-        strokeWidth={5}
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-    </Svg>
+    <Image
+      source={LOGO_MARK}
+      style={{ width: size, height: size }}
+      resizeMode="contain"
+      accessibilityIgnoresInvertColors
+    />
   );
 }
 
@@ -140,13 +126,13 @@ const useStyles = themedStyles((t) => StyleSheet.create({
   wordmark: {
     fontFamily: "Sora_800ExtraBold",
     letterSpacing: 1.5,
-    color: LOGO_NAVY,
+    color: t.anchor,
   },
   since: {
     fontSize: 12,
     fontFamily: "Sora_700Bold",
     letterSpacing: 5,
-    color: LOGO_PINK,
+    color: LOGO_BLUE,
   },
   tagline: {
     fontSize: 15,
