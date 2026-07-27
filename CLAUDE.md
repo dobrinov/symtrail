@@ -154,8 +154,14 @@ Section 10 promises that gaining sync, accounts, or richer collection would be
 announced in-app rather than quietly edited in. Honour that: restoring the
 backend means updating sections 1–4 *and* saying so in the release notes.
 
-The policy states we rely on legitimate interest for analytics, and there is no
-in-app analytics opt-out — if one is ever added, section 3 should point at it.
+The policy is deliberately written in plain terms, with **no GDPR framing** —
+no controller/legal-basis language, and section 9 describes what the user can do
+with their data rather than enumerating statutory rights (decided 2026-07-28).
+Don't reintroduce that vocabulary without asking; the underlying obligations
+still apply to the app regardless of what the page says.
+
+There is no in-app analytics opt-out — if one is ever added, section 3 should
+point at it instead of only offering the contact address.
 
 The page states Symtrail is not a medical device and gives no medical advice.
 Keep that disclaimer in the footer.
