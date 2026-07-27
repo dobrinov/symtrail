@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Symtrail</title>
+<meta name="description" content="Symtrail's privacy policy. Everything you log — symptoms, temperatures, medications and notes — stays on your device and is never uploaded. Anonymous, coarse usage analytics only.">
+<meta name="theme-color" content="#F8FAFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E0C15" media="(prefers-color-scheme: dark)">
+
+<link rel="canonical" href="https://symtrail.com/privacy/">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Symtrail">
+<meta property="og:title" content="Privacy Policy — Symtrail">
+<meta property="og:description" content="Everything you log stays on your device and is never uploaded. Anonymous, coarse usage analytics only.">
+<meta property="og:url" content="https://symtrail.com/privacy/">
+<meta property="og:image" content="https://symtrail.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<style>
+  /* Tokens, base, header and footer are kept byte-identical to index.html so
+     the two pages stay in step; only the .prose block below is page-specific. */
+  :root {
+    --ink:#0C0917; --ink2:#59586E; --muted:#606C83;
+    --canvas:#F8FAFF; --surface:#FFFFFF; --fill:#F2F3F9; --line:#DAD8E3;
+    --amber:#FEAE2E; --amber-ink:#0C0917; --lavender:#958CBE; --deep:#F2802E;
+    --shadow:0 1px 2px rgba(12,9,23,.05), 0 16px 40px -18px rgba(12,9,23,.18);
+    --radius:20px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink:#F3F1FA; --ink2:#C9C5DA; --muted:#9C97B0;
+      --canvas:#0E0C15; --surface:#1B1826; --fill:#252132; --line:#3A3450;
+      --amber:#FEAE2E; --amber-ink:#0C0917; --lavender:#A89ED8; --deep:#F2802E;
+      --shadow:0 1px 2px rgba(0,0,0,.45), 0 16px 40px -18px rgba(0,0,0,.75);
+    }
+  }
+
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--canvas); color:var(--ink);
+    font:400 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    text-wrap:pretty;
+  }
+  h1,h2,h3 { line-height:1.12; letter-spacing:-.025em; margin:0; text-wrap:balance; font-weight:800; }
+  h1 { font-size:clamp(2.15rem, 5.6vw, 3.4rem); }
+  h2 { font-size:clamp(1.35rem, 3vw, 1.7rem); }
+  h3 { font-size:1.1rem; font-weight:750; letter-spacing:-.012em; }
+  p { margin:0; }
+  a { color:var(--deep); text-decoration-thickness: 1.5px; }
+  a:hover { color:var(--amber); }
+  img, svg { max-width:100%; display:block; }
+  ul { margin:0; padding:0; }
+
+  .wrap { width:100%; max-width:1120px; margin-inline:auto; padding-inline:24px; }
+  section { padding-block:clamp(56px, 9vw, 108px); }
+  .lede { color:var(--ink2); font-size:clamp(1.05rem,2.2vw,1.2rem); max-width:56ch; }
+  .eyebrow {
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:.78rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--deep); margin-bottom:14px;
+  }
+
+  /* header */
+  header {
+    position:sticky; top:0; z-index:20; backdrop-filter:saturate(180%) blur(14px);
+    background:color-mix(in srgb, var(--canvas) 84%, transparent);
+    border-bottom:1px solid transparent; transition:border-color .2s;
+  }
+  header.scrolled { border-bottom-color:var(--line); }
+  .bar { display:flex; align-items:center; gap:16px; height:66px; }
+  .logo { display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:-.02em; font-size:1.12rem; text-decoration:none; color:var(--ink); }
+  .logo img { width:28px; height:28px; flex:none; border-radius:7px; }
+  nav.primary { margin-left:auto; display:flex; align-items:center; gap:28px; }
+  nav.primary a { color:var(--ink2); text-decoration:none; font-size:.94rem; font-weight:600; }
+  nav.primary a:hover { color:var(--ink); }
+  @media (max-width:760px) { nav.primary .hide-sm { display:none; } }
+
+  /* policy prose */
+  .policy { padding-block:clamp(40px,6vw,72px) clamp(48px,7vw,88px); }
+  .policy .wrap { max-width:760px; }
+  .updated { margin-top:18px; font-size:.9rem; color:var(--muted); }
+  .summary {
+    margin-top:34px; background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius); padding:clamp(22px,3vw,30px); box-shadow:var(--shadow);
+  }
+  .summary h2 { font-size:1.1rem; font-weight:750; letter-spacing:-.012em; }
+  .summary ul { margin-top:16px; display:grid; gap:11px; list-style:none; }
+  .summary li { display:flex; gap:11px; color:var(--ink2); font-size:1rem; }
+  .summary li::before { content:"✓"; color:var(--deep); font-weight:800; flex:none; }
+  .prose { margin-top:12px; }
+  .prose h2 { margin-top:44px; }
+  .prose h3 { margin-top:28px; }
+  .prose p { color:var(--ink2); margin-top:14px; max-width:68ch; }
+  .prose ul { margin-top:14px; display:grid; gap:10px; list-style:none; max-width:68ch; }
+  .prose ul li { display:flex; gap:11px; color:var(--ink2); }
+  .prose ul li::before { content:"—"; color:var(--deep); font-weight:700; flex:none; }
+  .prose strong { color:var(--ink); font-weight:700; }
+  .toc { margin-top:34px; padding-top:28px; border-top:1px solid var(--line); }
+  .toc ol { margin:14px 0 0; padding-left:1.3em; color:var(--ink2); display:grid; gap:8px; }
+  .toc a { text-decoration:none; }
+  .toc a:hover { text-decoration:underline; }
+
+  /* footer */
+  footer { border-top:1px solid var(--line); padding-block:36px; color:var(--muted); font-size:.88rem; }
+  .foot { display:flex; flex-wrap:wrap; gap:14px 24px; align-items:center; }
+  .foot nav { margin-left:auto; display:flex; gap:20px; }
+  .foot a { color:var(--muted); text-decoration:none; }
+  .foot a:hover { color:var(--ink); }
+  .disclaimer { margin-top:20px; max-width:70ch; font-size:.82rem; line-height:1.65; }
+
+  a:focus-visible, summary:focus-visible {
+    outline:2px solid var(--deep); outline-offset:3px; border-radius:4px;
+  }
+</style>
+</head>
+<body>
+
+<header id="site-header">
+  <div class="wrap bar">
+    <a class="logo" href="/">
+      <img src="/logo.png" width="96" height="96" alt="" aria-hidden="true">
+      Symtrail
+    </a>
+    <nav class="primary">
+      <a class="hide-sm" href="/#flares">Flare cycles</a>
+      <a class="hide-sm" href="/#appointment">The report</a>
+      <a class="hide-sm" href="/#faq">FAQ</a>
+      <a href="/#get">Get the app</a>
+    </nav>
+  </div>
+</header>
+
+<main class="policy">
+  <div class="wrap">
+    <p class="eyebrow">Privacy</p>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated 27 July 2026</p>
+
+    <div class="summary">
+      <h2>The short version</h2>
+      <ul>
+        <li>Everything you log — symptoms, temperatures, medications, doses and notes — is stored on your device and is never uploaded to us or anyone else.</li>
+        <li>There is no account. No email address, no password, no sign-up.</li>
+        <li>We receive anonymous, coarse counts of which screens get opened and which kinds of entries get logged. Never what you logged.</li>
+        <li>Nothing is sold, shared with data brokers, or used for advertising. There are no ads in Symtrail.</li>
+        <li>Deleting a profile deletes its history. Deleting the app deletes everything.</li>
+      </ul>
+    </div>
+
+    <nav class="toc" aria-label="Contents">
+      <h2 style="font-size:.95rem; font-weight:750; letter-spacing:.02em">Contents</h2>
+      <ol>
+        <li><a href="#who">Who is responsible for your data</a></li>
+        <li><a href="#device">What stays on your device</a></li>
+        <li><a href="#analytics">The one thing that does leave: anonymous usage analytics</a></li>
+        <li><a href="#never">What we never collect</a></li>
+        <li><a href="#reminders">Medication reminders</a></li>
+        <li><a href="#report">The PDF report</a></li>
+        <li><a href="#children">Children's information</a></li>
+        <li><a href="#retention">Keeping and deleting data</a></li>
+        <li><a href="#rights">Your rights</a></li>
+        <li><a href="#changes">Changes to this policy</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ol>
+    </nav>
+
+    <div class="prose">
+
+      <h2 id="who">1. Who is responsible for your data</h2>
+      <p>
+        Symtrail is an independent app published by Deyan Dobrinov. For the purposes of the
+        UK GDPR and the EU GDPR, the publisher is the data controller for the limited
+        analytics data described in section 3. For the health information you log, there is
+        no controller in any practical sense, because that data never reaches us — it stays
+        on your device, as described next.
+      </p>
+      <p>
+        This policy covers the Symtrail mobile app for iOS and Android, and this website.
+      </p>
+
+      <h2 id="device">2. What stays on your device</h2>
+      <p>
+        Symtrail is a diary. Everything you put into it is written to a database inside the
+        app's own private storage on your phone, and it stays there:
+      </p>
+      <ul>
+        <li>The people you add — names, birth dates, sex, colour, and whether the PFAPA flare-cycle tracking is switched on</li>
+        <li>Symptoms and their severity</li>
+        <li>Temperature readings</li>
+        <li>Medications, doses, strengths and reminder times</li>
+        <li>Free-text notes</li>
+        <li>Your settings — language, temperature unit, appearance</li>
+      </ul>
+      <p>
+        <strong>None of this is uploaded.</strong> Symtrail has no user accounts and no server
+        to sync to. It is not backed up to us, it is not encrypted-and-stored-in-our-cloud,
+        and we have no way to read it. The app works identically with the phone in airplane
+        mode, because logging never needed a connection in the first place.
+      </p>
+      <p>
+        The one exception is entirely under your control: if your phone is set up to back
+        itself up (iCloud Backup on iOS, or Google's device backup on Android), the app's data
+        may be included in that backup under your own account, governed by Apple's or Google's
+        privacy policy rather than ours. We have no access to it there either.
+      </p>
+
+      <h2 id="analytics">3. The one thing that does leave: anonymous usage analytics</h2>
+      <p>
+        To understand which parts of the app are actually used and where people get stuck, the
+        app sends anonymous product-usage events to <strong>PostHog</strong>, an analytics
+        provider, acting as our processor. Symtrail uses PostHog's EU Cloud, so this data is
+        processed on servers in the European Union.
+      </p>
+      <h3>What an event contains</h3>
+      <ul>
+        <li>The name of the thing that happened, as a plain label — for example <em>symptom_logged</em>, <em>report_exported</em>, <em>settings_changed</em>, or a screen being opened</li>
+        <li>Coarse properties describing the <em>kind</em> of action — for example that the entry was a temperature rather than a medication, or that a person was added during onboarding rather than from the profile screen</li>
+        <li>A randomly generated identifier created by the app on first launch. It is not your name, email, phone number, or an advertising ID, and it is not linked to any identity — we cannot work out who it belongs to</li>
+        <li>Basic technical context supplied automatically by the analytics SDK: app version, device model, operating system version, language and time zone</li>
+        <li>Your IP address, which reaches PostHog as part of the network request and from which an approximate country or region may be derived. It is not used to locate you, and we do not combine it with anything else</li>
+      </ul>
+      <p>
+        Under GDPR we rely on our legitimate interest in understanding how the app is used well
+        enough to maintain and improve it. Because the data is deliberately coarse and carries
+        no health information, this is a minimal intrusion — but if you would rather it stopped,
+        write to us using the address in section 11.
+      </p>
+
+      <h2 id="never">4. What we never collect</h2>
+      <p>
+        To be explicit, the analytics described above <strong>never</strong> include:
+      </p>
+      <ul>
+        <li>Symptom names, temperature values, medication names, doses, or the content of notes</li>
+        <li>The names, birth dates or any other detail of the people in your diary</li>
+        <li>The contents of an exported report</li>
+        <li>Your contacts, photos, precise location, health-kit data, or any other information from elsewhere on your phone</li>
+      </ul>
+      <p>
+        Symtrail contains no advertising SDKs and no third-party trackers beyond the analytics
+        described in section 3. We do not sell personal information, we do not share it with
+        data brokers, and we do not use it to build advertising profiles or track you across
+        other companies' apps and websites.
+      </p>
+
+      <h2 id="reminders">5. Medication reminders</h2>
+      <p>
+        If you ask Symtrail to remind you about the next dose, the reminder is scheduled
+        locally on your phone by the operating system. It is not a push notification sent from
+        a server — there is no server, and no device token is registered anywhere. The reminder
+        text does not contain the medication name. You can revoke the notification permission
+        at any time in your phone's settings.
+      </p>
+
+      <h2 id="report">6. The PDF report</h2>
+      <p>
+        The report for your doctor is generated on your phone from your own entries, and is not
+        uploaded to produce it. Once it exists, what happens to it is up to you: if you choose
+        to share it — by email, messaging app, printing, or saving it to a file — it travels
+        wherever you send it, and whatever service you use to send it is then handling that
+        file under its own privacy policy. Bear in mind the report contains health
+        information, so share it deliberately.
+      </p>
+
+      <h2 id="children">7. Children's information</h2>
+      <p>
+        Symtrail is designed for adults keeping records about themselves or about someone they
+        care for, usually their own child. It is not directed at children and children are not
+        expected to use it. The app is not in Apple's or Google's kids categories.
+      </p>
+      <p>
+        Where a diary is about a child, the information is entered by their parent or guardian
+        and stays on that parent's device. We do not receive it, so we do not knowingly collect
+        personal information from or about children — and the anonymous analytics in section 3
+        contain nothing that describes any individual, child or adult.
+      </p>
+
+      <h2 id="retention">8. Keeping and deleting data</h2>
+      <p>
+        <strong>On your device.</strong> Your entries stay until you remove them. Deleting a
+        person from the Profiles screen permanently deletes that person and everything logged
+        against them. Deleting the app removes the whole database from your phone. Neither
+        action needs to reach us, and neither can be undone by us — if you have not made your
+        own backup, deleted data is gone.
+      </p>
+      <p>
+        <strong>Analytics.</strong> Events are retained by PostHog under our account for as long
+        as they remain useful for understanding product usage, and are deleted on our normal
+        housekeeping schedule thereafter.
+      </p>
+
+      <h2 id="rights">9. Your rights</h2>
+      <p>
+        If you are in the UK, the EU, or another region with comparable law, you have rights to
+        access, correct, delete, restrict and object to the processing of your personal data, and
+        to complain to your data protection authority.
+      </p>
+      <p>
+        In practice, most of these you can exercise yourself and instantly: the health
+        information is on your device, so you already have direct access to all of it, you can
+        correct any entry, and you can delete any part of it or all of it without asking us.
+      </p>
+      <p>
+        For the analytics data, contact us using the address below and we will act on your
+        request. Please note that because those events are anonymous by design, we may need you
+        to help us identify the relevant records, and if we genuinely cannot link the data to
+        you we may be unable to single it out — which is a consequence of collecting as little
+        as possible, not a way of avoiding the request.
+      </p>
+
+      <h2 id="changes">10. Changes to this policy</h2>
+      <p>
+        If this policy changes, the revised version will be published on this page with a new
+        date at the top. Two things in particular will not change quietly: if Symtrail ever
+        gained optional cloud sync or accounts, or started collecting anything beyond the coarse
+        analytics described in section 3, that would be a material change announced in the app
+        itself and in the release notes — not a silent edit here.
+      </p>
+
+      <h2 id="contact">11. Contact</h2>
+      <p>
+        Questions about this policy, or about any data Symtrail holds, can go to
+        <a href="mailto:martina.dobrinova@gmail.com">our contact address</a>. We will respond
+        within 30 days.
+      </p>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="logo" href="/" style="font-size:1rem">
+        <img src="/logo.png" width="96" height="96" alt="" aria-hidden="true" style="width:22px;height:22px">
+        Symtrail
+      </a>
+      <nav>
+        <a href="/#flares">Flare cycles</a>
+        <a href="/#privacy">Privacy</a>
+        <a href="/#faq">FAQ</a>
+        <a href="mailto:martina.dobrinova@gmail.com">Contact</a>
+      </nav>
+    </div>
+    <p class="disclaimer">
+      Symtrail is a personal health diary. It doesn't diagnose, treat or give medical advice,
+      and it isn't a medical device — it's a place to keep track of what you're already
+      noticing, so you can describe it clearly to someone qualified. Always speak to a doctor
+      about symptoms and treatment.
+    </p>
+    <p class="disclaimer">© <span id="year">2026</span> Symtrail</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+  var header = document.getElementById('site-header');
+  var onScroll = function () { header.classList.toggle('scrolled', window.scrollY > 8); };
+  onScroll();
+  addEventListener('scroll', onScroll, { passive: true });
+</script>
+
+</body>
+</html>

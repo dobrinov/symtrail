@@ -7,10 +7,17 @@
 
 # Marketing website (`website/`)
 
-A single static page, `website/index.html`, aimed at organic search traffic.
-No build step, no dependencies, no external requests — CSS is inline in
-`<style>` and the store glyphs are inline SVG. Open the file in a browser to
-preview it.
+`website/index.html` is the marketing page, aimed at organic search traffic;
+`website/privacy/index.html` is the privacy policy, served at
+`https://symtrail.com/privacy/`. No build step, no dependencies, no external
+requests — CSS is inline in `<style>` and the store glyphs are inline SVG. Open
+either file in a browser to preview it.
+
+The policy lives in its own directory rather than as `privacy.html` so Pages
+serves it as a directory index — a clean extensionless URL without relying on
+Pages' `.html` fallback. Its tokens, base rules, header and footer CSS are
+copied from `index.html` and must stay in step with it; only the `.prose`/
+`.summary`/`.toc` block is page-specific.
 
 The brand mark is `website/logo.png` (96×96, transparent rounded corners so it
 sits on both the light and dark background), used by the header, the footer and
@@ -22,9 +29,12 @@ mark again, remember it lives in a CSS rule (`.logo img`) plus two `<img>` tags
 plus the two `<link>` tags.
 
 **The site is duplicated at the repo root** on the `marketing-website` branch
-(`index.html`, `logo.png`, `apple-touch-icon.png`, `robots.txt`, `sitemap.xml`,
-`CNAME`, `.nojekyll`) so Pages can serve it from the branch root. The copies
-are byte-identical — change `website/` and copy across, or the two drift.
+(`index.html`, `privacy/index.html`, `assets/`, `og.png`, `logo.png`,
+`apple-touch-icon.png`, `robots.txt`, `sitemap.xml`, `CNAME`, `.nojekyll`) so
+Pages can serve it from the branch root. The copies are byte-identical — change
+`website/` and copy across, or the two drift. One exception: the root `CNAME`
+has no trailing newline (Pages wrote it), so `cmp` reports it as differing from
+`website/CNAME`; leave it alone rather than "fixing" it.
 
 ## Deployment — GitHub Pages
 
@@ -121,6 +131,31 @@ section states health data stays on the device and is never uploaded. That
 matches the current local-only app and the analytics privacy rule in
 `mobile/CLAUDE.md`. If sync or richer analytics ever ship, this copy has to
 change with them.
+
+## Privacy policy (`website/privacy/index.html`)
+
+`https://symtrail.com/privacy/` is the URL registered as the app's Privacy
+Policy URL in App Store Connect, so it must keep resolving — Apple re-checks it
+on every review.
+
+Its contents are a description of what the code actually does, not boilerplate,
+and each claim has a counterpart in the app:
+
+- health data local-only → `LOCAL_ONLY` in `mobile/src/config.ts` plus the
+  expo-sqlite store
+- the analytics section (event shape, anonymous id, device context, IP/coarse
+  geo, PostHog **EU** Cloud) → `mobile/src/analytics/index.ts`; the host is
+  `https://eu.i.posthog.com` and `captureAppLifecycleEvents` is on, with no
+  session replay and no autocapture
+- reminders scheduled locally, no push token → `mobile/src/notifications/reminders.ts`
+- report generated on-device, shared only by user action → expo-print/expo-sharing
+
+Section 10 promises that gaining sync, accounts, or richer collection would be
+announced in-app rather than quietly edited in. Honour that: restoring the
+backend means updating sections 1–4 *and* saying so in the release notes.
+
+The policy states we rely on legitimate interest for analytics, and there is no
+in-app analytics opt-out — if one is ever added, section 3 should point at it.
 
 The page states Symtrail is not a medical device and gives no medical advice.
 Keep that disclaimer in the footer.
